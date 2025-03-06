@@ -14,19 +14,19 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className='container mx-auto p-4'>
       {/* Conditionally renders either LoginPage or RegisterPage */}
       <header>Placeholder for Header</header>
       {/* Header will go here when completed */}
-      <div className="auth-container">
+      <div className='auth-container'>
         {showLogin ? (
           <>
             <LoginPage />
-            <p className="mt-4 text-center">
+            <p className='mt-4 text-center'>
               Don't have an account?{" "}
               <button
                 onClick={toggleAuth}
-                className="text-blue-500 hover:text-blue-700 font-medium"
+                className='text-blue-500 hover:text-blue-700 font-medium'
               >
                 Sign up
               </button>
@@ -35,11 +35,11 @@ const App: React.FC = () => {
         ) : (
           <>
             <RegisterPage />
-            <p className="mt-4 text-center">
+            <p className='mt-4 text-center'>
               Already have an account?{" "}
               <button
                 onClick={toggleAuth}
-                className="text-blue-500 hover:text-blue-700 font-medium"
+                className='text-blue-500 hover:text-blue-700 font-medium'
               >
                 Log in
               </button>
