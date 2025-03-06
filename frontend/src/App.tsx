@@ -1,4 +1,5 @@
 import { useState } from "react";
+import React from "react";
 import "./styles/App.css";
 import LoginPage from "./components/auth/LoginPage";
 import RegisterPage from "./components/auth/RegisterPage";
