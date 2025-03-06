@@ -1,6 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+
+// components
+import Button from "../buttons/Button";
 
 // Supabase configuration
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
@@ -17,26 +21,44 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
+  // toast alert for success
+
+  const toastLoginSuccess = () => {
+    toast("Successfully logged in.");
+  };
+
+  const testToast = () => {
+    toast("Toasts are succesfully displaying!");
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      console.log("Login attempt with:", { email }); // Log the email being used
+
+      const response = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) {
-        throw error;
+      // Log the full response object
+      console.log("Supabase auth response:", response);
+
+      if (response.error) {
+        console.error("Login error details:", response.error);
+        throw response.error;
       }
 
-      if (data?.user) {
-        // Redirect to the dashboard or home page after successful login (this will be replaced with Tanner's home page component)
+      if (response.data?.user) {
+        console.log("Login successful, user:", response.data.user);
+        toastLoginSuccess();
         navigate("/dashboard");
       }
     } catch (error: any) {
+      console.error("Login error:", error);
       setError(error.message || "An error occurred during login");
     } finally {
       setLoading(false);
@@ -62,6 +84,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <ToastContainer />
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
@@ -198,19 +221,12 @@ export default function LoginPage() {
               Google
             </button>
           </div>
-        </div>
-
-        <div className="text-center mt-4">
-          <p className="text-sm text-gray-600">
-            Don't have an account?{" "}
-            <button
-              type="button"
-              onClick={() => navigate("/signup")}
-              className="font-medium text-indigo-600 hover:text-indigo-500"
-            >
-              Sign up
-            </button>
-          </p>
+          <br />
+          <div className="button-test">
+            <Button label="Test Toast Notifications" onClick={testToast}>
+              Test Toast !
+            </Button>
+          </div>
         </div>
       </div>
     </div>

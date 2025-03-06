@@ -1,6 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+("");
+import { ToastContainer, toast } from "react-toastify";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
 const supabaseKey = import.meta.env.VITE_SUPABASE_KEY as string;
@@ -15,34 +17,51 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signUp({
+      console.log("Sign up attempt with:", { email });
+
+      // Check if user exists using admin auth methods
+      const { data: userExists, error: userCheckError } =
+        await supabase.auth.admin.getUserByEmail(email);
+
+      console.log("User check response:", { userExists, userCheckError });
+
+      if (userExists) {
+        setError(
+          "Email already registered. Please use a different email or log in."
+        );
+        setLoading(false);
+        return;
+      }
+
+      const response = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/dashboard`,
+        },
       });
 
-      if (error) {
-        throw error;
+      console.log("Full signup response:", response);
+
+      if (response.error) {
+        throw response.error;
       }
 
-      if (data?.user) {
-        // Check if email confirmation is required
-        if (data.session) {
-          // No email confirmation required, redirect to dashboard
-          navigate("/dashboard");
-        } else {
-          // Email confirmation required
-          navigate("/verification-sent", {
-            state: { email: email },
-          });
-        }
+      // Handle successful signup
+      if (response.data?.user) {
+        toast.success(
+          "Registration successful! Please check your email to confirm your account."
+        );
+        // Do not navigate yet if email confirmation is required
       }
     } catch (error: any) {
+      console.error("Signup error:", error);
       setError(error.message || "An error occurred during registration");
     } finally {
       setLoading(false);
@@ -68,6 +87,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <ToastContainer />
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
@@ -84,7 +104,7 @@ export default function RegisterPage() {
           </div>
         )}
 
-        <form className="mt-8 space-y-6" onSubmit={handleRegister}>
+        <form className="mt-8 space-y-6" onSubmit={handleSignUp}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="email-address" className="sr-only">
@@ -177,19 +197,6 @@ export default function RegisterPage() {
               Google
             </button>
           </div>
-        </div>
-
-        <div className="text-center mt-4">
-          <p className="text-sm text-gray-600">
-            Already have an account?{" "}
-            <button
-              type="button"
-              onClick={() => navigate("/")}
-              className="font-medium text-indigo-600 hover:text-indigo-500"
-            >
-              Sign in
-            </button>
-          </p>
         </div>
       </div>
     </div>

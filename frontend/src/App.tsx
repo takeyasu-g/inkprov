@@ -2,6 +2,7 @@ import { useState } from "react";
 import "./styles/App.css";
 import LoginPage from "./components/auth/LoginPage";
 import RegisterPage from "./components/auth/RegisterPage";
+import { ToastContainer, toast } from "react-toastify";
 
 const App: React.FC = () => {
   // State to track which page to show
@@ -14,9 +15,9 @@ const App: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold underline mb-6">Hello world!</h1>
-
-      {/* Conditionally render either LoginPage or RegisterPage */}
+      {/* Conditionally renders either LoginPage or RegisterPage */}
+      <header>Placeholder for Header</header>
+      {/* Header will go here when completed */}
       <div className="auth-container">
         {showLogin ? (
           <>

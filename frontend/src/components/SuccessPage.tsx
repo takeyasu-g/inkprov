@@ -9,7 +9,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ username = "User" }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // In a real app, you would clear auth tokens/state here
+    // placeholder for handling user logout and dumping them back to login / signup page
     navigate("/"); // Navigate back to login page
   };
 
