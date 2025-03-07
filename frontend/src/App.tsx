@@ -1,6 +1,9 @@
-import { useState } from "react";
-import { Routes, Route, Navigate } from "react-router-dom"; // Remove BrowserRouter
+// Tanner's Header component
+import React, { useState } from "react";
 import "./styles/App.css";
+import { Routes, Route, Navigate } from "react-router-dom"; // Remove BrowserRouter
+
+import Header from "./components/Header";
 import LoginPage from "./components/auth/LoginPage";
 import RegisterPage from "./components/auth/RegisterPage";
 import SuccessPage from "./components/SuccessPage";
@@ -13,8 +16,8 @@ const App: React.FC = () => {
     <>
       <ToastContainer /> {/* Global toast container */}
       <div className="container mx-auto p-4">
-        <header>Placeholder for Header</header>
-
+        <Header loggedIn={false} page="landing" />
+        
         <Routes>
           {/* Auth page will handle toggle between login and register */}
           <Route path="/" element={<AuthPage />} />
