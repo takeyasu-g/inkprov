@@ -55,7 +55,7 @@ export default function LoginPage() {
       if (response.data?.user) {
         console.log("Login successful, user:", response.data.user);
         toastLoginSuccess();
-        navigate("/dashboard");
+        navigate("/placeholder");
       }
     } catch (error: any) {
       console.error("Login error:", error);
@@ -223,9 +223,7 @@ export default function LoginPage() {
           </div>
           <br />
           <div className="button-test">
-            <Button label="Test Toast Notifications" onClick={testToast}>
-              Test Toast !
-            </Button>
+            <Button label="Test Toast Notifications" onClick={testToast} />
           </div>
         </div>
       </div>
