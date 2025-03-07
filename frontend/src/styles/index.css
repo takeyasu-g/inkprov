@@ -5,6 +5,27 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  --background: oklch(96.92% 0.0162 95.22);
+  --secondary-background: oklch(100% 0 0);
+  --primary-text: oklch(42.1% 0.0897 57.71);
+  --hover-text: oklch(55.53% 0.1455 49);
+  --secondary-text: oklch(47.32% 0.1247 46.2);
+  --tertiary-text: oklch(55.53% 0.1455 49);
+  --primary-border: oklch(92.43% 0.1151 95.75);
+  --primary-button: oklch(47.32% 0.1247 46.2);
+  --primary-button-hover: oklch(55.53% 0.1455 49);
+  --secondary-button: oklch(100% 0 0);
+  --secondary-button-hover: oklch(96.19% 0.058 95.62);
+  --badge-background: oklch(66.58% 0.1574 58.32);
+  --input-border: oklch(87.9% 0.1534 91.61);
+  --input-focus: oklch(76.86% 0.1647 70.08);
+  --tab-background: oklch(96.19% 0.058 95.62);
+  --tab-active: oklch(47.32% 0.1247 46.2);
+  --primary-icon: oklch(47.32% 0.1247 46.2);
+  --secondary-icon: oklch(66.58% 0.1574 58.32);
+  --menu-background: oklch(96.92% 0.0162 95.22);
+  --menu-hover: oklch(96.19% 0.058 95.62);
+  --accent: oklch(96.19% 0.058 95.62);
   --background: oklch(1 0 0);
   --background-card: oklch(96.74% 0.001 286.38);
   --foreground: oklch(0.145 0 0);
@@ -54,7 +75,6 @@
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.396 0.141 25.723);
   --destructive-foreground: oklch(0.637 0.237 25.331);
@@ -78,6 +98,26 @@
 
 @theme inline {
   --color-background: var(--background);
+  --color-secondary-background: var(--secondary-background);
+  --color-primary-text: var(--primary-text);
+  --color-hover-text: var(--hover-text);
+  --color-secondary-text: var(--secondary-text);
+  --color-tertiary-text: var(--tertiary-text);
+  --color-primary-border: var(--primary-border);
+  --color-primary-button: var(--primary-button);
+  --color-primary-button-hover: var(--primary-button-hover);
+  --color-secondary-button: var(--secondary-button);
+  --color-secondary-button-hover: var(--secondary-button-hover);
+  --color-badge-background: var(--badge-background);
+  --color-input-border: var(--input-border);
+  --color-input-focus: var(--input-focus);
+  --color-tab-background: var(--tab-background);
+  --color-tab-active: var(--tab-active);
+  --color-primary-icon: var(--primary-icon);
+  --color-secondary-icon: var(--secondary-icon);
+  --color-menu-background: var(--menu-background);
+  --color-menu-hover: var(--menu-hover);
+  --color-accent: var(--accent);
   --color-foreground: var(--foreground);
   --color-backgournd-card: var(--background-card);
   --color-card: var(--card);
@@ -90,7 +130,7 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
+
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);

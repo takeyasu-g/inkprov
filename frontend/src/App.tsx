@@ -1,3 +1,8 @@
+// Tanner's Header component
+import "./styles/App.css"
+import Header from "./components/Header";
+
+// imports  
 import { useState } from "react";
 import React from "react";
 import "./styles/App.css";
@@ -5,7 +10,8 @@ import LoginPage from "./components/auth/LoginPage";
 import RegisterPage from "./components/auth/RegisterPage";
 import { ToastContainer, toast } from "react-toastify";
 
-const App: React.FC = () => {
+// main component
+export default function App() {
   // State to track which page to show
   const [showLogin, setShowLogin] = useState<boolean>(true);
 
@@ -15,7 +21,9 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className='container mx-auto p-4'>
+    <>
+      <Header loggedIn={false} page="landing"/>
+  <div className='container mx-auto p-4'>
       {/* Conditionally renders either LoginPage or RegisterPage */}
       <header>Placeholder for Header</header>
       {/* Header will go here when completed */}
@@ -49,7 +57,6 @@ const App: React.FC = () => {
         )}
       </div>
     </div>
+      </>
   );
 };
-
-export default App;
