@@ -1,5 +1,6 @@
 import React from "react";
 import Header from "../Header";
+import Footer from "../Footer";
 import { Button } from "@/components/ui/button";
 import { Feather, BookOpen, Users } from "lucide-react";
 import groupWritingImg from "../../assets/group-writing.png";
@@ -78,7 +79,7 @@ const LandingPage: React.FC = () => {
         </section>
       </section>
       {/* Bottom Hero Section */}
-      <section className="flex justify-between text-left">
+      <section className="flex justify-between text-left mb-10">
         {/* Feature Description */}
         <article>
           <h2 className="text-3xl font-bold mt-9 mb-9 text-primary-text">
@@ -114,6 +115,7 @@ const LandingPage: React.FC = () => {
           </div>
         </div>
       </section>
+      <Footer />
     </>
   );
 };
