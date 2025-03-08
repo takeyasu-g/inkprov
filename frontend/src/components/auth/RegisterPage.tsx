@@ -23,22 +23,6 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      console.log("Sign up attempt with:", { email });
-
-      // Check if user exists using admin auth methods
-      const { data: userExists, error: userCheckError } =
-        await supabase.auth.admin.getUserByEmail(email);
-
-      console.log("User check response:", { userExists, userCheckError });
-
-      if (userExists) {
-        setError(
-          "Email already registered. Please use a different email or log in."
-        );
-        setLoading(false);
-        return;
-      }
-
       const response = await supabase.auth.signUp({
         email,
         password,
@@ -46,8 +30,6 @@ export default function RegisterPage() {
           emailRedirectTo: `${window.location.origin}/dashboard`,
         },
       });
-
-      console.log("Full signup response:", response);
 
       if (response.error) {
         throw response.error;
@@ -62,7 +44,8 @@ export default function RegisterPage() {
       }
     } catch (error: any) {
       console.error("Signup error:", error);
-      setError(error.message || "An error occurred during registration");
+      toast.error("An error occurred during registration!");
+      // setError(error.message || "An error occurred during registration");
     } finally {
       setLoading(false);
     }
