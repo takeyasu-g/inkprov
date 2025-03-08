@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Feather,
   House,
@@ -27,9 +28,16 @@ import {
 interface HeaderProps {
   loggedIn: boolean;
   page: string;
+  handleLogout?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
+const Header: React.FC<HeaderProps> = function Header({
+  loggedIn,
+  page,
+  handleLogout,
+}) {
+  const navigate = useNavigate();
+
   return (
     <header className="flex justify-between relative pb-4 before:absolute before:bottom-0 before:left-1/2 before:-translate-x-1/2 before:w-screen before:h-px before:bg-primary-border">
       {/* Logo */}
@@ -39,7 +47,7 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
           Inkprov
         </a>
       </div>
-      {page === "login" || page === "register" ? null : loggedIn ? (
+      {loggedIn ? (
         // Navigation menu only appears if the user has logged in
         <>
           <NavigationMenu>
@@ -94,13 +102,17 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
                   <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0 bg-background" side="top" align="end">
+              <PopoverContent
+                className="w-full p-0 bg-background"
+                side="top"
+                align="end"
+              >
                 <div className="divide-y-2 divide-primary-border border border-primary-border">
                   <div className="pb-2 p-4">
                     <h1 className="text-lg text-primary-text font-medium">
                       Saoirse O'Riordian
                     </h1>
-                    <p className="text-secondary-text">saorise@emery.edu</p>
+                    <p className="text-secondary-text">saoirse@emory.edu</p>
                   </div>
                   <div>
                     <a
@@ -118,7 +130,10 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
                       <p>Settings</p>
                     </a>
                   </div>
-                  <div className="flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover">
+                  <div
+                    className="flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover"
+                    onClick={handleLogout}
+                  >
                     <LogOut />
                     <p>Logout</p>
                   </div>
@@ -133,12 +148,14 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
           <Button
             className="text-primary-text hover:no-underline hover:text-hover-text cursor-pointer"
             variant="link"
+            onClick={() => navigate("/login")}
           >
             Login
           </Button>
           <Button
             className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
             variant="default"
+            onClick={() => navigate("/register")}
           >
             Register
           </Button>
