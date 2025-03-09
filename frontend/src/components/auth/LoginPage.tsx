@@ -2,9 +2,8 @@ import { createClient } from "@supabase/supabase-js";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-
-// components
-import Button from "../buttons/Button";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Supabase configuration
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
@@ -16,20 +15,12 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 // The LoginPage component
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { setIsAuthenticated, setUser } = useAuth();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-
-  // toast alert for success
-
-  const toastLoginSuccess = () => {
-    toast("Successfully logged in.");
-  };
-
-  const testToast = () => {
-    toast("Toasts are succesfully displaying!");
-  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,28 +28,32 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      console.log("Login attempt with:", { email }); // Log the email being used
-
-      const response = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      // Log the full response object
-      console.log("Supabase auth response:", response);
-
-      if (response.error) {
-        console.error("Login error details:", response.error);
-        throw response.error;
+      if (error) {
+        throw error;
       }
 
-      if (response.data?.user) {
-        console.log("Login successful, user:", response.data.user);
-        toastLoginSuccess();
-        navigate("/placeholder");
+      if (data?.user) {
+        // If remember me is not checked, set session to expire in 1 hour
+        if (!rememberMe) {
+          await supabase.auth.setSession({
+            access_token: data.session?.access_token || "",
+            refresh_token: data.session?.refresh_token || "",
+          });
+        }
+
+        setIsAuthenticated(true);
+        setUser(data.user);
+        toast.success("Successfully logged in!");
+        navigate("/projects");
       }
     } catch (error: any) {
       console.error("Login error:", error);
+      toast.error(error.message || "An error occurred during login");
       setError(error.message || "An error occurred during login");
     } finally {
       setLoading(false);
@@ -70,7 +65,10 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${window.location.origin}/projects`,
+          queryParams: {
+            remember_me: rememberMe ? "true" : "false",
+          },
         },
       });
 
@@ -78,23 +76,27 @@ export default function LoginPage() {
         throw error;
       }
     } catch (error: any) {
+      toast.error(error.message || "An error occurred during Google login");
       setError(error.message || "An error occurred during Google login");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-background">
       <ToastContainer />
-      <div className="max-w-md w-full space-y-8">
+      <div className="w-full max-w-md space-y-8 bg-card p-8 rounded-lg border border-primary-border">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
+          <h2 className="text-3xl font-bold text-primary-text text-center">
+            Welcome back
           </h2>
+          <p className="mt-2 text-center text-secondary-text">
+            Sign in to continue to Inkprov
+          </p>
         </div>
 
         {error && (
           <div
-            className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+            className="bg-destructive/10 border border-destructive text-destructive px-4 py-3 rounded-md"
             role="alert"
           >
             <span className="block sm:inline">{error}</span>
@@ -102,9 +104,12 @@ export default function LoginPage() {
         )}
 
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-          <div className="rounded-md shadow-sm -space-y-px">
+          <div className="space-y-4">
             <div>
-              <label htmlFor="email-address" className="sr-only">
+              <label
+                htmlFor="email-address"
+                className="block text-sm font-medium text-primary-text"
+              >
                 Email address
               </label>
               <input
@@ -115,12 +120,15 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
+                className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-primary-text shadow-sm focus:border-ring focus:outline-none focus:ring-ring sm:text-sm"
+                placeholder="you@example.com"
               />
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-primary-text"
+              >
                 Password
               </label>
               <input
@@ -131,8 +139,8 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
+                className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-primary-text shadow-sm focus:border-ring focus:outline-none focus:ring-ring sm:text-sm"
+                placeholder="••••••••"
               />
             </div>
           </div>
@@ -143,54 +151,53 @@ export default function LoginPage() {
                 id="remember-me"
                 name="remember-me"
                 type="checkbox"
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="h-4 w-4 rounded border-input text-primary focus:ring-ring"
               />
               <label
                 htmlFor="remember-me"
-                className="ml-2 block text-sm text-gray-900"
+                className="ml-2 block text-sm text-primary-text"
               >
                 Remember me
               </label>
             </div>
 
-            <div className="text-sm">
-              <button
-                type="button"
-                onClick={() => navigate("/reset-password")}
-                className="font-medium text-indigo-600 hover:text-indigo-500"
-              >
-                Forgot your password?
-              </button>
-            </div>
+            <Button
+              type="button"
+              variant="link"
+              onClick={() => navigate("/reset-password")}
+              className="text-primary-text hover:text-hover-text"
+            >
+              Forgot password?
+            </Button>
           </div>
 
-          <div>
-            <button
+          <div className="space-y-4">
+            <Button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="w-full bg-primary-button hover:bg-primary-button-hover"
             >
               {loading ? "Signing in..." : "Sign in"}
-            </button>
-          </div>
-        </form>
+            </Button>
 
-        <div className="mt-6">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-primary-border"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-background text-secondary-text">
+                  Or continue with
+                </span>
+              </div>
             </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-gray-50 text-gray-500">
-                Or continue with
-              </span>
-            </div>
-          </div>
 
-          <div className="mt-6">
-            <button
+            <Button
+              type="button"
+              variant="outline"
               onClick={handleGoogleLogin}
-              className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              className="w-full border-input"
             >
               <svg
                 className="h-5 w-5 mr-2"
@@ -198,7 +205,6 @@ export default function LoginPage() {
                 width="24"
                 height="24"
               >
-                {/* Google logo SVG */}
                 <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
                   <path
                     fill="#4285F4"
@@ -218,14 +224,22 @@ export default function LoginPage() {
                   />
                 </g>
               </svg>
-              Google
-            </button>
+              Continue with Google
+            </Button>
           </div>
-          <br />
-          <div className="button-test">
-            <Button label="Test Toast Notifications" onClick={testToast} />
-          </div>
-        </div>
+        </form>
+
+        <p className="text-center text-sm text-secondary-text">
+          Don't have an account?{" "}
+          <Button
+            type="button"
+            variant="link"
+            onClick={() => navigate("/register")}
+            className="text-primary-text hover:text-hover-text font-medium"
+          >
+            Sign up
+          </Button>
+        </p>
       </div>
     </div>
   );

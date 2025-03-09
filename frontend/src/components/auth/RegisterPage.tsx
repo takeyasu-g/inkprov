@@ -1,8 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-("");
 import { ToastContainer, toast } from "react-toastify";
+import { Button } from "@/components/ui/button";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
 const supabaseKey = import.meta.env.VITE_SUPABASE_KEY as string;
@@ -14,12 +14,30 @@ export default function RegisterPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+
+  const validatePasswords = () => {
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return false;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long");
+      return false;
+    }
+    return true;
+  };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (!validatePasswords()) {
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -27,7 +45,7 @@ export default function RegisterPage() {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`,
+          emailRedirectTo: `${window.location.origin}/sessions`,
         },
       });
 
@@ -35,17 +53,15 @@ export default function RegisterPage() {
         throw response.error;
       }
 
-      // Handle successful signup
       if (response.data?.user) {
         toast.success(
           "Registration successful! Please check your email to confirm your account."
         );
-        // Do not navigate yet if email confirmation is required
       }
     } catch (error: any) {
       console.error("Signup error:", error);
-      toast.error("An error occurred during registration!");
-      // setError(error.message || "An error occurred during registration");
+      toast.error(error.message || "An error occurred during registration");
+      setError(error.message || "An error occurred during registration");
     } finally {
       setLoading(false);
     }
@@ -56,7 +72,7 @@ export default function RegisterPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${window.location.origin}/sessions`,
         },
       });
 
@@ -64,23 +80,27 @@ export default function RegisterPage() {
         throw error;
       }
     } catch (error: any) {
+      toast.error(error.message || "An error occurred during Google sign up");
       setError(error.message || "An error occurred during Google sign up");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-background">
       <ToastContainer />
-      <div className="max-w-md w-full space-y-8">
+      <div className="w-full max-w-md space-y-8 bg-card p-8 rounded-lg border border-primary-border">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create your account
+          <h2 className="text-3xl font-bold text-primary-text text-center">
+            Create an account
           </h2>
+          <p className="mt-2 text-center text-secondary-text">
+            Join Inkprov and start writing together
+          </p>
         </div>
 
         {error && (
           <div
-            className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+            className="bg-destructive/10 border border-destructive text-destructive px-4 py-3 rounded-md"
             role="alert"
           >
             <span className="block sm:inline">{error}</span>
@@ -88,9 +108,12 @@ export default function RegisterPage() {
         )}
 
         <form className="mt-8 space-y-6" onSubmit={handleSignUp}>
-          <div className="rounded-md shadow-sm -space-y-px">
+          <div className="space-y-4">
             <div>
-              <label htmlFor="email-address" className="sr-only">
+              <label
+                htmlFor="email-address"
+                className="block text-sm font-medium text-primary-text"
+              >
                 Email address
               </label>
               <input
@@ -101,12 +124,15 @@ export default function RegisterPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
+                className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-primary-text shadow-sm focus:border-ring focus:outline-none focus:ring-ring sm:text-sm"
+                placeholder="you@example.com"
               />
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-primary-text"
+              >
                 Password
               </label>
               <input
@@ -117,39 +143,56 @@ export default function RegisterPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
+                className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-primary-text shadow-sm focus:border-ring focus:outline-none focus:ring-ring sm:text-sm"
+                placeholder="••••••••"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="confirm-password"
+                className="block text-sm font-medium text-primary-text"
+              >
+                Confirm Password
+              </label>
+              <input
+                id="confirm-password"
+                name="confirm-password"
+                type="password"
+                autoComplete="new-password"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-primary-text shadow-sm focus:border-ring focus:outline-none focus:ring-ring sm:text-sm"
+                placeholder="••••••••"
               />
             </div>
           </div>
 
-          <div>
-            <button
+          <div className="space-y-4">
+            <Button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="w-full bg-primary-button hover:bg-primary-button-hover"
             >
               {loading ? "Creating Account..." : "Create Account"}
-            </button>
-          </div>
-        </form>
+            </Button>
 
-        <div className="mt-6">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-primary-border"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-background text-secondary-text">
+                  Or continue with
+                </span>
+              </div>
             </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-gray-50 text-gray-500">
-                Or sign up with
-              </span>
-            </div>
-          </div>
 
-          <div className="mt-6">
-            <button
+            <Button
+              type="button"
+              variant="outline"
               onClick={handleGoogleSignUp}
-              className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              className="w-full border-input"
             >
               <svg
                 className="h-5 w-5 mr-2"
@@ -157,7 +200,6 @@ export default function RegisterPage() {
                 width="24"
                 height="24"
               >
-                {/* Google logo SVG */}
                 <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
                   <path
                     fill="#4285F4"
@@ -177,10 +219,22 @@ export default function RegisterPage() {
                   />
                 </g>
               </svg>
-              Google
-            </button>
+              Continue with Google
+            </Button>
           </div>
-        </div>
+        </form>
+
+        <p className="text-center text-sm text-secondary-text">
+          Already have an account?{" "}
+          <Button
+            type="button"
+            variant="link"
+            onClick={() => navigate("/login")}
+            className="text-primary-text hover:text-hover-text font-medium"
+          >
+            Sign in
+          </Button>
+        </p>
       </div>
     </div>
   );
