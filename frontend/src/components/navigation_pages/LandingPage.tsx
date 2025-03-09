@@ -1,6 +1,4 @@
 import React from "react";
-import Header from "../Header";
-import Footer from "../Footer";
 import { Button } from "@/components/ui/button";
 import { Feather, BookOpen, Users } from "lucide-react";
 import groupWritingImg from "../../assets/group-writing.png";
@@ -8,7 +6,6 @@ import groupWritingImg from "../../assets/group-writing.png";
 const LandingPage: React.FC = () => {
   return (
     <>
-      <Header loggedIn={false} page="landing" />
       {/* Hero Section */}
       <section className="flex flex-col items-center">
         <header>
@@ -24,12 +21,14 @@ const LandingPage: React.FC = () => {
           <Button
             className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
             variant="default"
+            onClick={() => window.location.href = "/login"}
           >
             Start Writing
           </Button>
           <Button
             className="bg-secondary-button text-secondary-text hover:bg-secondary-button-hover border border-primary-border cursor-pointer"
             variant="default"
+            onClick={() => window.location.href = "/sessions"}
           >
             Explore Sessions
           </Button>
@@ -115,7 +114,6 @@ const LandingPage: React.FC = () => {
           </div>
         </div>
       </section>
-      <Footer />
     </>
   );
 };
