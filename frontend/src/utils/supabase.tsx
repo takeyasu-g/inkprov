@@ -1,22 +1,19 @@
-// src/utils/supabase.ts
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_KEY;
+// local .env variables
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error("Missing Supabase environment variables");
-}
+// Create a single supabase client for interacting with your database
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Create a single supabase client
-export const supabase = createClient(supabaseUrl, supabaseKey);
-
-// Auth helper functions
+// Helper functions for authentication
 export const signUp = async (email: string, password: string) => {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
   });
+
   return { data, error };
 };
 
@@ -25,6 +22,7 @@ export const signIn = async (email: string, password: string) => {
     email,
     password,
   });
+
   return { data, error };
 };
 
@@ -46,5 +44,3 @@ export const getSession = async () => {
   } = await supabase.auth.getSession();
   return session;
 };
-
-// Helper functions continue as before...
