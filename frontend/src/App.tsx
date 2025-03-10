@@ -1,9 +1,10 @@
-// Tanner's Header component
 import React from "react";
 import "./styles/App.css";
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import Header from "./components/Header";
+import Footer from "./components/Footer";
+import LandingPage from "./components/navigation_pages/LandingPage";
 import LoginPage from "./components/auth/LoginPage";
 import RegisterPage from "./components/auth/RegisterPage";
 import OnboardingPage from "./components/navigation_pages/OnboardingPage";
@@ -26,7 +27,7 @@ const AppRoutes: React.FC = () => {
 
       <Routes>
         {/* Public routes */}
-        <Route path="/" element={<OnboardingPage />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
@@ -61,16 +62,19 @@ const AppRoutes: React.FC = () => {
         {/* Redirect unknown routes to home */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <Footer/>
     </div>
   );
 };
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <ToastContainer />
-      <AppRoutes />
-    </AuthProvider>
+    <>
+      <AuthProvider>
+        <ToastContainer />
+        <AppRoutes />
+      </AuthProvider>
+    </>
   );
 };
 
