@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import GenreFilter from "../GenreFilter";
 import SearchBar from "../SearchBar";
+import ProjectCard from "../ProjectCard";
 
 
 const OpenSessionsPage: React.FC = () => {
@@ -27,7 +28,7 @@ const OpenSessionsPage: React.FC = () => {
   }, []);
 
   return (
-    <div className='container mx-auto px-4 py-8'>
+    <main className='container mx-auto px-4 py-8'>
       <header className='flex justify-between'>
         <div className='mb-8 text-left'>
           <h1 className='text-3xl font-bold text-primary-text'>
@@ -49,14 +50,25 @@ const OpenSessionsPage: React.FC = () => {
         </div>
       </header>
 
-      <div className='my-6'>
+      <nav className='my-6'>
         <GenreFilter onSelect={handleGenreFilter}></GenreFilter>
-      </div>
+      </nav>
 
       {/* More placeholder content - to be replaced with actual session list */}
-      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-        <div className='bg-background rounded-lg p-6 shadow-sm border border-primary-border'>
-          <div className='flex justify-between items-start mb-4'>
+      <section className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+        <article className=''>
+          <ProjectCard
+            sessionData={{
+              id: "1",
+              title: "Creative Writing",
+              description:
+                "Join our weekly creative writing workshop. All skill levels welcome!",
+              genre: "Adventure",
+              contributors: ["Somedude", "someotherdude"],
+              dateCompleted: "april 2nd",
+            }}
+          />
+          {/* <div className='flex justify-between items-start mb-4'>
             <h3 className='text-lg font-semibold text-primary-text'>
               Creative Writing Workshop
             </h3>
@@ -73,9 +85,9 @@ const OpenSessionsPage: React.FC = () => {
             </span>
             <button className='bg-primary-button hover:bg-primary-button-hover text-white px-4 py-2 rounded'>
               Join Session
-            </Button>
-          </div>
-        </div>
+            </button>
+          </div> */}
+        </article>
 
         <div className='bg-background rounded-lg p-6 shadow-sm border border-primary-border'>
           <div className='flex justify-between items-start mb-4'>
@@ -120,8 +132,8 @@ const OpenSessionsPage: React.FC = () => {
             </Button>
           </div>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
 
