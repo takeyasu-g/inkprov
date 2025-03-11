@@ -7,7 +7,6 @@ import SearchBar from "../SearchBar";
 import SessionCard from "../SessionCard";
 
 import { SessionCardData } from "@/types/global";
-import { log } from "util";
 
 const OpenSessionsPage: React.FC = () => {
   const [filteredGenre, setFilteredGenre] = useState<SessionCardData[] | null>(
