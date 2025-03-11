@@ -10,10 +10,10 @@ import {
   CardTitle,
   Badge,
 } from "@/components/ui";
-import { ProjectCardData } from "@/types/global";
+import { ProjectsData } from "@/types/global";
 
 interface ProjectCardDataProp {
-  projectData: ProjectCardData;
+  projectData: ProjectsData;
 }
 
 // ProjectCards
@@ -26,13 +26,13 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
       <CardHeader>
         <div className='flex justify-between items-center'>
           {/* TO DO change badge color based on genre, e.g. Horror = black background white text */}
-          <Badge className={`genre-${projectData.genre.toLowerCase()}`}>
-            {projectData.genre}
+          <Badge className={`genre-${projectData.project_genre.toLowerCase()}`}>
+            {projectData.project_genre}
           </Badge>
           <div className='flex items-center gap-1'>
             <Users className='text-secondary-text p-0.5' />
             <span className='text-secondary-text text-sm'>
-              {projectData.contributors.length}
+              {projectData.total_contributors}
             </span>
           </div>
         </div>
@@ -47,7 +47,7 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
       </div>
       <CardFooter className='flex justify-between items-center'>
         <span className='text-sm text-secondary-text'>
-          Completed: {projectData.dateCompleted.toLocaleDateString()}
+          Completed: {new Date(projectData.updated_at).toDateString()}
         </span>
         <Button
           className='bg-primary-button hover:bg-primary-button-hover'

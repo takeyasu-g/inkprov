@@ -1,53 +1,69 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import GenreFilter from "../GenreFilter";
 import SearchBar from "../SearchBar";
 import SessionCard from "../SessionCard";
 
 import { SessionCardData } from "@/types/global";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { ProjectsData } from "@/types/global";
 import { BookPlus } from "lucide-react";
+import { getSessions } from "@/utils/supabase";
 
 const OpenSessionsPage: React.FC = () => {
   const [genreFilter, setGenreFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
-
-  const sessionsHardCodedData: SessionCardData[] = [
-    {
-      id: "1",
-      title: "Creative Writing",
-      description:
-        "Join our weekly creative writing workshop. All skill levels welcome!",
-      genre: "Adventure",
-      currentContributors: "2",
-      maxContributors: "4",
-    },
-    {
-      id: "2",
-      title: "Poetry Collaboration",
-      description:
-        "Collaborative poetry writing session. Share and create together.",
-      genre: "Horror",
-      currentContributors: "1",
-      maxContributors: "3",
-    },
-    {
-      id: "3",
-      title: "Story Development",
-      description: "Work on character development and plot structure together.",
-      genre: "Romance",
-      currentContributors: "3",
-      maxContributors: "5",
-    },
-  ];
-
+  const [allSessions, setAllSessions] = useState<ProjectsData[]>([]);
   const navigate = useNavigate();
+  // const sessionsHardCodedData: SessionCardData[] = [
+  //   {
+  //     id: "1",
+  //     title: "Creative Writing",
+  //     description:
+  //       "Join our weekly creative writing workshop. All skill levels welcome!",
+  //     genre: "Adventure",
+  //     currentContributors: "2",
+  //     maxContributors: "4",
+  //   },
+  //   {
+  //     id: "2",
+  //     title: "Poetry Collaboration",
+  //     description:
+  //       "Collaborative poetry writing session. Share and create together.",
+  //     genre: "Horror",
+  //     currentContributors: "1",
+  //     maxContributors: "3",
+  //   },
+  //   {
+  //     id: "3",
+  //     title: "Story Development",
+  //     description: "Work on character development and plot structure together.",
+  //     genre: "Romance",
+  //     currentContributors: "3",
+  //     maxContributors: "5",
+  //   },
+  // ];
+  // getAllSessions
+  const handleFetchAllSessions = async () => {
+    const allSessionsData = await getSessions();
+
+    console.log(allSessionsData);
+    setAllSessions(allSessionsData || []);
+  };
+
+  // useEffect to fetch allSessions once
+  useEffect(() => {
+    handleFetchAllSessions();
+  }, []);
 
   // handler to change assign filters
   const handleGenreFilter = (genre: string = "All") => setGenreFilter(genre);
   const handleSearch = (query: string) => setSearchQuery(query);
 
   // Make filteredSessions[] based on both searchQuery and genreFilter
-  const filteredSessions = sessionsHardCodedData.filter((session) => {
-    const matchesGenre = genreFilter === "All" || session.genre === genreFilter;
+  const filteredSessions = allSessions?.filter((session) => {
+    const matchesGenre =
+      genreFilter === "All" || session.project_genre === genreFilter;
     const words = searchQuery.toLowerCase().split(" ");
     const matchesSearch =
       searchQuery.trim() === "" ||
