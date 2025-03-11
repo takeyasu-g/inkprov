@@ -4,6 +4,7 @@ import SearchBar from "../SearchBar";
 import SessionCard from "../SessionCard";
 
 import { SessionCardData } from "@/types/global";
+import { BookPlus } from "lucide-react";
 
 const OpenSessionsPage: React.FC = () => {
   const [genreFilter, setGenreFilter] = useState<string>("All");
@@ -70,9 +71,10 @@ const OpenSessionsPage: React.FC = () => {
           <SearchBar onSearch={handleSearch} />
           <Button
             className='bg-amber-800 hover:bg-amber-700'
-            onClick={() => navigate(`/create`)}
+            onClick={() => navigate(`/session/create`)}
           >
-            + Create Session
+            <BookPlus />
+            <span>Create Session</span>
           </Button>
         </div>
       </header>
