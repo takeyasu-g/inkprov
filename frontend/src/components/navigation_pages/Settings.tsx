@@ -1,13 +1,21 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useAuth } from "@/contexts/AuthContext";
 import { useForm } from "react-hook-form";
 import { settingsSchema } from "@/utils/formSchemas";
+import {
+  getUsername,
+  getBio,
+  getMatureContent,
+  updateUsername,
+  updateBio,
+  updateMatureContent,
+} from "@/utils/supabase";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Loader2 } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -18,30 +26,50 @@ import {
 } from "@/components/ui/form";
 
 const Settings: React.FC = () => {
-    const { user } = useAuth();
+  // Setting states
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [username, setUsername] = useState<string>("");
+  const [bio, setBio] = useState<string>("");
+  const [matureContent, setMatureContent] = useState<boolean>(false);
 
-  // Get user's display name
-  const getDisplayName = () => {
-    if (user?.user_metadata?.full_name) return user.user_metadata.full_name;
-    if (user?.email) return user.email.split("@")[0];
-    return "User";
-  };
+  useEffect(() => {
+    // Fetch user data
+    const userData = Promise.all([getUsername(), getBio(), getMatureContent()]);
+    userData.then((res) => {
+      let username = res[0].data[0].user_profile_name;
+      if (username.includes("@")) {
+        username = username.substring(0, username.indexOf("@"));
+      }
+
+      setUsername(username);
+      setBio(res[1].data[0].user_profile_bio);
+      setMatureContent(res[2].data[0].user_profile_mature_enabled);
+    });
+  }, []);
 
   // Form Validation
   const form = useForm<z.infer<typeof settingsSchema>>({
     resolver: zodResolver(settingsSchema),
     defaultValues: {
-      username: getDisplayName(),
-      bio: "",
-      matureContent: false,
+      username: username,
+      bio: bio,
+      matureContent: matureContent,
     },
   });
 
   // Form Submission
-  function onSubmit(values: z.infer<typeof settingsSchema>) {
+  async function onSubmit(values: z.infer<typeof settingsSchema>) {
+    // Update user data in database
     try {
-      console.log(values);
+      setIsLoading(true);
+      values.username.length > 0 ? await updateUsername(values.username) : null;
+      values.bio.length > 0 ? await updateBio(values.bio) : null;
+      values.matureContent !== matureContent
+        ? await updateMatureContent(values.matureContent)
+        : null;
+      setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
       console.error("Form submission error", error);
     }
   }
@@ -52,11 +80,10 @@ const Settings: React.FC = () => {
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-8 max-w-3xl mx-auto"
       >
-      <h2 className="text-3xl font-medium text-primary-text text-left mt-5">
-        Settings
-      </h2>
+        <h2 className="text-3xl font-medium text-primary-text text-left mt-5">
+          Settings
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-5 bg-background">
-
           {/* Left Column */}
           <div className="w-full max-w-xl space-y-8 bg-card p-8 rounded-lg border border-primary-border">
             <h3 className="text-2xl font-medium text-primary-text text-left mb-3">
@@ -67,7 +94,6 @@ const Settings: React.FC = () => {
             </p>
             <div className="flex flex-col gap-4">
               <div className="flex flex-col">
-
                 {/* Username Input */}
                 <FormField
                   control={form.control}
@@ -80,13 +106,15 @@ const Settings: React.FC = () => {
                       <FormControl>
                         <Input
                           className="mt-1 block w-full rounded-md border border-primary-border bg-white px-4 py-2 text-primary-text shadow-sm focus:outline-none focus-visible:ring-1 focus-visible:ring-input-focus focus-visible:border-input-focus sm:text-sm"
-                          placeholder="Username"
+                          placeholder={
+                            username.length > 0 ? username : "Username"
+                          }
                           type="text"
                           {...field}
                         />
                       </FormControl>
                       {/* Form Error Message */}
-                      <FormMessage  className="text-left"/>
+                      <FormMessage className="text-left" />
                     </FormItem>
                   )}
                 />
@@ -104,7 +132,11 @@ const Settings: React.FC = () => {
                       </FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Share a glimpse of your story with others."
+                          placeholder={
+                            bio.length > 0
+                              ? bio
+                              : "Share a glimpse of your story with others."
+                          }
                           className="mt-1 block w-full rounded-md border border-primary-border bg-white px-4 py-2 text-primary-text shadow-sm focus:outline-none focus-visible:ring-1 focus-visible:ring-input-focus focus-visible:border-input-focus sm:text-sm"
                           {...field}
                         />
@@ -117,10 +149,18 @@ const Settings: React.FC = () => {
               </div>
 
               <Button
-                className="bg-primary-button hover:bg-primary-button-hover cursor-pointer w-1/3"
+                className="bg-primary-button hover:bg-primary-button-hover cursor-pointer w-1/2"
                 variant="default"
-                type="submit">
-                Save Changes
+                type="submit"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="animate-spin" /> Saving Changes
+                  </>
+                ) : (
+                  "Save Changes"
+                )}
               </Button>
             </div>
           </div>
@@ -134,19 +174,21 @@ const Settings: React.FC = () => {
               Manage your account preferences
             </p>
             <div className="text-primary-text">
-
               {/* Allow Mature Content Switch */}
               <FormField
                 control={form.control}
                 name="matureContent"
                 render={({ field }) => (
                   <FormItem className="flex items-center justify-between">
-                      <FormLabel>Allow mature content</FormLabel>
+                    <FormLabel>Allow mature content</FormLabel>
                     <FormControl>
                       <Switch
                         className="data-[state=checked]:bg-primary-button cursor-pointer"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
+                        checked={matureContent}
+                        onCheckedChange={(checked) => {
+                          field.onChange(checked);
+                          setMatureContent(checked);
+                        }}
                         aria-readonly
                       />
                     </FormControl>
