@@ -1,13 +1,12 @@
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import ProjectCard from "../ProjectCard";
 import SearchBar from "../SearchBar";
 import GenreFilter from "../GenreFilter";
 import { ProjectCardData } from "@/types/global";
 
 const ProjectsPage: React.FC = () => {
-  const [filteredGenre, setFilteredGenre] = useState<ProjectCardData[] | null>(
-    null
-  );
+  const [genreFilter, setGenreFilter] = useState<string>("All");
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   // Placeholder completed projects data
   const completedProjects: ProjectCardData[] = [
@@ -54,7 +53,7 @@ const ProjectsPage: React.FC = () => {
       title: "Seasons of Change",
       description:
         "A heartwarming story about community and growth, told through the eyes of different residents.",
-      genre: "Comdey",
+      genre: "Comedy",
       contributors: [
         "Maria Rodriguez",
         "Noah Parker",
@@ -65,27 +64,19 @@ const ProjectsPage: React.FC = () => {
     },
   ];
 
-  // handler to change SessionCard based on filter from GenreFilter
-  const handleGenreFilter = (genre: string = "All") => {
-    console.log(genre);
+  // handler to change assign filters
+  const handleGenreFilter = (genre: string = "All") => setGenreFilter(genre);
+  const handleSearch = (query: string) => setSearchQuery(query);
 
-    if (genre === "All" || genre === null) {
-      setFilteredGenre(completedProjects);
-    } else {
-      setFilteredGenre(
-        completedProjects.filter((project) => project.genre === genre)
-      );
-    }
-  };
-
-  // handle search , useCallback prevents handleSearh to render on every render of this page,
-  // but will render on refresh with empty string, could cause bug
-  const handleSearch = useCallback((query: string) => {
-    console.log("Search: " + query);
-    if (query === "") return; // => TODO return all cards
-
-    // TO DO replace this with ProjectCard with Title == query
-  }, []);
+  // Make filteredSessions[] based on both searchQuery and genreFilter
+  const filteredProjects = completedProjects.filter((project) => {
+    const matchesGenre = genreFilter === "All" || project.genre === genreFilter;
+    const words = searchQuery.toLowerCase().split(" ");
+    const matchesSearch =
+      searchQuery.trim() === "" ||
+      words.some((word) => project.title.toLowerCase().includes(word));
+    return matchesGenre && matchesSearch;
+  });
 
   return (
     <main className='container mx-auto px-4 py-8'>
@@ -109,9 +100,13 @@ const ProjectsPage: React.FC = () => {
       </nav>
 
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-        {(filteredGenre || completedProjects).map((project) => (
-          <ProjectCard key={project.id} projectData={project} />
-        ))}
+        {filteredProjects.length > 0 ? (
+          filteredProjects.map((project) => (
+            <ProjectCard key={project.id} projectData={project} />
+          ))
+        ) : (
+          <p className='text-center text-gray-500'>No projects found.</p>
+        )}
       </div>
     </main>
   );

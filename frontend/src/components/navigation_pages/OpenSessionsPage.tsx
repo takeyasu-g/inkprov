@@ -1,7 +1,4 @@
-import React, { useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import React, { useState } from "react";
 import GenreFilter from "../GenreFilter";
 import SearchBar from "../SearchBar";
 import SessionCard from "../SessionCard";
@@ -9,9 +6,8 @@ import SessionCard from "../SessionCard";
 import { SessionCardData } from "@/types/global";
 
 const OpenSessionsPage: React.FC = () => {
-  const [filteredGenre, setFilteredGenre] = useState<SessionCardData[] | null>(
-    null
-  );
+  const [genreFilter, setGenreFilter] = useState<string>("All");
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   const sessionsHardCodedData: SessionCardData[] = [
     {
@@ -44,27 +40,19 @@ const OpenSessionsPage: React.FC = () => {
 
   const navigate = useNavigate();
 
-  // handler to change SessionCard based on filter from GenreFilter
-  const handleGenreFilter = (genre: string = "All") => {
-    console.log(genre);
+  // handler to change assign filters
+  const handleGenreFilter = (genre: string = "All") => setGenreFilter(genre);
+  const handleSearch = (query: string) => setSearchQuery(query);
 
-    if (genre === "All" || genre === null) {
-      setFilteredGenre(sessionsHardCodedData);
-    } else {
-      setFilteredGenre(
-        sessionsHardCodedData.filter((session) => session.genre === genre)
-      );
-    }
-  };
-
-  // handle search , useCallback prevents handleSearh to render on every render of this page,
-  // but will render on refresh with empty string, could cause bug
-  const handleSearch = useCallback((query: string) => {
-    console.log("Search: " + query);
-    if (query === "") return; // => TODO return all cards
-
-    // TO DO replace this with SessionCard with Title == query
-  }, []);
+  // Make filteredSessions[] based on both searchQuery and genreFilter
+  const filteredSessions = sessionsHardCodedData.filter((session) => {
+    const matchesGenre = genreFilter === "All" || session.genre === genreFilter;
+    const words = searchQuery.toLowerCase().split(" ");
+    const matchesSearch =
+      searchQuery.trim() === "" ||
+      words.some((word) => session.title.toLowerCase().includes(word));
+    return matchesGenre && matchesSearch;
+  });
 
   return (
     <main className='container mx-auto px-4 py-8'>
@@ -95,9 +83,13 @@ const OpenSessionsPage: React.FC = () => {
 
       {/* More placeholder content - to be replaced with actual session list */}
       <section className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-        {(filteredGenre || sessionsHardCodedData).map((session) => (
-          <SessionCard key={session.id} sessionData={session} />
-        ))}
+        {filteredSessions.length > 0 ? (
+          filteredSessions.map((session) => (
+            <SessionCard key={session.id} sessionData={session} />
+          ))
+        ) : (
+          <p className='text-center text-gray-500'>No sessions found.</p>
+        )}
       </section>
     </main>
   );
