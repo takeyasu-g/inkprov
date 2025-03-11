@@ -18,7 +18,6 @@ const OpenSessionsPage: React.FC = () => {
   const handleFetchAllSessions = async () => {
     const allSessionsData = await getSessions();
 
-    console.log(allSessionsData);
     setAllSessions(allSessionsData || []);
   };
 
