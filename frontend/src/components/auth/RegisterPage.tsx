@@ -42,22 +42,69 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
+      // Extract username from email
+      const username = email.split("@")[0];
+
+      console.log("Attempting to sign up with:", {
+        email,
+        username,
+        metadata: {
+          username,
+          full_name: username, // Default to username initially
+        },
+      });
+
       const response = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/sessions`,
+          data: {
+            username,
+            full_name: username, // Default to username initially
+          },
         },
       });
 
+      console.log("Signup response:", response);
+
       if (response.error) {
+        console.error("Signup error details:", response.error);
         throw response.error;
       }
 
       if (response.data?.user) {
+        console.log("User created successfully:", response.data.user);
+
+        // Try to create the profile manually if needed
+        const { error: profileError } = await supabase
+          .from("users_ext")
+          .insert([
+            {
+              id: crypto.randomUUID(), // Generate a new UUID
+              user_profile_mature_enabled: false,
+              user_profile_bio: null,
+              user_profile_name: email,
+              auth_id: response.data.user.id,
+              profile_pic_url: null,
+              user_email: email,
+            },
+          ])
+          .single();
+
+        if (profileError) {
+          console.error("Profile creation error:", profileError);
+          // Don't throw here, as the user is already created
+        }
+
         toast.success(
           "Registration successful! Please check your email to confirm your account."
         );
+
+        // Redirect to login page after successful registration
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
       }
     } catch (error: any) {
       console.error("Signup error:", error);
