@@ -15,34 +15,7 @@ const OpenSessionsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [allSessions, setAllSessions] = useState<ProjectsData[]>([]);
   const navigate = useNavigate();
-  // const sessionsHardCodedData: SessionCardData[] = [
-  //   {
-  //     id: "1",
-  //     title: "Creative Writing",
-  //     description:
-  //       "Join our weekly creative writing workshop. All skill levels welcome!",
-  //     genre: "Adventure",
-  //     currentContributors: "2",
-  //     maxContributors: "4",
-  //   },
-  //   {
-  //     id: "2",
-  //     title: "Poetry Collaboration",
-  //     description:
-  //       "Collaborative poetry writing session. Share and create together.",
-  //     genre: "Horror",
-  //     currentContributors: "1",
-  //     maxContributors: "3",
-  //   },
-  //   {
-  //     id: "3",
-  //     title: "Story Development",
-  //     description: "Work on character development and plot structure together.",
-  //     genre: "Romance",
-  //     currentContributors: "3",
-  //     maxContributors: "5",
-  //   },
-  // ];
+
   // getAllSessions
   const handleFetchAllSessions = async () => {
     const allSessionsData = await getSessions();
@@ -87,7 +60,7 @@ const OpenSessionsPage: React.FC = () => {
           <SearchBar onSearch={handleSearch} />
           <Button
             className='bg-amber-800 hover:bg-amber-700'
-            onClick={() => navigate(`/session/create`)}
+            onClick={() => navigate(`/sessions/create`)}
           >
             <BookPlus />
             <span>Create Session</span>
