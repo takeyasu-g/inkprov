@@ -11,9 +11,11 @@ import OnboardingPage from "./components/navigation_pages/OnboardingPage";
 import OpenSessionsPage from "./components/navigation_pages/OpenSessionsPage";
 import ProjectsPage from "./components/navigation_pages/ProjectsPage";
 import ReadingPage from "./components/navigation_pages/ReadingPage";
+import CreateSessionPage from "./components/writing_pages/CreateSessionPage";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import AboutPage from "./components/pages/AboutPage";
 
 const AppRoutes: React.FC = () => {
   const { isAuthenticated } = useAuth();
@@ -43,6 +45,16 @@ const AppRoutes: React.FC = () => {
           }
         />
         <Route
+          path="/sessions/create"
+          element={
+            isAuthenticated ? (
+              <CreateSessionPage />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+        <Route
           path="/projects"
           element={
             isAuthenticated ? (
@@ -58,11 +70,12 @@ const AppRoutes: React.FC = () => {
             isAuthenticated ? <ReadingPage /> : <Navigate to="/login" replace />
           }
         />
+        <Route path="/about" element={<AboutPage />} />
 
         {/* Redirect unknown routes to home */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      <Footer/>
+      <Footer />
     </div>
   );
 };

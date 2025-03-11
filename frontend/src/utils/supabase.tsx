@@ -1,11 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 
 // local .env variables
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
+const supabaseKey = import.meta.env.VITE_SUPABASE_KEY || "";
 
 // Create a single supabase client for interacting with your database
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Helper functions for authentication
 export const signUp = async (email: string, password: string) => {
@@ -43,4 +43,16 @@ export const getSession = async () => {
     data: { session },
   } = await supabase.auth.getSession();
   return session;
+};
+
+// Function to fetch tags from Supabase
+export const getTags = async () => {
+  const { data, error } = await supabase.from("tags").select("*").order("name");
+
+  if (error) {
+    console.error("Error fetching tags:", error);
+    return [];
+  }
+
+  return data;
 };
