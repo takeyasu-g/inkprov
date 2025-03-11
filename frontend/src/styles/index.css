@@ -6,14 +6,15 @@
 
 :root {
   --background: oklch(96.92% 0.0162 95.22);
-  --secondary-background: oklch(100% 0 0);
-  --tertiary-background: oklch(0.924 0.12 95.746);
+  --secondary-background: oklch(
+    96.19% 0.058 95.62
+  ); /*sub background color #fef3c7 */
   --primary-text: oklch(42.1% 0.0897 57.71);
   --hover-text: oklch(55.53% 0.1455 49);
   --secondary-text: oklch(47.32% 0.1247 46.2);
   --tertiary-text: oklch(55.53% 0.1455 49);
   --primary-border: oklch(92.43% 0.1151 95.75);
-  --primary-button: oklch(47.32% 0.1247 46.2);
+  --primary-button: oklch(47.32% 0.125 46.2);
   --primary-button-hover: oklch(55.53% 0.1455 49);
   --secondary-button: oklch(100% 0 0);
   --secondary-button-hover: oklch(96.19% 0.058 95.62);
@@ -59,6 +60,8 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --filter-btn-text: oklch(55.17% 0.014 285.94);
+  --filter-btn-hover-bg: oklch(55.53% 0.146 49);
 }
 
 .dark {
@@ -119,7 +122,7 @@
   --color-menu-hover: var(--menu-hover);
   --color-accent: var(--accent);
   --color-foreground: var(--foreground);
-  --color-backgournd-card: var(--background-card);
+  --color-background-card: var(--background-card);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -162,5 +165,40 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Genre Colors for Badges, if add make sure to genre-${genre.toLowerCase()} in the className */
+@layer utilities {
+  .genre-horror {
+    @apply bg-gray-700 text-white;
+  }
+
+  .genre-fantasy {
+    @apply bg-purple-500 text-white;
+  }
+
+  .genre-sci-fi {
+    @apply bg-blue-500 text-white;
+  }
+
+  .genre-comedy {
+    @apply bg-yellow-400 text-white;
+  }
+
+  .genre-adventure {
+    @apply bg-green-600 text-white;
+  }
+
+  .genre-all {
+    @apply bg-amber-600 text-white;
+  }
+
+  .genre-romance {
+    @apply bg-pink-500 text-white;
+  }
+
+  .genre-mystery {
+    @apply bg-indigo-700 text-white;
   }
 }

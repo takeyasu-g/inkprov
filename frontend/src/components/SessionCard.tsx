@@ -12,52 +12,49 @@ import {
 } from "@/components/ui";
 import { ProjectsData } from "@/types/global";
 
-interface ProjectCardDataProp {
-  projectData: ProjectsData;
+interface SessionCardDataProp {
+  sessionData: ProjectsData;
 }
 
-// ProjectCards
-const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
+const SessionCard: React.FC<SessionCardDataProp> = ({
+  sessionData,
+}): React.ReactElement => {
   const navigate = useNavigate();
 
   return (
     <Card className='w-[350px] h-[250px] bg-background-card'>
-      {/* header of card => Genre, Title, Contributors */}
       <CardHeader>
         <div className='flex justify-between items-center'>
-          {/* TO DO change badge color based on genre, e.g. Horror = black background white text */}
-          <Badge className={`genre-${projectData.project_genre.toLowerCase()}`}>
-            {projectData.project_genre}
+          <Badge className={`genre-${sessionData.project_genre.toLowerCase()}`}>
+            {sessionData.project_genre}
           </Badge>
           <div className='flex items-center gap-1'>
             <Users className='text-secondary-text p-0.5' />
             <span className='text-secondary-text text-sm'>
-              {projectData.total_contributors}
+              {sessionData.current_contributors_quantity}/
+              {sessionData.max_contributors}
             </span>
           </div>
         </div>
-        <CardTitle className='text-primary-text text-left font-bold'>
-          {projectData.title}
+        <CardTitle className='text-amber-900 text-left font-bold'>
+          {sessionData.title}
         </CardTitle>
       </CardHeader>
       <div className='bg-white'>
         <CardDescription className='m-4 text-secondary-text'>
-          {projectData.description}
+          {sessionData.description}
         </CardDescription>
       </div>
-      <CardFooter className='flex justify-between items-center'>
-        <span className='text-sm text-secondary-text'>
-          Completed: {new Date(projectData.updated_at).toDateString()}
-        </span>
+      <CardFooter className='flex justify-center'>
         <Button
           className='bg-primary-button hover:bg-primary-button-hover'
-          onClick={() => navigate(`/projects/${projectData.id}/read`)}
+          onClick={() => navigate(`/writing/${sessionData.id}`)}
         >
-          Read Story
+          Join Session
         </Button>
       </CardFooter>
     </Card>
   );
 };
 
-export default ProjectCard;
+export default SessionCard;

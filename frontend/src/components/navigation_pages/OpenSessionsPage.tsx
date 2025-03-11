@@ -1,109 +1,86 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import GenreFilter from "../GenreFilter";
+import SearchBar from "../SearchBar";
+import SessionCard from "../SessionCard";
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { ProjectsData } from "@/types/global";
+import { BookPlus } from "lucide-react";
+import { getSessions } from "@/utils/supabase";
 
 const OpenSessionsPage: React.FC = () => {
+  const [genreFilter, setGenreFilter] = useState<string>("All");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [allSessions, setAllSessions] = useState<ProjectsData[]>([]);
   const navigate = useNavigate();
 
+  // getAllSessions
+  const handleFetchAllSessions = async () => {
+    const allSessionsData = await getSessions();
+
+    console.log(allSessionsData);
+    setAllSessions(allSessionsData || []);
+  };
+
+  // useEffect to fetch allSessions once
+  useEffect(() => {
+    handleFetchAllSessions();
+  }, []);
+
+  // handler to change assign filters
+  const handleGenreFilter = (genre: string = "All") => setGenreFilter(genre);
+  const handleSearch = (query: string) => setSearchQuery(query);
+
+  // Make filteredSessions[] based on both searchQuery and genreFilter
+  const filteredSessions = allSessions?.filter((session) => {
+    const matchesGenre =
+      genreFilter === "All" || session.project_genre === genreFilter;
+    const words = searchQuery.toLowerCase().split(" ");
+    const matchesSearch =
+      searchQuery.trim() === "" ||
+      words.some((word) => session.title.toLowerCase().includes(word));
+    return matchesGenre && matchesSearch;
+  });
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-primary-text">
+    <main className='container mx-auto px-4 py-8'>
+      <header className='flex justify-between'>
+        <div className='mb-8 text-left'>
+          <h1 className='text-3xl font-bold text-primary-text'>
             Open Writing Sessions
           </h1>
-          <p className="text-secondary-text mt-2">
+          <p className='text-secondary-text mt-2'>
             Join an existing session or create your own.
           </p>
         </div>
-        <Button
-          onClick={() => navigate("/sessions/create")}
-          className="bg-primary-button hover:bg-primary-button-hover"
-        >
-          <PlusCircle className="mr-2 h-5 w-5" />
-          Create New Session
-        </Button>
-      </div>
+
+        <div className='flex gap-3'>
+          <SearchBar onSearch={handleSearch} />
+          <Button
+            className='bg-amber-800 hover:bg-amber-700'
+            onClick={() => navigate(`/sessions/create`)}
+          >
+            <BookPlus />
+            <span>Create Session</span>
+          </Button>
+        </div>
+      </header>
+
+      <nav className='my-6'>
+        <GenreFilter onSelect={handleGenreFilter}></GenreFilter>
+      </nav>
 
       {/* More placeholder content - to be replaced with actual session list */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-background rounded-lg p-6 shadow-sm border border-primary-border">
-          <div className="flex justify-between items-start mb-4">
-            <h3 className="text-lg font-semibold text-primary-text">
-              Creative Writing Workshop
-            </h3>
-            <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
-              Open
-            </span>
-          </div>
-          <p className="text-secondary-text mb-4">
-            Join our weekly creative writing workshop. All skill levels welcome!
-          </p>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-secondary-text">
-              2/5 participants
-            </span>
-            <Button
-              className="bg-primary-button hover:bg-primary-button-hover"
-              onClick={() => navigate("/sessions/1")}
-            >
-              Join Session
-            </Button>
-          </div>
-        </div>
-
-        <div className="bg-background rounded-lg p-6 shadow-sm border border-primary-border">
-          <div className="flex justify-between items-start mb-4">
-            <h3 className="text-lg font-semibold text-primary-text">
-              Poetry Collaboration
-            </h3>
-            <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
-              Open
-            </span>
-          </div>
-          <p className="text-secondary-text mb-4">
-            Collaborative poetry writing session. Share and create together.
-          </p>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-secondary-text">
-              3/5 participants
-            </span>
-            <Button
-              className="bg-primary-button hover:bg-primary-button-hover"
-              onClick={() => navigate("/sessions/2")}
-            >
-              Join Session
-            </Button>
-          </div>
-        </div>
-
-        <div className="bg-background rounded-lg p-6 shadow-sm border border-primary-border">
-          <div className="flex justify-between items-start mb-4">
-            <h3 className="text-lg font-semibold text-primary-text">
-              Story Development
-            </h3>
-            <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">
-              Starting Soon
-            </span>
-          </div>
-          <p className="text-secondary-text mb-4">
-            Work on character development and plot structure together.
-          </p>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-secondary-text">
-              1/5 participants
-            </span>
-            <Button
-              className="bg-primary-button hover:bg-primary-button-hover"
-              onClick={() => navigate("/sessions/3")}
-            >
-              Join Session
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
+      <section className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+        {filteredSessions.length > 0 ? (
+          filteredSessions.map((session) => (
+            <SessionCard key={session.id} sessionData={session} />
+          ))
+        ) : (
+          <p className='text-center text-gray-500'>No sessions found.</p>
+        )}
+      </section>
+    </main>
   );
 };
 
