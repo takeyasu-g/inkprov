@@ -10,10 +10,10 @@ import {
   CardTitle,
   Badge,
 } from "@/components/ui";
-import { SessionCardData } from "@/types/global";
+import { ProjectsData } from "@/types/global";
 
 interface SessionCardDataProp {
-  sessionData: SessionCardData;
+  sessionData: ProjectsData;
 }
 
 const SessionCard: React.FC<SessionCardDataProp> = ({
@@ -25,13 +25,14 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
     <Card className='w-[350px] h-[250px] bg-background-card'>
       <CardHeader>
         <div className='flex justify-between items-center'>
-          <Badge className={`genre-${sessionData.genre.toLowerCase()}`}>
-            {sessionData.genre}
+          <Badge className={`genre-${sessionData.project_genre.toLowerCase()}`}>
+            {sessionData.project_genre}
           </Badge>
           <div className='flex items-center gap-1'>
             <Users className='text-secondary-text p-0.5' />
             <span className='text-secondary-text text-sm'>
-              {sessionData.currentContributors}/{sessionData.maxContributors}
+              {sessionData.current_contributors_quantity}/
+              {sessionData.max_contributors}
             </span>
           </div>
         </div>
