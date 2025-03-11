@@ -1,16 +1,8 @@
 import React from "react";
-import { Feather } from "lucide-react";
 
 const Footer: React.FC = function Footer() {
   return (
-    <footer className="flex justify-between relative pt-4 before:absolute before:top-0 before:left-1/2 before:-translate-x-1/2 before:w-screen before:h-px before:bg-primary-border">
-      {/* Logo */}
-      <div className="flex gap-4 items-center text-primary-text">
-        <Feather />
-        <a href="/" className="text-xl font-bold">
-          Inkprov
-        </a>
-      </div>
+    <footer className="flex justify-end relative pt-4 before:absolute before:top-0 before:left-1/2 before:-translate-x-1/2 before:w-screen before:h-px before:bg-primary-border">
       {/* Side Links */}
       <div className="flex gap-4 items-center text-primary-text">
         <a href="/about" className="text-md hover:text-hover-text">
