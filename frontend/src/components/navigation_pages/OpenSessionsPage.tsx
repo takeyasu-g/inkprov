@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import GenreFilter from "../GenreFilter";
 import SearchBar from "../SearchBar";
 import SessionCard from "../SessionCard";
-
-import { SessionCardData } from "@/types/global";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { ProjectsData } from "@/types/global";
