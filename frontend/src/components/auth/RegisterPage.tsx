@@ -1,9 +1,24 @@
-import { createClient } from "@supabase/supabase-js";
 import { useState } from "react";
+import { createClient } from "@supabase/supabase-js";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { registerSchema } from "@/utils/formSchemas";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
-import { BookText } from "lucide-react";
+import { BookText, Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
 const supabaseKey = import.meta.env.VITE_SUPABASE_KEY as string;
@@ -13,105 +28,58 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
 
-  const validatePasswords = () => {
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return false;
-    }
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters long");
-      return false;
-    }
-    return true;
-  };
+  // Form Validation
+  const form = useForm<z.infer<typeof registerSchema>>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-
-    if (!validatePasswords()) {
-      return;
-    }
-
-    setLoading(true);
-
+  // Form submission
+  async function onSubmit(values: z.infer<typeof registerSchema>) {
     try {
-      // Extract username from email
-      const username = email.split("@")[0];
+      setIsLoading(true);
 
-      console.log("Attempting to sign up with:", {
-        email,
-        username,
-        metadata: {
-          username,
-          full_name: username, // Default to username initially
-        },
-      });
-
+      // Sign up user
       const response = await supabase.auth.signUp({
-        email,
-        password,
+        email: values.email,
+        password: values.password,
         options: {
           emailRedirectTo: `${window.location.origin}/sessions`,
           data: {
-            username,
-            full_name: username, // Default to username initially
+            username: values.email.substring(0, values.email.indexOf("@")),
+            full_name: values.email.substring(0, values.email.indexOf("@")),
           },
         },
       });
-
-      console.log("Signup response:", response);
 
       if (response.error) {
         console.error("Signup error details:", response.error);
         throw response.error;
       }
-
-      if (response.data?.user) {
-        console.log("User created successfully:", response.data.user);
-
-        // Try to create the profile manually if needed
-        const { error: profileError } = await supabase
-          .from("users_ext")
-          .insert([
-            {
-              id: crypto.randomUUID(), // Generate a new UUID
-              user_profile_mature_enabled: false,
-              user_profile_bio: null,
-              user_profile_name: email,
-              auth_id: response.data.user.id,
-              profile_pic_url: null,
-              user_email: email,
-            },
-          ])
-          .single();
-
-        if (profileError) {
-          console.error("Profile creation error:", profileError);
-          // Don't throw here, as the user is already created
-        }
-
         toast.success(
           "Registration successful! Please check your email to confirm your account."
         );
 
-        // Redirect to login page after successful registration
+        // Redirect to sessions page after successful registration
         setTimeout(() => {
-          navigate("/login");
+          navigate("/sessions");
         }, 2000);
-      }
+      
     } catch (error: any) {
+      setIsLoading(false);
       console.error("Signup error:", error);
       toast.error(error.message || "An error occurred during registration");
       setError(error.message || "An error occurred during registration");
-    } finally {
-      setLoading(false);
+    }
+    finally {
+      setIsLoading(false);
     }
   };
 
@@ -135,33 +103,41 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-background grid grid-cols-2 grid-rows-1 gap-0">
-      
       {/* Left Column */}
-      <div className="row-span-5 bg-accent relative pb-4 
-  before:absolute before:bottom-0 before:left-1/2 before:-translate-x-1/2 before:w-screen before:h-px before:bg-accent 
-  after:absolute after:inset-y-0 after:left-1/2 after:-translate-x-1/2 after:w-screen after:-z-10 after:bg-accent">
-    <div className="relative w-100 h-75 mt-10 top-20">
-
+      <div
+        className="row-span-5 bg-accent relative pb-4 
+  before:absolute before:inset-y-0 before:left-[-100vw] before:w-[100vw] before:-z-10 before:bg-accent"
+      >
+        <div className="relative w-100 h-75 mt-10 top-20">
           {/* Styled Borders */}
           <div className="absolute -inset-4 rounded-lg bg-tertiary-background rotate-2"></div>
           <div className="relative w-full h-full rounded-lg border-8 border-white bg-white shadow-lg flex items-center justify-center text-tertiary-text">
-
             {/* Styled Content */}
             <div className="p-4">
-              <BookText size={44}/>
-              <h1 className="text-2xl font-bold text-primary-text text-center mt-4">Begin your Writing Adventure</h1>
-              <p className="text-sm text-secondary-text text-left mt-2">"There is no greater agony than bearing an untold story inside you."</p>
-              <p className="text-sm text-tertiary-text text text-right mt-2">- Maya Angelou</p>
+              <BookText size={44} />
+              <h1 className="text-2xl font-bold text-primary-text text-center mt-4">
+                Begin your Writing Adventure
+              </h1>
+              <p className="text-sm text-secondary-text text-left mt-2">
+                "There is no greater agony than bearing an untold story inside
+                you."
+              </p>
+              <p className="text-sm text-tertiary-text text text-right mt-2">
+                - Maya Angelou
+              </p>
               <div className="mt-6 flex justify-center">
-                  <div className="h-px w-16 bg-tertiary-background"></div>
-                </div>
-                <p className="text-sm text-tertiary-text text text-left mt-2">Join Inkprov today and turn your ideas into colaborative masterpieces with fellow writers. </p>
+                <div className="h-px w-16 bg-tertiary-background"></div>
+              </div>
+              <p className="text-sm text-tertiary-text text text-left mt-2">
+                Join Inkprov today and turn your ideas into colaborative
+                masterpieces with fellow writers.
+              </p>
             </div>
           </div>
         </div>
-  </div>
+      </div>
 
-  {/* Right Column */}
+      {/* Right Column */}
       <div className="row-span-5 mt-3">
         <ToastContainer />
         <div className="w-full float-right max-w-md space-y-8 bg-background p-8 rounded-lg">
@@ -184,93 +160,128 @@ export default function RegisterPage() {
           )}
 
           {/* Form */}
-          <form className="mt-8 space-y-6" onSubmit={handleSignUp}>
-            <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor="email-address"
-                  className="block text-sm font-medium text-primary-text text-left"
-                >
-                  Email address
-                </label>
-                <input
-                  id="email-address"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1 block w-full rounded-md border border-primary-border bg-white px-3 py-2 text-primary-text shadow-sm focus:border-input-focus focus:outline-none sm:text-sm"
-                  placeholder="you@example.com"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-primary-text text-left"
-                >
-                  Password
-                </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1 block w-full rounded-md border border-primary-border bg-white px-3 py-2 text-primary-text shadow-sm focus:border-input-focus focus:outline-none sm:text-sm"
-                  placeholder="••••••••"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="confirm-password"
-                  className="block text-sm font-medium text-primary-text text-left"
-                >
-                  Confirm Password
-                </label>
-                <input
-                  id="confirm-password"
-                  name="confirm-password"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="mt-1 block w-full rounded-md border border-primary-border bg-white px-3 py-2 text-primary-text shadow-sm focus:border-input-focus focus:outline-none sm:text-sm"
-                  placeholder="••••••••"
-                />
-              </div>
-            </div>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="mt-8 space-y-3"
+            >
+              <div className="space-y-4">
+                <div>
+                  {/* Email Input */}
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="block text-sm font-medium text-primary-text text-left">
+                          Email Address
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                           disabled={isLoading}
+                            className="mt-1 block w-full rounded-md border border-primary-border bg-white px-4 py-2 text-primary-text shadow-sm focus:outline-none focus-visible:ring-1 focus-visible:ring-input-focus focus-visible:border-input-focus sm:text-sm"
+                            placeholder=""
+                            type="email"
+                            required
+                            {...field}
+                          />
+                        </FormControl>
 
-            <div className="space-y-4">
-              <Button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-primary-button hover:bg-primary-button-hover cursor-pointer"
-              >
-                {loading ? "Creating Account..." : "Create Account"}
-              </Button>
+                        {/* Form Error Message */}
+                        <FormMessage className="text-left" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div>
+                  {/* Password Input */}
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="block text-sm font-medium text-primary-text text-left">
+                          Password
+                        </FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <PasswordInput
+                             disabled={isLoading}
+                              className="mt-1 block w-full rounded-md border border-primary-border bg-white px-4 py-2 text-primary-text shadow-sm focus:outline-none focus-visible:ring-1 focus-visible:ring-input-focus focus-visible:border-input-focus sm:text-sm"
+                              placeholder=""
+                              {...field}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormDescription className="text-xs text-secondary-text text-left">
+                          Minimum 6 Characters
+                        </FormDescription>
+                        <FormMessage className="text-left" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div>
+                  {/* Confirm Password Input */}
+                  <FormField
+                    control={form.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="block text-sm font-medium text-primary-text text-left">
+                          Confirm Password
+                        </FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <PasswordInput
+                             disabled={isLoading}
+                              className="mt-1 block w-full rounded-md border border-primary-border bg-white px-4 py-2 text-primary-text shadow-sm focus:outline-none focus-visible:ring-1 focus-visible:ring-input-focus focus-visible:border-input-focus sm:text-sm"
+                              placeholder=""
+                              {...field}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage className="text-left" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
 
+              {/* Submit Button */}
+              <div className="space-y-4">
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-primary-button mt-4 hover:bg-primary-button-hover cursor-pointer"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="animate-spin" /> Creating Account
+                    </>
+                  ) : (
+                    "Create Account"
+                  )}
+                </Button>
+              </div>
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-primary-border"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-background text-secondary-text">
+                  <span className="px-2 my-2 bg-background text-secondary-text">
                     Or continue with
                   </span>
                 </div>
               </div>
 
               <Button
-            className="bg-secondary-button text-secondary-text hover:bg-secondary-button-hover border border-primary-border cursor-pointer w-full"
-            variant="default"
-            onClick={handleGoogleSignUp}
-          >
-            <svg
+                className="bg-secondary-button text-secondary-text hover:bg-secondary-button-hover border border-primary-border cursor-pointer w-full"
+                variant="default"
+                disabled={isLoading}
+                onClick={handleGoogleSignUp}
+              >
+                <svg
                   className="h-5 w-5 mr-2"
                   viewBox="0 0 24 24"
                   width="24"
@@ -296,9 +307,9 @@ export default function RegisterPage() {
                   </g>
                 </svg>
                 Continue with Google
-          </Button>  
-            </div>
-          </form>
+              </Button>
+            </form>
+          </Form>
 
           <p className="text-center text-sm text-secondary-text">
             Already have an account?
