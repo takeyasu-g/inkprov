@@ -35,11 +35,10 @@ const OpenSessionsPage: React.FC = () => {
       const allSessionsData = await getSessions();
       console.log("Fetched sessions data:", allSessionsData);
 
-      if (!allSessionsData) {
+if (!allSessionsData) {
         setError("No sessions data returned");
         return;
       }
-
       setAllSessions(allSessionsData);
       setError(null);
     } catch (err) {
@@ -49,16 +48,13 @@ const OpenSessionsPage: React.FC = () => {
       setIsLoading(false);
     }
   };
-
   // useEffect to fetch allSessions once
   useEffect(() => {
     handleFetchAllSessions();
   }, []);
-
   // handler to change assign filters
   const handleGenreFilter = (genre: string = "All") => setGenreFilter(genre);
   const handleSearch = (query: string) => setSearchQuery(query);
-
   // Make filteredSessions[] based on both searchQuery and genreFilter
   const filteredSessions = allSessions?.filter((session) => {
     const matchesGenre =
@@ -69,13 +65,11 @@ const OpenSessionsPage: React.FC = () => {
       words.some((word) => session.title.toLowerCase().includes(word));
     return matchesGenre && matchesSearch;
   });
-
   const renderSkeletons = () => {
     return Array(6)
       .fill(0)
       .map((_, index) => <SessionCardSkeleton key={index} />);
   };
-
   return (
     <main className="container mx-auto px-4 py-8">
       <header className="flex justify-between">
