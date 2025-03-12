@@ -17,3 +17,4 @@ export {
   SelectValue,
 } from "./select";
 export { Badge, badgeVariants } from "./badge";
+export { ScrollArea, ScrollBar } from "./scroll-area";
