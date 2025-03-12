@@ -96,9 +96,7 @@ export default function RegisterPage() {
           // Don't throw here, as the user is already created
         }
 
-        toast.success(
-          "Registration successful! Please check your email to confirm your account."
-        );
+        toast.success("Registration successful! Please login to continue.");
 
         // Redirect to login page after successful registration
         setTimeout(() => {
