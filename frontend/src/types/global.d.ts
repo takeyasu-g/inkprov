@@ -1,7 +1,18 @@
 // Global types/interfaces
 
+interface UserProfile {
+  auth_id: string;
+  user_profile_name: string;
+  avatar_url?: string;
+}
+
+interface ProjectContributor {
+  contributor_id: string;
+  contributor?: UserProfile;
+}
+
 export interface ProjectsData {
-  id: string; // not sure if this will be a number or sting
+  id: string;
   creator_id: string;
   title: string;
   description: string;
@@ -14,6 +25,9 @@ export interface ProjectsData {
   updated_at: Date;
   is_completed: boolean;
   total_contributors: number;
+  current_contributors_count: number;
+  creator?: UserProfile;
+  project_contributors?: ProjectContributor[];
 }
 
 // export interface ProjectCardData {

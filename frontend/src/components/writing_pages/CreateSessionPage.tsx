@@ -22,6 +22,7 @@ import { toast, Toaster } from "sonner";
 import { User } from "@supabase/supabase-js";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Initializes supabase client
 import { supabase, getTags, getCurrentUser } from "../../utils/supabase";
@@ -58,6 +59,7 @@ interface Tag {
 
 const CreateSession: React.FC = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, user: authUser } = useAuth();
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [content, setContent] = useState<string>("");
@@ -69,6 +71,17 @@ const CreateSession: React.FC = () => {
   const [wordCount, setWordCount] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
+
+  // Check authentication on mount
+  useEffect(() => {
+    console.log("CreateSessionPage mounted, auth state:", isAuthenticated);
+    if (!isAuthenticated) {
+      console.log("User not authenticated, redirecting to login");
+      navigate("/login");
+      return;
+    }
+    setUser(authUser);
+  }, [isAuthenticated, navigate, authUser]);
 
   // Get the current user and tags on component mount
   useEffect(() => {
@@ -99,19 +112,19 @@ const CreateSession: React.FC = () => {
     initialize();
   }, [navigate]);
 
-  // Word count handler
+  //* Handles content change (word count)
   const handleContentChange = (
     e: React.ChangeEvent<HTMLTextAreaElement>
   ): void => {
     const newContent = e.target.value;
     setContent(newContent);
 
-    // Count words (split by whitespace)
+    // Count words (split by whitespace, previous method invalid)
     const words = newContent.trim() ? newContent.trim().split(/\s+/) : [];
     setWordCount(words.length);
   };
 
-  // Handle form submission
+  // Handles form submission
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
@@ -155,7 +168,7 @@ const CreateSession: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // First, get the user's auth_id from users_ext
+      // Gets the user's auth_id from users_ext
       const { data: userData, error: userError } = await supabase
         .from("users_ext")
         .select("auth_id")
@@ -173,7 +186,7 @@ const CreateSession: React.FC = () => {
 
       console.log("Found user profile:", userData);
 
-      // Insert project into the 'projects' table
+      // Inserts project into the 'projects' table
       const newProject: Project = {
         title,
         description,
@@ -200,7 +213,7 @@ const CreateSession: React.FC = () => {
 
       console.log("Project created successfully:", projectData);
 
-      // Insert the first snippet into project_snippets
+      // Inserts the first snippet into project_snippets
       const newSnippet: ProjectSnippet = {
         project_id: projectData.id,
         content,

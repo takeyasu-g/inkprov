@@ -2,8 +2,21 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Feather, BookOpen, Users } from "lucide-react";
 import groupWritingImg from "../../assets/group-writing.png";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const LandingPage: React.FC = () => {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  const handleStartWriting = () => {
+    if (isAuthenticated) {
+      navigate("/sessions");
+    } else {
+      navigate("/login");
+    }
+  };
+
   return (
     <>
       {/* Hero Section */}
@@ -21,14 +34,14 @@ const LandingPage: React.FC = () => {
           <Button
             className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
             variant="default"
-            onClick={() => window.location.href = "/login"}
+            onClick={handleStartWriting}
           >
             Start Writing
           </Button>
           <Button
             className="bg-secondary-button text-secondary-text hover:bg-secondary-button-hover border border-primary-border cursor-pointer"
             variant="default"
-            onClick={() => window.location.href = "/sessions"}
+            onClick={() => navigate("/sessions")}
           >
             Explore Sessions
           </Button>
@@ -110,7 +123,10 @@ const LandingPage: React.FC = () => {
           <div className="absolute -inset-4 rounded-lg bg-tertiary-background rotate-2"></div>
           <div className="relative w-full h-full overflow-hidden rounded-lg border-8 border-white bg-white shadow-lg flex items-center justify-center">
             {/* Background image */}
-            <div className="absolute inset-0 bg-contain bg-center bg-no-repeat" style={{ backgroundImage: `url(${groupWritingImg})` }}></div>
+            <div
+              className="absolute inset-0 bg-contain bg-center bg-no-repeat"
+              style={{ backgroundImage: `url(${groupWritingImg})` }}
+            ></div>
           </div>
         </div>
       </section>
