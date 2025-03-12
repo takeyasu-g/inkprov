@@ -19,9 +19,7 @@ const OpenSessionsPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
 
   const handleCreateSession = () => {
-    console.log("Create session clicked, auth state:", isAuthenticated);
     if (!isAuthenticated) {
-      console.log("User not authenticated, redirecting to login");
       navigate("/login");
       return;
     }
@@ -34,7 +32,6 @@ const OpenSessionsPage: React.FC = () => {
     try {
       setIsLoading(true);
       const allSessionsData = await getSessions();
-      console.log("Fetched sessions data:", allSessionsData);
 
       if (!allSessionsData) {
         setError("No sessions data returned");
@@ -44,7 +41,6 @@ const OpenSessionsPage: React.FC = () => {
       setAllSessions(allSessionsData);
       setError(null);
     } catch (err) {
-      console.error("Error fetching sessions:", err);
       setError("Failed to fetch sessions");
     } finally {
       setIsLoading(false);

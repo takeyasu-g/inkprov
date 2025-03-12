@@ -74,9 +74,7 @@ const CreateSession: React.FC = () => {
 
   // Check authentication on mount
   useEffect(() => {
-    console.log("CreateSessionPage mounted, auth state:", isAuthenticated);
     if (!isAuthenticated) {
-      console.log("User not authenticated, redirecting to login");
       navigate("/login");
       return;
     }
@@ -88,7 +86,6 @@ const CreateSession: React.FC = () => {
     const initialize = async () => {
       // Fetch user using getCurrentUser
       const currentUser = await getCurrentUser();
-      console.log("Current user in initialize:", currentUser);
       setUser(currentUser);
 
       if (!currentUser) {
@@ -176,15 +173,12 @@ const CreateSession: React.FC = () => {
         .single();
 
       if (userError) {
-        console.error("Error fetching user data:", userError);
         throw userError;
       }
 
       if (!userData?.auth_id) {
         throw new Error("User profile not found");
       }
-
-      console.log("Found user profile:", userData);
 
       // Inserts project into the 'projects' table
       const newProject: Project = {
@@ -198,8 +192,6 @@ const CreateSession: React.FC = () => {
         max_contributors: maxContributors,
       };
 
-      console.log("Attempting to create project:", newProject);
-
       const { data: projectData, error: projectError } = await supabase
         .from("projects")
         .insert([newProject])
@@ -207,11 +199,8 @@ const CreateSession: React.FC = () => {
         .single();
 
       if (projectError) {
-        console.error("Project creation error:", projectError);
         throw projectError;
       }
-
-      console.log("Project created successfully:", projectData);
 
       // Inserts the first snippet into project_snippets
       const newSnippet: ProjectSnippet = {
@@ -223,14 +212,11 @@ const CreateSession: React.FC = () => {
         sequence_number: 1,
       };
 
-      console.log("Attempting to create snippet:", newSnippet);
-
       const { error: snippetError } = await supabase
         .from("project_snippets")
         .insert([newSnippet]);
 
       if (snippetError) {
-        console.error("Snippet creation error:", snippetError);
         throw snippetError;
       }
 
@@ -241,7 +227,6 @@ const CreateSession: React.FC = () => {
       // Redirect to the sessions list
       navigate("/sessions");
     } catch (error: any) {
-      console.error("Error creating project:", error);
       toast.error("Creation Failed", {
         description:
           error.message || "Failed to create session. Please try again.",

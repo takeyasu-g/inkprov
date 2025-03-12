@@ -70,7 +70,6 @@ const Settings: React.FC = () => {
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
-      console.error("Form submission error", error);
     }
   }
 

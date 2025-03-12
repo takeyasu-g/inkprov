@@ -5,10 +5,6 @@ import { createClient, User } from "@supabase/supabase-js";
 const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL as string) || "";
 const supabaseKey = (import.meta.env.VITE_SUPABASE_KEY as string) || "";
 
-if (!supabaseUrl || !supabaseKey) {
-  console.error("Missing Supabase URL or Key");
-}
-
 // Create a single supabase client for interacting with your database
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -60,8 +56,7 @@ export const getSessions = async () => {
       .eq("is_completed", false);
 
     if (error) {
-      console.error("Error fetching sessions:", error);
-      return null;
+      throw error;
     }
 
     // If the basic query works, then let's get the related data
@@ -87,14 +82,11 @@ export const getSessions = async () => {
       .eq("is_completed", false);
 
     if (fullError) {
-      console.error("Error fetching full session data:", fullError);
       return project; // Return basic project data if full query fails
     }
 
-    console.log("Fetched sessions:", fullProject || project);
     return fullProject || project;
   } catch (err) {
-    console.error("Unexpected error in getSessions:", err);
     return null;
   }
 };
@@ -122,8 +114,7 @@ export const getProjects = async () => {
     .eq("is_completed", true);
 
   if (error) {
-    console.error("Error fetching sessions:", error);
-    return null;
+    throw error;
   }
 
   return project;
@@ -134,7 +125,6 @@ export const getTags = async () => {
   const { data, error } = await supabase.from("tags").select("*").order("name");
 
   if (error) {
-    console.error("Error fetching tags:", error);
     return [];
   }
 
@@ -167,7 +157,7 @@ const updateUsername = async (username: string): Promise<any> => {
     .eq("auth_id", currentUser?.id);
 
   if (error) {
-    console.error("Error updating username:", error);
+    throw error;
   }
 };
 
@@ -180,7 +170,7 @@ const updateBio = async (bio: string): Promise<any> => {
     .eq("auth_id", currentUser?.id);
 
   if (error) {
-    console.error("Error updating bio:", error);
+    throw error;
   }
 };
 
@@ -193,7 +183,7 @@ const updateMatureContent = async (matureContent: boolean): Promise<any> => {
     .eq("auth_id", currentUser?.id);
 
   if (error) {
-    console.error("Error updating mature content preference:", error);
+    throw error;
   }
 };
 
@@ -206,7 +196,7 @@ const getUsername = async (): Promise<any> => {
     .eq("auth_id", currentUser?.id);
 
   if (error) {
-    console.error("Error getting username:", error);
+    throw error;
   }
 
   return data;
@@ -221,7 +211,7 @@ const getBio = async (): Promise<any> => {
     .eq("auth_id", currentUser?.id);
 
   if (error) {
-    console.error("Error getting bio:", error);
+    throw error;
   }
 
   return data;
@@ -236,7 +226,7 @@ const getMatureContent = async (): Promise<any> => {
     .eq("auth_id", currentUser?.id);
 
   if (error) {
-    console.error("Error getting mature content preference:", error);
+    throw error;
   }
 
   return data;

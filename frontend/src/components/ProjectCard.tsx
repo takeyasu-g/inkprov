@@ -48,7 +48,7 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
 
         setIsContributor(!!contributorData);
       } catch (error) {
-        console.error("Error checking contributor status:", error);
+        throw error;
       }
     };
 

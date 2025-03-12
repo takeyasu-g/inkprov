@@ -87,7 +87,6 @@ const WritingEditor: React.FC = () => {
       if (snippetsError) throw snippetsError;
       setPreviousSnippets(snippets || []);
     } catch (error) {
-      console.error("Error fetching snippets:", error);
       toast.error("Failed to refresh snippets");
     } finally {
       setIsRefreshing(false);
@@ -98,13 +97,10 @@ const WritingEditor: React.FC = () => {
   useEffect(() => {
     const fetchProjectData = async () => {
       try {
-        console.log("Starting to fetch project data...");
         // Get current user
         const user = await getCurrentUser();
-        console.log("Current user:", user);
 
         if (!user) {
-          console.log("No user found, redirecting to login");
           toast.error("Please log in to view this project");
           navigate("/login");
           return;
@@ -120,13 +116,11 @@ const WritingEditor: React.FC = () => {
           .eq("id", projectId)
           .single();
 
-        console.log("Project data:", projectData, "Error:", projectError);
-
         if (projectError) throw projectError;
         setProject(projectData);
 
         // Check if user is a contributor
-        const { data: contributorData, error: contributorError } =
+        const { data: contributorData } =
           await supabase
             .from("project_contributors")
             .select("*")
@@ -134,20 +128,12 @@ const WritingEditor: React.FC = () => {
             .eq("user_id", user.id)
             .single();
 
-        console.log(
-          "Contributor data:",
-          contributorData,
-          "Error:",
-          contributorError
-        );
-
         setIsContributor(!!contributorData);
         setIsMyTurn(contributorData?.current_writer || false);
 
         // Fetch previous snippets
         await fetchSnippets();
       } catch (error) {
-        console.error("Error in fetchProjectData:", error);
         toast.error("Error loading project");
       } finally {
         setIsLoading(false);
@@ -156,15 +142,6 @@ const WritingEditor: React.FC = () => {
 
     fetchProjectData();
   }, [projectId, navigate]);
-
-  // Add debug render logging
-  console.log("Render state:", {
-    project,
-    isContributor,
-    isMyTurn,
-    userData,
-    previousSnippets: previousSnippets.length,
-  });
 
   // Handle word count
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -178,12 +155,9 @@ const WritingEditor: React.FC = () => {
     try {
       const user = await getCurrentUser();
       if (!user) {
-        console.log("No user found");
         toast.error("Please log in to join this project");
         return;
       }
-
-      console.log("Attempting to join project with user:", user);
 
       // Check if project is completed
       if (project?.is_completed) {
@@ -203,34 +177,29 @@ const WritingEditor: React.FC = () => {
       }
 
       // Check if there are any current writers
-      const { data: currentWriters, error: writersError } = await supabase
+      const { data: currentWriters, } = await supabase
         .from("project_contributors")
         .select("*")
         .eq("project_id", projectId)
         .eq("current_writer", true);
 
-      console.log("Current writers check:", { currentWriters, writersError });
-
       // If no current writers or error fetching (meaning no results), this user should be the writer
       const shouldBeCurrentWriter =
         !currentWriters || currentWriters.length === 0;
-      console.log("Should be current writer:", shouldBeCurrentWriter);
 
       // Insert new contributor
-      const { data: newContributor, error } = await supabase
-        .from("project_contributors")
-        .insert({
-          project_id: projectId,
-          user_id: user.id,
-          joined_at: new Date().toISOString(),
-          current_writer: shouldBeCurrentWriter,
-          user_made_contribution: false,
-        })
-        .select();
+      // const { data: newContributor, error } = await supabase
+      //   .from("project_contributors")
+      //   .insert({
+      //     project_id: projectId,
+      //     user_id: user.id,
+      //     joined_at: new Date().toISOString(),
+      //     current_writer: shouldBeCurrentWriter,
+      //     user_made_contribution: false,
+      //   })
+      //   .select();
 
-      console.log("Insert contributor result:", { newContributor, error });
-
-      if (error) throw error;
+      // if (error) throw error;
 
       // Update the project's current_contributors_count
       const { error: updateError } = await supabase
@@ -270,7 +239,6 @@ const WritingEditor: React.FC = () => {
         setProject(refreshedProject);
       }
     } catch (error) {
-      console.error("Join project error:", error);
       toast.error("Failed to join project");
     }
   };
@@ -307,7 +275,6 @@ const WritingEditor: React.FC = () => {
       navigate("/sessions");
     } catch (error) {
       toast.error("Failed to leave project");
-      console.error("Error:", error);
     }
   };
 
@@ -358,7 +325,6 @@ const WritingEditor: React.FC = () => {
       setIsMyTurn(false);
     } catch (error) {
       toast.error("Failed to submit contribution");
-      console.error("Error:", error);
     } finally {
       setIsSubmitting(false);
     }

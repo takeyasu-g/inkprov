@@ -60,10 +60,7 @@ export default function RegisterPage() {
         },
       });
 
-      console.log("Signup response:", response);
-
       if (response.error) {
-        console.error("Signup error details:", response.error);
         throw response.error;
       }
 
@@ -77,7 +74,6 @@ export default function RegisterPage() {
       }, 2000);
     } catch (error: any) {
       setIsLoading(false);
-      console.error("Signup error:", error);
       toast.error(error.message || "An error occurred during registration");
       setError(error.message || "An error occurred during registration");
     } finally {

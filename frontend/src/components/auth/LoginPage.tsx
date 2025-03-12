@@ -77,7 +77,6 @@ export default function LoginPage() {
       }
     } catch (error: any) {
       setIsLoading(false);
-      console.error("Login error:", error);
       toast.error(error.message || "An error occurred during login");
       setError(error.message || "An error occurred during login");
     } finally {

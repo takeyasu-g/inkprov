@@ -25,11 +25,9 @@ const GenreFilter: React.FC<GenreFilterProps> = ({ onSelect }) => {
     // and prevent to spam onSelect handler
     if (value) {
       setSelectedGenre(value);
-      console.log(value);
       onSelect(value); // sending what genre to filter
     } else {
       // if we want to refresh on re-select, but then could be spammed
-      console.log(selectedGenre);
     }
   };
 
