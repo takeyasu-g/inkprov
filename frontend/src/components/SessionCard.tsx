@@ -98,7 +98,7 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
           <div className="flex items-center gap-2">
             <span className="text-sm text-secondary-text">by</span>
             <span className="text-sm font-medium">
-              {sessionData.creator?.user_profile_name || "Anonymous"}
+              {sessionData.creator?.user_profile_name || "Unknown"}
             </span>
           </div>
         </div>

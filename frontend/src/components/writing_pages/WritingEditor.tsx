@@ -31,7 +31,6 @@ import { Loader2 } from "lucide-react";
 import { supabase, getCurrentUser } from "../../utils/supabase";
 import SnippetSkeleton from "../SnippetSkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatDistanceToNow } from "date-fns";
 
 // Basic interfaces for our data
 interface Project {
@@ -407,16 +406,10 @@ const WritingEditor: React.FC = () => {
                     className="p-4 bg-secondary rounded-lg opacity-50 transition-opacity"
                   >
                     <p>{snippet.content}</p>
-                    <div className="flex flex-col gap-1 mt-2">
-                      <p className="text-sm text-secondary-text">
-                        Contribution #{snippet.sequence_number} by{" "}
-                        {snippet.creator?.user_profile_name || "Unknown"}
-                      </p>
-                      <p className="text-sm text-muted-foreground italic">
-                        Created{" "}
-                        {formatDistanceToNow(new Date(snippet.created_at))} ago
-                      </p>
-                    </div>
+                    <p className="text-sm text-secondary-text mt-2">
+                      Contribution #{snippet.sequence_number} by{" "}
+                      {snippet.creator?.user_profile_name || "Unknown"}
+                    </p>
                   </div>
                 ))}
                 <SnippetSkeleton />
@@ -428,16 +421,10 @@ const WritingEditor: React.FC = () => {
                   className="p-4 bg-secondary rounded-lg"
                 >
                   <p>{snippet.content}</p>
-                  <div className="flex flex-col gap-1 mt-2">
-                    <p className="text-sm text-secondary-text">
-                      Contribution #{snippet.sequence_number} by{" "}
-                      {snippet.creator?.user_profile_name || "Unknown"}
-                    </p>
-                    <p className="text-sm text-muted-foreground italic">
-                      Created{" "}
-                      {formatDistanceToNow(new Date(snippet.created_at))} ago
-                    </p>
-                  </div>
+                  <p className="text-sm text-secondary-text mt-2">
+                    Contribution #{snippet.sequence_number} by{" "}
+                    {snippet.creator?.user_profile_name || "Unknown"}
+                  </p>
                 </div>
               ))
             )}
