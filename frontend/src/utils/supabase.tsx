@@ -5,6 +5,10 @@ import { createClient, User } from "@supabase/supabase-js";
 const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL as string) || "";
 const supabaseKey = (import.meta.env.VITE_SUPABASE_KEY as string) || "";
 
+if (!supabaseUrl || !supabaseKey) {
+  console.error("Missing Supabase URL or Key");
+}
+
 // Create a single supabase client for interacting with your database
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -48,24 +52,73 @@ const getSession = async () => {
 
 // get all projects + genre .where is_completed = false
 export const getSessions = async () => {
-  const { data: project, error } = await supabase
-    .from("projects")
-    .select("*")
-    .eq("is_completed", false);
+  try {
+    // First, let's try a simpler query to test the connection
+    const { data: project, error } = await supabase
+      .from("projects")
+      .select("*")
+      .eq("is_completed", false);
 
-  if (error) {
-    console.error("Error fetching sessions:", error);
+    if (error) {
+      console.error("Error fetching sessions:", error);
+      return null;
+    }
+
+    // If the basic query works, then let's get the related data
+    const { data: fullProject, error: fullError } = await supabase
+      .from("projects")
+      .select(
+        `
+        *,
+        creator:users_ext!creator_id (
+          auth_id,
+          user_profile_name,
+          avatar_url
+        ),
+        project_contributors (
+          contributor:users_ext!contributor_id (
+            auth_id,
+            user_profile_name,
+            avatar_url
+          )
+        )
+      `
+      )
+      .eq("is_completed", false);
+
+    if (fullError) {
+      console.error("Error fetching full session data:", fullError);
+      return project; // Return basic project data if full query fails
+    }
+
+    console.log("Fetched sessions:", fullProject || project);
+    return fullProject || project;
+  } catch (err) {
+    console.error("Unexpected error in getSessions:", err);
     return null;
   }
-
-  return project;
 };
 
 // get all projects + genre .where is_completed = true
 export const getProjects = async () => {
   const { data: project, error } = await supabase
     .from("projects")
-    .select("*")
+    .select(
+      `
+      *,
+      creator:users_ext(
+        auth_id,
+        user_profile_name
+      ),
+      project_contributors(
+        contributor_id,
+        contributor:users_ext(
+          auth_id,
+          user_profile_name
+        )
+      )
+    `
+    )
     .eq("is_completed", true);
 
   if (error) {

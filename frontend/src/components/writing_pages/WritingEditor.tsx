@@ -3,7 +3,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { useParams, useNavigate } from "react-router-dom";
 
 // Sonner component for toast notifications
 import { toast } from "sonner";
@@ -28,184 +28,483 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
-import { supabase } from "../../utils/supabase";
+import { supabase, getCurrentUser } from "../../utils/supabase";
+import SnippetSkeleton from "../SnippetSkeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const ContentSnippetEditor = () => {
-  const { toast } = useToast();
-  const [title, setTitle] = useState("");
+// Basic interfaces for our data
+interface Project {
+  id: string;
+  title: string;
+  description: string;
+  max_contributors: number;
+  current_contributors_count: number;
+  is_completed: boolean;
+}
+
+interface ProjectContributor {
+  id: string;
+  user_id: string;
+  current_writer: boolean;
+  user_made_contribution: boolean;
+}
+
+interface ProjectSnippet {
+  content: string;
+  creator_id: string;
+  sequence_number: number;
+  created_at: string;
+  creator?: {
+    user_profile_name: string;
+  };
+}
+
+const WritingEditor: React.FC = () => {
+  const { projectId } = useParams();
+  const navigate = useNavigate();
+
+  // State management
+  const [project, setProject] = useState<Project | null>(null);
+  const [isContributor, setIsContributor] = useState(false);
+  const [isMyTurn, setIsMyTurn] = useState(false);
   const [content, setContent] = useState("");
-  const [projects, setProjects] = useState([]);
-  const [selectedProject, setSelectedProject] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+  const [wordCount, setWordCount] = useState(0);
+  const [previousSnippets, setPreviousSnippets] = useState<ProjectSnippet[]>(
+    []
+  );
+  const [userData, setUserData] = useState<{ auth_id: string } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Fetch projects on component mount
+  // Function to fetch snippets
+  const fetchSnippets = async () => {
+    setIsRefreshing(true);
+    try {
+      const { data: snippets, error: snippetsError } = await supabase
+        .from("project_snippets")
+        .select(
+          `
+          *,
+          creator:creator_id (
+            user_profile_name
+          )
+        `
+        )
+        .eq("project_id", projectId)
+        .order("sequence_number", { ascending: true });
+
+      if (snippetsError) throw snippetsError;
+      setPreviousSnippets(snippets || []);
+    } catch (error) {
+      console.error("Error fetching snippets:", error);
+      toast.error("Failed to refresh snippets");
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // Fetch project data and check user status
   useEffect(() => {
-    const fetchProjects = async () => {
-      setIsLoading(true);
-
+    const fetchProjectData = async () => {
       try {
-        const { data, error } = await supabase
+        console.log("Starting to fetch project data...");
+        // Get current user
+        const user = await getCurrentUser();
+        console.log("Current user:", user);
+
+        if (!user) {
+          console.log("No user found, redirecting to login");
+          toast.error("Please log in to view this project");
+          navigate("/login");
+          return;
+        }
+
+        // Set user data directly from auth
+        setUserData({ auth_id: user.id });
+
+        // Fetch project details
+        const { data: projectData, error: projectError } = await supabase
           .from("projects")
-          .select("id, title");
+          .select("*")
+          .eq("id", projectId)
+          .single();
 
-        if (error) throw error;
+        console.log("Project data:", projectData, "Error:", projectError);
 
-        setProjects(data || []);
+        if (projectError) throw projectError;
+        setProject(projectData);
+
+        // Check if user is a contributor
+        const { data: contributorData, error: contributorError } =
+          await supabase
+            .from("project_contributors")
+            .select("*")
+            .eq("project_id", projectId)
+            .eq("user_id", user.id)
+            .single();
+
+        console.log(
+          "Contributor data:",
+          contributorData,
+          "Error:",
+          contributorError
+        );
+
+        setIsContributor(!!contributorData);
+        setIsMyTurn(contributorData?.current_writer || false);
+
+        // Fetch previous snippets
+        await fetchSnippets();
       } catch (error) {
-        console.error("Error fetching projects:", error);
-        toast({
-          title: "Error fetching projects",
-          description: error.message,
-          variant: "destructive",
-        });
+        console.error("Error in fetchProjectData:", error);
+        toast.error("Error loading project");
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchProjects();
-  }, [toast]);
+    fetchProjectData();
+  }, [projectId, navigate]);
 
-  // Handle form submission to save content to Supabase
-  const handleSaveContent = async () => {
-    if (!title || !content || !selectedProject) {
-      toast({
-        title: "Missing fields",
-        description: "Please fill out all fields before saving.",
-        variant: "destructive",
-      });
-      return;
-    }
+  // Add debug render logging
+  console.log("Render state:", {
+    project,
+    isContributor,
+    isMyTurn,
+    userData,
+    previousSnippets: previousSnippets.length,
+  });
 
-    setIsSaving(true);
+  // Handle word count
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newContent = e.target.value;
+    setContent(newContent);
+    setWordCount(newContent.trim().split(/\s+/).filter(Boolean).length);
+  };
 
+  // Join project
+  const handleJoin = async () => {
     try {
-      const { data, error } = await supabase
-        .from("content_snippets")
-        .insert([
-          {
-            title,
-            content,
-            project_id: selectedProject,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-        ])
+      const user = await getCurrentUser();
+      if (!user) {
+        console.log("No user found");
+        toast.error("Please log in to join this project");
+        return;
+      }
+
+      console.log("Attempting to join project with user:", user);
+
+      // Check if project is completed
+      if (project?.is_completed) {
+        toast.error("This project is already completed");
+        return;
+      }
+
+      // Check if project is at max contributors
+      if (
+        project &&
+        project.current_contributors_count >= project.max_contributors
+      ) {
+        toast.error(
+          "This project has reached its maximum number of contributors"
+        );
+        return;
+      }
+
+      // Check if there are any current writers
+      const { data: currentWriters, error: writersError } = await supabase
+        .from("project_contributors")
+        .select("*")
+        .eq("project_id", projectId)
+        .eq("current_writer", true);
+
+      console.log("Current writers check:", { currentWriters, writersError });
+
+      // If no current writers or error fetching (meaning no results), this user should be the writer
+      const shouldBeCurrentWriter =
+        !currentWriters || currentWriters.length === 0;
+      console.log("Should be current writer:", shouldBeCurrentWriter);
+
+      // Insert new contributor
+      const { data: newContributor, error } = await supabase
+        .from("project_contributors")
+        .insert({
+          project_id: projectId,
+          user_id: user.id,
+          joined_at: new Date().toISOString(),
+          current_writer: shouldBeCurrentWriter,
+          user_made_contribution: false,
+        })
         .select();
+
+      console.log("Insert contributor result:", { newContributor, error });
 
       if (error) throw error;
 
-      toast({
-        title: "Content saved",
-        description: "Your content has been saved successfully!",
-      });
+      // Update the project's current_contributors_count
+      const { error: updateError } = await supabase
+        .from("projects")
+        .update({
+          current_contributors_count:
+            (project?.current_contributors_count || 0) + 1,
+        })
+        .eq("id", projectId);
 
-      // Reset form after successful save
-      setTitle("");
-      setContent("");
-      setSelectedProject("");
+      if (updateError) throw updateError;
+
+      setIsContributor(true);
+      setIsMyTurn(shouldBeCurrentWriter);
+
+      if (shouldBeCurrentWriter) {
+        toast.success(
+          "Successfully joined the project! It's your turn to write!"
+        );
+      } else {
+        toast.success(
+          "Successfully joined the project! Waiting for your turn..."
+        );
+      }
+
+      // Refresh the snippets list
+      await fetchSnippets();
+
+      // Force refresh project data to ensure we have latest state
+      const { data: refreshedProject } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("id", projectId)
+        .single();
+
+      if (refreshedProject) {
+        setProject(refreshedProject);
+      }
     } catch (error) {
-      console.error("Error saving content:", error);
-      toast({
-        title: "Error saving content",
-        description: error.message,
-        variant: "destructive",
-      });
+      console.error("Join project error:", error);
+      toast.error("Failed to join project");
+    }
+  };
+
+  // Leave project
+  const handleLeave = async () => {
+    try {
+      if (!userData?.auth_id) return;
+
+      const { error } = await supabase
+        .from("project_contributors")
+        .delete()
+        .eq("project_id", projectId)
+        .eq("user_id", userData.auth_id);
+
+      if (error) throw error;
+
+      // Update the project's current_contributors_count
+      const { error: updateError } = await supabase
+        .from("projects")
+        .update({
+          current_contributors_count: Math.max(
+            (project?.current_contributors_count || 1) - 1,
+            0
+          ),
+        })
+        .eq("id", projectId);
+
+      if (updateError) throw updateError;
+
+      setIsContributor(false);
+      setIsMyTurn(false);
+      toast.success("Successfully left the project");
+      navigate("/sessions");
+    } catch (error) {
+      toast.error("Failed to leave project");
+      console.error("Error:", error);
+    }
+  };
+
+  // Submit contribution
+  const handleSubmit = async () => {
+    if (wordCount < 50 || wordCount > 100) {
+      toast.error("Please write between 50 and 100 words");
+      return;
+    }
+
+    try {
+      if (!userData?.auth_id) return;
+      setIsSubmitting(true);
+
+      // Add new snippet
+      const { error: snippetError } = await supabase
+        .from("project_snippets")
+        .insert({
+          project_id: projectId,
+          creator_id: userData.auth_id,
+          content,
+          word_count: wordCount,
+          sequence_number: previousSnippets.length + 1,
+          created_at: new Date().toISOString(),
+        });
+
+      if (snippetError) throw snippetError;
+
+      // Update contributor status
+      const { error: contributorError } = await supabase
+        .from("project_contributors")
+        .update({
+          current_writer: false,
+          user_made_contribution: true,
+          last_contribution_at: new Date().toISOString(),
+        })
+        .eq("project_id", projectId)
+        .eq("user_id", userData.auth_id);
+
+      if (contributorError) throw contributorError;
+
+      // Immediately fetch updated snippets
+      await fetchSnippets();
+
+      toast.success("Contribution submitted successfully!");
+      setContent("");
+      setWordCount(0);
+      setIsMyTurn(false);
+    } catch (error) {
+      toast.error("Failed to submit contribution");
+      console.error("Error:", error);
     } finally {
-      setIsSaving(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <Card className="w-full max-w-3xl">
-      <CardHeader>
-        <CardTitle>Create Content Snippet</CardTitle>
-        <CardDescription>
-          Write and save content snippets associated with a project.
-        </CardDescription>
-      </CardHeader>
+    <div className="container mx-auto py-8 px-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>{project?.title || "Loading..."}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {/* Project Description */}
+          <div className="mb-6">
+            {isLoading ? (
+              <Skeleton className="h-4 w-3/4" />
+            ) : (
+              <p className="text-secondary-text">{project?.description}</p>
+            )}
+          </div>
 
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="project">Project</Label>
-          <Select
-            value={selectedProject}
-            onValueChange={setSelectedProject}
-            disabled={isLoading || projects.length === 0}
-          >
-            <SelectTrigger id="project">
-              <SelectValue placeholder="Select a project" />
-            </SelectTrigger>
-            <SelectContent>
-              {isLoading ? (
-                <SelectItem value="loading" disabled>
-                  Loading projects...
-                </SelectItem>
-              ) : projects.length === 0 ? (
-                <SelectItem value="none" disabled>
-                  No projects available
-                </SelectItem>
-              ) : (
-                projects.map((project) => (
-                  <SelectItem key={project.id} value={project.id}>
-                    {project.title}
-                  </SelectItem>
-                ))
-              )}
-            </SelectContent>
-          </Select>
-        </div>
+          {/* Previous Snippets */}
+          <div className="mb-6 space-y-4">
+            <h3 className="text-lg font-semibold">Story So Far:</h3>
+            {isLoading ? (
+              <>
+                <SnippetSkeleton />
+                <SnippetSkeleton />
+              </>
+            ) : isRefreshing ? (
+              <>
+                {previousSnippets.map((snippet) => (
+                  <div
+                    key={snippet.sequence_number}
+                    className="p-4 bg-secondary rounded-lg opacity-50 transition-opacity"
+                  >
+                    <p>{snippet.content}</p>
+                    <p className="text-sm text-secondary-text mt-2">
+                      Contribution #{snippet.sequence_number} by{" "}
+                      {snippet.creator?.user_profile_name || "Unknown"}
+                    </p>
+                  </div>
+                ))}
+                <SnippetSkeleton />
+              </>
+            ) : (
+              previousSnippets.map((snippet) => (
+                <div
+                  key={snippet.sequence_number}
+                  className="p-4 bg-secondary rounded-lg"
+                >
+                  <p>{snippet.content}</p>
+                  <p className="text-sm text-secondary-text mt-2">
+                    Contribution #{snippet.sequence_number} by{" "}
+                    {snippet.creator?.user_profile_name || "Unknown"}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="title">Title</Label>
-          <Input
-            id="title"
-            placeholder="Enter snippet title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="content">Content</Label>
-          <Textarea
-            id="content"
-            placeholder="Write your content here..."
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="min-h-32"
-          />
-        </div>
-      </CardContent>
-
-      <CardFooter className="flex justify-between">
-        <Button
-          variant="outline"
-          onClick={() => {
-            setTitle("");
-            setContent("");
-            setSelectedProject("");
-          }}
-        >
-          Clear
-        </Button>
-        <Button
-          onClick={handleSaveContent}
-          disabled={isSaving || !title || !content || !selectedProject}
-        >
-          {isSaving ? (
+          {/* Writing Area */}
+          {isContributor ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
+              <div className="mb-4">
+                {isMyTurn ? (
+                  <>
+                    <Textarea
+                      value={content}
+                      onChange={handleContentChange}
+                      placeholder="Add your contribution (50-100 words)..."
+                      className="min-h-[200px] mb-2"
+                      disabled={!isMyTurn || isSubmitting}
+                    />
+                    <div className="flex justify-between items-center">
+                      <span
+                        className={
+                          wordCount > 100 || wordCount < 50
+                            ? "text-red-500"
+                            : ""
+                        }
+                      >
+                        {wordCount} words
+                      </span>
+                      <Button
+                        onClick={handleSubmit}
+                        disabled={
+                          wordCount > 100 || wordCount < 50 || isSubmitting
+                        }
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Submitting...
+                          </>
+                        ) : (
+                          "Submit Contribution"
+                        )}
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-center text-secondary-text">
+                    Waiting for your turn...
+                  </p>
+                )}
+                <Button
+                  variant="outline"
+                  onClick={handleLeave}
+                  className="mt-4"
+                  disabled={isSubmitting}
+                >
+                  Leave Project
+                </Button>
+              </div>
             </>
           ) : (
-            "Save Content"
+            <Button
+              onClick={handleJoin}
+              className="w-full"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                "Join Project"
+              )}
+            </Button>
           )}
-        </Button>
-      </CardFooter>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
-export default ContentSnippetEditor;
+export default WritingEditor;
