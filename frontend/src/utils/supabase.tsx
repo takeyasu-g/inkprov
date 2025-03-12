@@ -70,57 +70,6 @@ export const getSessions = async () => {
       .select(
         `
         *,
-        creator:users_ext (
-          auth_id,
-          user_profile_name,
-          avatar_url
-        ),
-        project_contributors (
-          contributor:users_ext (
-            auth_id,
-            user_profile_name,
-            avatar_url
-          )
-        )
-      `
-      )
-      .eq("is_completed", false);
-
-    if (fullError) {
-      console.error("Error fetching full session data:", fullError);
-      console.error("Full error details:", fullError.details);
-      return project; // Return basic project data if full query fails
-    }
-
-    console.log("Fetched sessions with full data:", fullProject);
-    console.log("Creator data sample:", fullProject?.[0]?.creator);
-    return fullProject;
-  } catch (err) {
-    console.error("Unexpected error in getSessions:", err);
-    return null;
-  }
-};
-
-// get all projects + genre .where is_completed = true
-export const getProjects = async () => {
-  try {
-    // First, let's try a simpler query to test the connection
-    const { data: project, error } = await supabase
-      .from("projects")
-      .select("*")
-      .eq("is_completed", true);
-
-    if (error) {
-      console.error("Error fetching sessions:", error);
-      return null;
-    }
-
-    // If the basic query works, then let's get the related data
-    const { data: fullProject, error: fullError } = await supabase
-      .from("projects")
-      .select(
-        `
-        *,
         creator:users_ext!creator_id (
           auth_id,
           user_profile_name,
@@ -135,50 +84,50 @@ export const getProjects = async () => {
         )
       `
       )
-      .eq("is_completed", true);
+      .eq("is_completed", false);
 
     if (fullError) {
-      console.error("Error fetching full project data:", fullError);
+      console.error("Error fetching full session data:", fullError);
       return project; // Return basic project data if full query fails
     }
 
-    console.log("Fetched projects:", fullProject || project);
+    console.log("Fetched sessions:", fullProject || project);
     return fullProject || project;
   } catch (err) {
-    console.error("Unexpected error in getProjects:", err);
+    console.error("Unexpected error in getSessions:", err);
     return null;
   }
 };
 
-// // get all projects + genre .where is_completed = true
-// export const getProjects = async () => {
-//   const { data: project, error } = await supabase
-//     .from("projects")
-//     .select(
-//       `
-//       *,
-//       creator:users_ext(
-//         auth_id,
-//         user_profile_name
-//       ),
-//         project_contributors (
-//           contributor:users_ext!contributor_id (
-//             auth_id,
-//             user_profile_name,
-//             avatar_url
-//           )
-//       )
-//     `
-//     )
-//     .eq("is_completed", true);
+// get all projects + genre .where is_completed = true
+export const getProjects = async () => {
+  const { data: project, error } = await supabase
+    .from("projects")
+    .select(
+      `
+      *,
+      creator:users_ext(
+        auth_id,
+        user_profile_name
+      ),
+      project_contributors(
+        contributor_id,
+        contributor:users_ext(
+          auth_id,
+          user_profile_name
+        )
+      )
+    `
+    )
+    .eq("is_completed", true);
 
-//   if (error) {
-//     console.error("Error fetching sessions:", error);
-//     return null;
-//   }
+  if (error) {
+    console.error("Error fetching sessions:", error);
+    return null;
+  }
 
-//   return project;
-// };
+  return project;
+};
 
 // Function to fetch tags from Supabase
 export const getTags = async () => {
