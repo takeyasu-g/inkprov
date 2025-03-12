@@ -3,7 +3,6 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import LoginPage from "../auth/LoginPage";
 import RegisterPage from "../auth/RegisterPage";
 import WritingEditor from "../writing_pages/WritingEditor";
-import OnboardingPage from "../navigation_pages/OnboardingPage";
 import LandingPage from "../navigation_pages/LandingPage";
 import Settings from "../navigation_pages/Settings";
 import OpenSessionsPage from "../navigation_pages/OpenSessionsPage";
