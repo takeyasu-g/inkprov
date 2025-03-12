@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -13,7 +13,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProjectsData } from "@/types/global";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getCurrentUser, supabase } from "@/utils/supabase";
 import { formatDistanceToNow } from "date-fns";
 
 interface SessionCardDataProp {

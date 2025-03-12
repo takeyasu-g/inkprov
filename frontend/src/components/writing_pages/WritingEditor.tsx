@@ -13,20 +13,10 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+
 import { Loader2 } from "lucide-react";
 import { supabase, getCurrentUser } from "../../utils/supabase";
 import SnippetSkeleton from "../SnippetSkeleton";
@@ -42,12 +32,12 @@ interface Project {
   is_completed: boolean;
 }
 
-interface ProjectContributor {
-  id: string;
-  user_id: string;
-  current_writer: boolean;
-  user_made_contribution: boolean;
-}
+// interface ProjectContributor {
+//   id: string;
+//   user_id: string;
+//   current_writer: boolean;
+//   user_made_contribution: boolean;
+// }
 
 interface ProjectSnippet {
   content: string;
