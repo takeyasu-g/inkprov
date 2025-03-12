@@ -116,7 +116,7 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
               </NavigationMenuItem>
               <NavigationMenuItem className="group/create">
                 <NavigationMenuLink
-                  onClick={() => navigate("/create")}
+                  onClick={() => navigate("/sessions/create")}
                   className="hover:bg-transparent cursor-pointer"
                 >
                   <div className="flex gap-1 items-center cursor-pointer">
@@ -184,7 +184,7 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
           <Button
             className="text-primary-text text-md hover:no-underline hover:text-hover-text cursor-pointer"
             variant="link"
-            onClick={() => window.location.href = "/login"}
+            onClick={() => (window.location.href = "/login")}
           >
             Sign In
           </Button>
@@ -192,7 +192,7 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
           <Button
             className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
             variant="default"
-            onClick={() => window.location.href = "/register"}
+            onClick={() => (window.location.href = "/register")}
           >
             Get Started
           </Button>

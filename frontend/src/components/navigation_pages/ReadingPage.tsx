@@ -1,8 +1,10 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui";
 
 const ReadingPage: React.FC = () => {
   const { projectId } = useParams();
+  const navigate = useNavigate();
 
   // Placeholder data - this would come from your database
   const exampleProject = {
@@ -23,9 +25,17 @@ The garden had chosen her, just as it had chosen others before. Each midnight vi
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="bg-background rounded-lg p-8 shadow-lg border border-primary-border">
         <header className="mb-8">
-          <h1 className="text-3xl font-bold text-primary-text mb-2">
-            {exampleProject.title}
-          </h1>
+          <div className="flex justify-between items-start mb-4">
+            <h1 className="text-3xl font-bold text-primary-text">
+              {exampleProject.title}
+            </h1>
+            <Button
+              className="bg-primary-button hover:bg-primary-button-hover"
+              onClick={() => navigate(`/writing/${projectId}`)}
+            >
+              Join Project
+            </Button>
+          </div>
           <div className="flex flex-wrap gap-4 items-center text-secondary-text">
             <span className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm">
               {exampleProject.genre}
