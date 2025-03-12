@@ -17,7 +17,7 @@ export interface ProjectsData {
   title: string;
   description: string;
   project_genre: string;
-  current_contributors_quantity: number;
+  current_contributors_count: number;
   max_contributors: number;
   is_mature_content: boolean;
   is_public: boolean;

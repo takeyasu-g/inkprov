@@ -22,36 +22,36 @@ interface SessionCardDataProp {
 // SessionCardSkeleton component
 export const SessionCardSkeleton: React.FC = () => {
   return (
-    <Card className="w-[350px] h-[250px] bg-background-card">
+    <Card className='w-[350px] h-[250px] bg-background-card'>
       <CardHeader>
-        <div className="flex justify-between items-center">
-          <Skeleton className="h-5 w-20" /> {/* Genre badge */}
-          <div className="flex items-center gap-1">
-            <Skeleton className="h-4 w-12" /> {/* Contributors count */}
+        <div className='flex justify-between items-center'>
+          <Skeleton className='h-5 w-20' /> {/* Genre badge */}
+          <div className='flex items-center gap-1'>
+            <Skeleton className='h-4 w-12' /> {/* Contributors count */}
           </div>
         </div>
-        <div className="flex justify-between items-center">
-          <Skeleton className="h-6 w-40" /> {/* Title */}
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-8 w-8 rounded-full" /> {/* Avatar */}
+        <div className='flex justify-between items-center'>
+          <Skeleton className='h-6 w-40' /> {/* Title */}
+          <div className='flex items-center gap-2'>
+            <Skeleton className='h-8 w-8 rounded-full' /> {/* Avatar */}
           </div>
         </div>
       </CardHeader>
-      <div className="bg-white">
-        <div className="m-4">
-          <Skeleton className="h-4 w-full mb-2" /> {/* Description line 1 */}
-          <Skeleton className="h-4 w-3/4" /> {/* Description line 2 */}
+      <div className='bg-white'>
+        <div className='m-4'>
+          <Skeleton className='h-4 w-full mb-2' /> {/* Description line 1 */}
+          <Skeleton className='h-4 w-3/4' /> {/* Description line 2 */}
         </div>
       </div>
-      <CardFooter className="flex flex-col gap-2">
-        <div className="flex items-center gap-2">
-          <Skeleton className="h-6 w-24" /> {/* Contributors text */}
-          <div className="flex -space-x-2">
-            <Skeleton className="h-6 w-6 rounded-full" />
-            <Skeleton className="h-6 w-6 rounded-full" />
+      <CardFooter className='flex flex-col gap-2'>
+        <div className='flex items-center gap-2'>
+          <Skeleton className='h-6 w-24' /> {/* Contributors text */}
+          <div className='flex -space-x-2'>
+            <Skeleton className='h-6 w-6 rounded-full' />
+            <Skeleton className='h-6 w-6 rounded-full' />
           </div>
         </div>
-        <Skeleton className="h-10 w-full" /> {/* Button */}
+        <Skeleton className='h-10 w-full' /> {/* Button */}
       </CardFooter>
     </Card>
   );
@@ -68,55 +68,55 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
     : "";
 
   return (
-    <Card className="w-[350px] min-h-[250px] bg-background-card flex flex-col">
-      <CardHeader className="flex-none space-y-3">
-        <div className="flex justify-between items-center">
+    <Card className='w-[350px] min-h-[250px] bg-background-card flex flex-col'>
+      <CardHeader className='flex-none space-y-3'>
+        <div className='flex justify-between items-center'>
           <Badge className={`genre-${sessionData.project_genre.toLowerCase()}`}>
             {sessionData.project_genre}
           </Badge>
-          <div className="flex items-center gap-1">
-            <Users className="text-secondary-text p-0.5" />
-            <span className="text-secondary-text text-sm">
-              {sessionData.current_contributors_quantity}/
+          <div className='flex items-center gap-1'>
+            <Users className='text-secondary-text p-0.5' />
+            <span className='text-secondary-text text-sm'>
+              {sessionData.current_contributors_count} /
               {sessionData.max_contributors}
               {sessionData.creator?.user_profile_name && (
-                <span className="ml-1">
+                <span className='ml-1'>
                   by {sessionData.creator.user_profile_name}
                 </span>
               )}
             </span>
           </div>
         </div>
-        <div className="flex flex-col gap-1">
-          <CardTitle className="text-amber-900 text-left font-bold">
+        <div className='flex flex-col gap-1'>
+          <CardTitle className='text-amber-900 text-left font-bold'>
             {sessionData.title}
           </CardTitle>
-          <span className="text-xs text-secondary-text italic">
+          <span className='text-xs text-secondary-text italic'>
             {formattedDate}
           </span>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-secondary-text">by</span>
-            <span className="text-sm font-medium">
+          <div className='flex items-center gap-2'>
+            <span className='text-sm text-secondary-text'>by</span>
+            <span className='text-sm font-medium'>
               {sessionData.creator?.user_profile_name || "Unknown"}
             </span>
           </div>
         </div>
       </CardHeader>
-      <div className="bg-white flex-grow">
-        <CardDescription className="m-4 text-secondary-text">
+      <div className='bg-white flex-grow'>
+        <CardDescription className='m-4 text-secondary-text'>
           {sessionData.description}
         </CardDescription>
       </div>
-      <CardFooter className="flex-none p-4 w-full">
+      <CardFooter className='flex-none p-4 w-full'>
         {contributors.length > 0 && (
-          <div className="flex flex-col w-full gap-2">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-secondary-text">Contributors:</span>
-              <div className="flex -space-x-2 overflow-hidden">
+          <div className='flex flex-col w-full gap-2'>
+            <div className='flex items-center gap-2'>
+              <span className='text-sm text-secondary-text'>Contributors:</span>
+              <div className='flex -space-x-2 overflow-hidden'>
                 {contributors.map((pc) => (
                   <Avatar
                     key={pc.contributor_id}
-                    className="h-6 w-6 border-2 border-background"
+                    className='h-6 w-6 border-2 border-background'
                   >
                     <AvatarImage src={pc.contributor?.avatar_url} />
                     <AvatarFallback>
@@ -128,7 +128,7 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
               </div>
             </div>
             <Button
-              className="bg-primary-button hover:bg-primary-button-hover w-full cursor-pointer"
+              className='bg-primary-button hover:bg-primary-button-hover w-full cursor-pointer'
               onClick={() => navigate(`/writing/${sessionData.id}`)}
             >
               View Session
@@ -137,7 +137,7 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
         )}
         {!contributors.length && (
           <Button
-            className="bg-primary-button hover:bg-primary-button-hover w-full cursor-pointer"
+            className='bg-primary-button hover:bg-primary-button-hover w-full cursor-pointer'
             onClick={() => navigate(`/writing/${sessionData.id}`)}
           >
             View Session
