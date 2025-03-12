@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import { ProjectSnippet, ProjectsData } from "@/types/global";
 import { getProjectOfId, getProjectSnippets } from "@/utils/supabase";
 import {
-  Button,
   Card,
   CardContent,
   CardHeader,
@@ -19,14 +18,24 @@ const ReadingPage: React.FC = () => {
   const [projectSnippets, setProjectSnippets] = useState<
     ProjectSnippet[] | null
   >();
-  const [projectData, setProjectData] = useState<ProjectsData[] | null>();
+  const [projectData, setProjectData] = useState<ProjectsData | null>();
 
   // handles fetching Project Snippets from the Project ID
   const handleFetchProjectSnippets = async () => {
     const projectSnippetsData = await getProjectSnippets(projectId);
 
     console.log(projectSnippetsData);
-    setProjectSnippets(projectSnippetsData);
+
+    if (projectSnippetsData) {
+      const orderedSnippets = projectSnippetsData
+        .slice() // Create a shallow copy to avoid mutating the original array
+        .sort((a, b) => a.sequence_number - b.sequence_number); // Sort in ascending order
+      // .map((snippet) => snippet.content); // gets only content
+
+      console.log(orderedSnippets);
+
+      setProjectSnippets(orderedSnippets);
+    }
   };
 
   // handles fetching projectData where = projectId
@@ -60,16 +69,21 @@ The garden had chosen her, just as it had chosen others before. Each midnight vi
 
   return (
     <div className='container mx-auto px-4 py-8 max-w-4xl'>
-      <div className='bg-background rounded-lg p-8 shadow-lg border border-primary-border'>
-        <header className='mb-8'>
-          <h1 className='text-3xl font-bold text-primary-text mb-2'>
-            {exampleProject.title}
-          </h1>
+      <Card className='bg-background rounded-lg p-8 shadow-lg border border-primary-border'>
+        <CardHeader className='mb-2'>
+          <CardTitle className='text-3xl font-bold text-primary-text mb-2'>
+            {projectData?.title}
+          </CardTitle>
           <div className='flex flex-wrap gap-4 items-center text-secondary-text'>
-            <span className='bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm'>
-              {exampleProject.genre}
+            <Badge className='bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm'>
+              {projectData?.project_genre}
+            </Badge>
+            <span>
+              Completed:{" "}
+              {projectData?.updated_at
+                ? new Date(projectData.updated_at).toDateString()
+                : "No date found"}
             </span>
-            <span>Completed: {exampleProject.dateCompleted}</span>
             <div className='flex items-center gap-2'>
               <span>Contributors:</span>
               <div className='flex -space-x-2'>
@@ -85,16 +99,20 @@ The garden had chosen her, just as it had chosen others before. Each midnight vi
               </div>
             </div>
           </div>
-        </header>
-
-        <article className='prose prose-lg max-w-none'>
-          {exampleProject.content.split("\n\n").map((paragraph, index) => (
-            <p key={index} className='text-primary-text'>
-              {paragraph}
-            </p>
-          ))}
-        </article>
-      </div>
+        </CardHeader>
+        <CardContent>
+          <ScrollArea className='h-[320px] p-2'>
+            {projectSnippets?.map((snippet) => (
+              <p
+                key={snippet.id}
+                className='text-primary-text break-words whitespace-normal'
+              >
+                {snippet.content}
+              </p>
+            ))}
+          </ScrollArea>
+        </CardContent>
+      </Card>
     </div>
   );
 };

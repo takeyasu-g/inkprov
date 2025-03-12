@@ -66,7 +66,7 @@ export const getProjectSnippets = async (
 // get project at Id .where is_completed = true
 export const getProjectOfId = async (
   projectId: string | undefined
-): Promise<ProjectsData[] | null> => {
+): Promise<ProjectsData | null> => {
   const { data: project, error } = await supabase
     .from("projects")
     .select("*")
@@ -78,7 +78,7 @@ export const getProjectOfId = async (
     return null;
   }
 
-  return project;
+  return project[0];
 };
 
 export const getSessions = async () => {
