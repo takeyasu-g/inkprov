@@ -36,14 +36,14 @@ const Settings: React.FC = () => {
     // Fetch user data
     const userData = Promise.all([getUsername(), getBio(), getMatureContent()]);
     userData.then((res) => {
-      let username = res[0].data[0].user_profile_name;
+      let username = res[0][0].user_profile_name;
       if (username.includes("@")) {
         username = username.substring(0, username.indexOf("@"));
       }
 
       setUsername(username);
-      setBio(res[1].data[0].user_profile_bio);
-      setMatureContent(res[2].data[0].user_profile_mature_enabled);
+      setBio(res[1][0].user_profile_bio);
+      setMatureContent(res[2][0].user_profile_mature_enabled);
     });
   }, []);
 

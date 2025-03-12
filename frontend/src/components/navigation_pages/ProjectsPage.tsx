@@ -14,7 +14,6 @@ const ProjectsPage: React.FC = () => {
   const handleFetchAllProjects = async () => {
     const allProjectsData = await getProjects();
 
-    console.log(allProjectsData);
     setAllProjects(allProjectsData || []);
   };
 
