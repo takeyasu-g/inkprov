@@ -28,6 +28,7 @@ const OpenSessionsPage: React.FC = () => {
     navigate("/sessions/create");
   };
 
+
   // getAllSessions
   const handleFetchAllSessions = async () => {
     try {
@@ -58,6 +59,7 @@ const OpenSessionsPage: React.FC = () => {
   // handler to change assign filters
   const handleGenreFilter = (genre: string = "All") => setGenreFilter(genre);
   const handleSearch = (query: string) => setSearchQuery(query);
+
 
   // Make filteredSessions[] based on both searchQuery and genreFilter
   const filteredSessions = allSessions?.filter((session) => {

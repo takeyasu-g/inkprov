@@ -44,9 +44,11 @@ export default function RegisterPage() {
   // Form submission
   async function onSubmit(values: z.infer<typeof registerSchema>) {
     try {
+
       setIsLoading(true);
 
       // Sign up user
+
       const response = await supabase.auth.signUp({
         email: values.email,
         password: values.password,
@@ -55,23 +57,29 @@ export default function RegisterPage() {
           data: {
             username: values.email.substring(0, values.email.indexOf("@")),
             full_name: values.email.substring(0, values.email.indexOf("@")),
+
           },
         },
       });
+
+      console.log("Signup response:", response);
 
       if (response.error) {
         console.error("Signup error details:", response.error);
         throw response.error;
       }
+
         toast.success(
           "Registration successful! Please check your email to confirm your account."
         );
+
 
         // Redirect to sessions page after successful registration
         setTimeout(() => {
           navigate("/sessions");
         }, 2000);
       
+
     } catch (error: any) {
       setIsLoading(false);
       console.error("Signup error:", error);
