@@ -25,7 +25,6 @@ export interface ProjectsData {
   updated_at: Date;
   is_completed: boolean;
   total_contributors: number;
-  current_contributors_count: number;
   creator?: UserProfile;
   project_contributors?: ProjectContributor[];
 }
