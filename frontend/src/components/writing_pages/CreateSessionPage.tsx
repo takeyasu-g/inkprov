@@ -165,26 +165,15 @@ const CreateSession: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // Gets the user's auth_id from users_ext
-      const { data: userData, error: userError } = await supabase
-        .from("users_ext")
-        .select("auth_id")
-        .eq("user_email", user?.email)
-        .single();
-
-      if (userError) {
-        throw userError;
-      }
-
-      if (!userData?.auth_id) {
-        throw new Error("User profile not found");
+      if (!user?.id) {
+        throw new Error("User ID not found");
       }
 
       // Inserts project into the 'projects' table
       const newProject: Project = {
         title,
         description,
-        creator_id: userData.auth_id,
+        creator_id: user.id,
         created_at: new Date().toISOString(),
         is_public: isPublic,
         is_mature_content: isMatureContent,
@@ -206,7 +195,7 @@ const CreateSession: React.FC = () => {
       const newSnippet: ProjectSnippet = {
         project_id: projectData.id,
         content,
-        creator_id: userData.auth_id,
+        creator_id: user.id,
         created_at: new Date().toISOString(),
         word_count: wordCount,
         sequence_number: 1,
