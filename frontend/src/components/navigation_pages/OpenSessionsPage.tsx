@@ -20,6 +20,7 @@ const OpenSessionsPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const [lastFocusTime, setLastFocusTime] = useState<number>(Date.now());
 
+  // entry handling 
   const handleCreateSession = () => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -29,6 +30,8 @@ const OpenSessionsPage: React.FC = () => {
   };
 
   // getAllSessions
+  // this gets all sessions (open projects) for display on the main page
+  
   const handleFetchAllSessions = async () => {
     try {
       setIsLoading(true);
@@ -58,7 +61,7 @@ const OpenSessionsPage: React.FC = () => {
     if (shouldRefresh === "true") {
       // Clear the flag
       sessionStorage.removeItem("refreshSessions");
-      // Set a small delay to ensure the DB has been updated
+      // Set a small delay to ensure the DB has been updated otherwise stuff breaks
       setTimeout(() => {
         handleFetchAllSessions();
       }, 500);
@@ -69,15 +72,16 @@ const OpenSessionsPage: React.FC = () => {
   useEffect(() => {
     const handleFocus = () => {
       // Always refresh when the page gains focus - this ensures contributor counts are up-to-date
+      // Previous behaviour was that the contributor counts would never update even though the backend was updating appropriately 
       console.log("Window gained focus, refreshing sessions data");
       handleFetchAllSessions();
       setLastFocusTime(Date.now());
     };
 
-    // Add event listener for when the window regains focus
+    // Adds event listener for when the window regains focus
     window.addEventListener("focus", handleFocus);
 
-    // Also refresh when location changes (user navigates back to this page)
+    // Redunancy handling - refresh when location changes (user navigates back to this page)
     handleFocus();
 
     return () => {
@@ -105,13 +109,15 @@ const OpenSessionsPage: React.FC = () => {
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
 
+  // loading placeholders 
   const renderSkeletons = () => {
     return Array(6)
       .fill(0)
       .map((_, index) => <SessionCardSkeleton key={index} />);
   };
 
-  // Add a refresh button to manually refresh sessions
+  // Adds a refresh button to manually refresh sessions
+  // TODO: this may be no longer needed 
   const handleManualRefresh = () => {
     handleFetchAllSessions();
     setLastFocusTime(Date.now());
