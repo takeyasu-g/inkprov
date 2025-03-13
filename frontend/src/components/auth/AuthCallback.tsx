@@ -1,4 +1,6 @@
 // src/components/auth/AuthCallback.tsx
+// handling for Google login routing 
+
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/utils/supabase";
@@ -7,7 +9,7 @@ const AuthCallback = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // This will handle the OAuth redirect
+    // This will eventually handle the OAuth redirect
     const handleAuthStateChange = async () => {
       try {
         // Get the current session
