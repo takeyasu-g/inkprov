@@ -18,7 +18,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import { User } from "@supabase/supabase-js";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -242,7 +242,6 @@ const CreateSession: React.FC = () => {
 
   return (
     <div className="container mx-auto py-8 max-w-2xl">
-      <Toaster position="top-center" richColors />
       <Card>
         <CardHeader>
           <CardTitle>Create New Writing Session</CardTitle>

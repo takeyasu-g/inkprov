@@ -34,15 +34,15 @@ const GenreFilter: React.FC<GenreFilterProps> = ({ onSelect }) => {
   return (
     // ToggleGroup is like a bunch of Buttons together, when selected a button it will go to handleSelect
     <ToggleGroup
-      className='bg-secondary-background text-[var(--filter-btn-text)]'
-      type='single'
+      className="bg-secondary-background text-[var(--filter-btn-text)]"
+      type="single"
       value={selectedGenre}
       onValueChange={handleSelectFilter}
     >
       {/* map through hard coded genres */}
       {genres.map((genre) => (
         <ToggleGroupItem
-          className='px-3 hover:bg-amber-600 rounded-lg not-data-[state=on]:hover:text-white data-[state=on]:text-white data-[state=on]:bg-amber-700 data-[state=on]:rounded-lg '
+          className="px-3 hover:bg-amber-600 rounded-lg not-data-[state=on]:hover:text-white data-[state=on]:text-white data-[state=on]:bg-amber-700 data-[state=on]:rounded-lg cursor-pointer"
           key={genre}
           value={genre}
         >

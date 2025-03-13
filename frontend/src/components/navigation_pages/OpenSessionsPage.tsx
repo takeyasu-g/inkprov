@@ -26,7 +26,6 @@ const OpenSessionsPage: React.FC = () => {
     navigate("/sessions/create");
   };
 
-
   // getAllSessions
   const handleFetchAllSessions = async () => {
     try {
@@ -55,7 +54,6 @@ const OpenSessionsPage: React.FC = () => {
   // handler to change assign filters
   const handleGenreFilter = (genre: string = "All") => setGenreFilter(genre);
   const handleSearch = (query: string) => setSearchQuery(query);
-
 
   // Make filteredSessions[] based on both searchQuery and genreFilter
   const filteredSessions = allSessions?.filter((session) => {
@@ -89,7 +87,7 @@ const OpenSessionsPage: React.FC = () => {
         <div className="flex gap-3">
           <SearchBar onSearch={handleSearch} />
           <Button
-            className="bg-amber-800 hover:bg-amber-700"
+            className="bg-amber-800 hover:bg-amber-700 cursor-pointer"
             onClick={handleCreateSession}
           >
             <BookPlus />

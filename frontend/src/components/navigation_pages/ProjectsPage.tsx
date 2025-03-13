@@ -64,7 +64,7 @@ const ProjectsPage: React.FC = () => {
             <ProjectCard key={project.id} projectData={project} />
           ))
         ) : (
-          <p className='text-center text-gray-500'>No projects found.</p>
+          <p className='text-center text-gray-500'>No Stories Found.</p>
         )}
       </div>
     </main>

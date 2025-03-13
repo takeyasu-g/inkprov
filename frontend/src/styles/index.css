@@ -6,9 +6,8 @@
 
 :root {
   --background: oklch(96.92% 0.0162 95.22);
-  --secondary-background: oklch(
-    96.19% 0.058 95.62
-  ); /*sub background color #fef3c7 */
+  --secondary-background: oklch(96.19% 0.058 95.62);
+  --tertiary-background: oklch(0.924 0.12 95.746);
   --primary-text: oklch(42.1% 0.0897 57.71);
   --hover-text: oklch(55.53% 0.1455 49);
   --secondary-text: oklch(47.32% 0.1247 46.2);

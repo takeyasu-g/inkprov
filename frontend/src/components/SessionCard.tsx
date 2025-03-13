@@ -128,7 +128,7 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
               </div>
             </div>
             <Button
-              className="bg-primary-button hover:bg-primary-button-hover w-full"
+              className="bg-primary-button hover:bg-primary-button-hover w-full cursor-pointer"
               onClick={() => navigate(`/writing/${sessionData.id}`)}
             >
               View Session
@@ -137,7 +137,7 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
         )}
         {!contributors.length && (
           <Button
-            className="bg-primary-button hover:bg-primary-button-hover w-full"
+            className="bg-primary-button hover:bg-primary-button-hover w-full cursor-pointer"
             onClick={() => navigate(`/writing/${sessionData.id}`)}
           >
             View Session
