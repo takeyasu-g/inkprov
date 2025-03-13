@@ -72,6 +72,8 @@ const CreateSession: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
 
+  const MAX_DESCRIPTION_LENGTH = 280;
+
   // Check authentication on mount
   useEffect(() => {
     if (!isAuthenticated) {
@@ -119,6 +121,16 @@ const CreateSession: React.FC = () => {
     // Count words (split by whitespace, previous method invalid)
     const words = newContent.trim() ? newContent.trim().split(/\s+/) : [];
     setWordCount(words.length);
+  };
+
+  // Handle description change with character limit
+  const handleDescriptionChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    const newDescription = e.target.value;
+    if (newDescription.length <= MAX_DESCRIPTION_LENGTH) {
+      setDescription(newDescription);
+    }
   };
 
   // Handles form submission
@@ -209,6 +221,22 @@ const CreateSession: React.FC = () => {
         throw snippetError;
       }
 
+      // Insert the project creator into the project_contributors table
+      const { error: contributorError } = await supabase
+        .from("project_contributors")
+        .insert([
+          {
+            project_id: projectData.id,
+            user_id: user.id,
+            user_is_project_creator: true,
+            joined_at: new Date().toISOString(),
+          },
+        ]);
+
+      if (contributorError) {
+        throw contributorError;
+      }
+
       toast.success("Session Created", {
         description: "Your writing session has been created successfully!",
       });
@@ -230,7 +258,16 @@ const CreateSession: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto py-8 max-w-2xl">
+    <div className="container mx-auto py-8 max-w-2xl pb-16">
+      <div className="mb-4 flex justify-start">
+        <Button
+          variant="outline"
+          onClick={() => navigate("/sessions")}
+          className="text-sm"
+        >
+          Back to Sessions
+        </Button>
+      </div>
       <Card>
         <CardHeader>
           <CardTitle>Create New Writing Session</CardTitle>
@@ -263,13 +300,23 @@ const CreateSession: React.FC = () => {
               <Textarea
                 id="description"
                 value={description}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                  setDescription(e.target.value)
-                }
+                onChange={handleDescriptionChange}
                 placeholder="Describe what this writing session is about..."
                 className="min-h-[100px]"
+                maxLength={MAX_DESCRIPTION_LENGTH}
                 required
               />
+              <div className="text-sm text-right">
+                <span
+                  className={
+                    description.length === MAX_DESCRIPTION_LENGTH
+                      ? "text-red-500"
+                      : "text-secondary-text"
+                  }
+                >
+                  {description.length}/{MAX_DESCRIPTION_LENGTH} characters
+                </span>
+              </div>
             </div>
 
             <div className="space-y-2">

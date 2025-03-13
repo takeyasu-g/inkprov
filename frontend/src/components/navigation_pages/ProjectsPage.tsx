@@ -13,7 +13,7 @@ const ProjectsPage: React.FC = () => {
   // getAllProjects
   const handleFetchAllProjects = async () => {
     const allProjectsData = await getProjects();
-
+    console.log("Fetched projects:", allProjectsData); // verbose debugging output
     setAllProjects(allProjectsData || []);
   };
 
@@ -38,33 +38,33 @@ const ProjectsPage: React.FC = () => {
   });
 
   return (
-    <main className='container mx-auto px-4 py-8'>
-      <header className='flex justify-between'>
-        <div className='mb-8 text-left'>
-          <h1 className='text-3xl font-bold text-primary-text'>
+    <main className="container mx-auto px-4 py-8">
+      <header className="flex justify-between">
+        <div className="mb-8 text-left">
+          <h1 className="text-3xl font-bold text-primary-text">
             Completed Stories
           </h1>
-          <p className='text-secondary-text mt-2'>
+          <p className="text-secondary-text mt-2">
             Browse and read collaborative stories created by our community
           </p>
         </div>
 
-        <div className='flex gap-3'>
+        <div className="flex gap-3">
           <SearchBar onSearch={handleSearch} />
         </div>
       </header>
 
-      <nav className='my-6'>
+      <nav className="my-6">
         <GenreFilter onSelect={handleGenreFilter}></GenreFilter>
       </nav>
 
-      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredProjects.length > 0 ? (
           filteredProjects.map((project) => (
             <ProjectCard key={project.id} projectData={project} />
           ))
         ) : (
-          <p className='text-center text-gray-500'>No Stories Found.</p>
+          <p className="text-center text-gray-500">No Stories Found.</p>
         )}
       </div>
     </main>

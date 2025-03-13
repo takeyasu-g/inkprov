@@ -62,6 +62,8 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
 }): React.ReactElement => {
   const navigate = useNavigate();
   const contributors = sessionData.project_contributors || [];
+  const currentUser = sessionData.creator;
+  const [showTooltip, setShowTooltip] = React.useState(false);
 
   console.log("Session Data:", sessionData);
   console.log("Creator Data:", sessionData.creator);
@@ -69,6 +71,15 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
   const formattedDate = sessionData.created_at
     ? `Created ${formatDistanceToNow(new Date(sessionData.created_at))} ago`
     : "";
+
+  const isProjectCreator =
+    sessionData.creator_id === sessionData.creator?.auth_id;
+
+  const isUserContributor =
+    currentUser &&
+    contributors.some(
+      (contributor) => contributor.contributor_id === currentUser.auth_id
+    );
 
   return (
     <Card className="w-[350px] min-h-[250px] bg-background-card flex flex-col text-justified">
@@ -79,7 +90,11 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
           </Badge>
           <div className="flex items-center gap-1">
             <Users className="text-secondary-text p-0.5" />
-            <span className="text-secondary-text text-sm">
+            <span
+              className={`text-sm ${
+                isUserContributor ? "text-green-500" : "text-secondary-text"
+              }`}
+            >
               {sessionData.current_contributors_count} /{" "}
               {sessionData.max_contributors}
             </span>
@@ -94,9 +109,6 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
             <span className="text-sm font-medium">
               {sessionData.creator?.user_profile_name || "Anonymous"}
             </span>
-            <span className="text-xs text-secondary-text italic">
-              {formattedDate}
-            </span>
           </div>
         </div>
       </CardHeader>
@@ -106,41 +118,26 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
         </CardDescription>
       </div>
       <CardFooter className="flex-none p-4 w-full">
-        {contributors.length > 0 && (
-          <div className="flex flex-col w-full gap-2">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-secondary-text">Contributors:</span>
-              <div className="flex -space-x-2 overflow-hidden">
-                {contributors.map((pc) => (
-                  <Avatar
-                    key={pc.contributor_id}
-                    className="h-6 w-6 border-2 border-background"
-                  >
-                    <AvatarImage src={pc.contributor?.avatar_url} />
-                    <AvatarFallback>
-                      {pc.contributor?.user_profile_name?.[0]?.toUpperCase() ||
-                        "?"}
-                    </AvatarFallback>
-                  </Avatar>
-                ))}
-              </div>
-            </div>
-            <Button
-              className="bg-primary-button hover:bg-primary-button-hover w-full cursor-pointer"
-              onClick={() => navigate(`/writing/${sessionData.id}`)}
-            >
-              View Session
-            </Button>
-          </div>
-        )}
-        {!contributors.length && (
+        <div className="flex flex-col w-full gap-2">
           <Button
-            className="bg-primary-button hover:bg-primary-button-hover w-full cursor-pointer"
+            className="bg-primary-button hover:bg-primary-button-hover w-full cursor-pointer relative"
             onClick={() => navigate(`/writing/${sessionData.id}`)}
+            onMouseEnter={() => setShowTooltip(true)}
+            onMouseLeave={() => setShowTooltip(false)}
           >
             View Session
+            {showTooltip && (
+              <span className="absolute top-full mt-1 text-xs bg-gray-700 text-white p-1 rounded">
+                Joined
+              </span>
+            )}
           </Button>
-        )}
+          <div className="mx-4 mt-2">
+            <span className="text-xs text-secondary-text italic">
+              {formattedDate}
+            </span>
+          </div>
+        </div>
       </CardFooter>
     </Card>
   );
