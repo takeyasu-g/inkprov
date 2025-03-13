@@ -26,6 +26,13 @@ export interface ProjectsData {
   created_at: Date;
   current_contributors_count: number;
   max_contributors: number;
+  is_mature_content: boolean;
+  is_public: boolean;
+  created_at: Date;
+  updated_at: Date;
+  is_completed: boolean;
+  total_contributors: number;
+  creator?: UserProfile;
   project_contributors?: ProjectContributor[];
 }
 
