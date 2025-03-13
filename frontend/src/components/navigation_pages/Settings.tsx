@@ -190,9 +190,24 @@ const Settings: React.FC = () => {
                       <Switch
                         className="data-[state=checked]:bg-primary-button cursor-pointer"
                         checked={matureContent}
-                        onCheckedChange={(checked) => {
+                        onCheckedChange={async (checked) => {
                           field.onChange(checked);
                           setMatureContent(checked);
+                          try {
+                            await updateMatureContent(checked);
+                            toast.success(
+                              checked
+                                ? "Mature content enabled"
+                                : "Mature content disabled"
+                            );
+                          } catch (error) {
+                            toast.error(
+                              "Failed to update mature content setting"
+                            );
+                            // Revert the switch if the update failed
+                            field.onChange(!checked);
+                            setMatureContent(!checked);
+                          }
                         }}
                         aria-readonly
                       />

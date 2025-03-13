@@ -82,6 +82,8 @@ export default function LoginPage() {
         options: {
           redirectTo: `${window.location.origin}/sessions`,
           queryParams: {
+            access_type: "offline",
+            prompt: "consent",
             remember_me: rememberMe ? "true" : "false",
           },
         },
