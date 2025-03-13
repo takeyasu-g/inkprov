@@ -14,7 +14,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProjectsData } from "@/types/global";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistanceToNow } from "date-fns";
-import { supabase } from "supabase";
 
 interface SessionCardDataProp {
   sessionData: ProjectsData;
