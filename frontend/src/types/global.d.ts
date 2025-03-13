@@ -9,24 +9,23 @@ interface UserProfile {
 interface ProjectContributor {
   contributor_id: string;
   contributor?: UserProfile;
+  user_is_project_creator?: boolean;
 }
 
 export interface ProjectsData {
   id: string;
-  creator_id: string;
   title: string;
   description: string;
   project_genre: string;
+  is_completed: boolean;
+  creator_id: string;
+  creator: {
+    auth_id: string;
+    user_profile_name: string;
+  } | null;
+  created_at: Date;
   current_contributors_count: number;
   max_contributors: number;
-  is_mature_content: boolean;
-  is_public: boolean;
-  created_at: Date;
-  updated_at: Date;
-  is_completed: boolean;
-  total_contributors: number;
-  current_contributors_count: number;
-  creator?: UserProfile;
   project_contributors?: ProjectContributor[];
 }
 
