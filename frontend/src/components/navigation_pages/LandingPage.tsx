@@ -20,10 +20,13 @@ const LandingPage: React.FC = () => {
   return (
     <>
       {/* Hero Section */}
-      <section className="flex flex-col items-center">
+      <section className="flex flex-col justify-center items-center w-full">
         <header>
-          <h1 className="text-6xl font-bold mt-8 mb-8 w-xl text-primary-text">
-            Write Together, Create Together
+          <h1 className="text-6xl font-bold mt-8 w-2xl text-primary-text">
+            Write Together,
+          </h1>
+          <h1 className="text-6xl font-bold mb-8 w-2xl text-primary-text">
+            Create Together
           </h1>
           <p className="text-lg mb-8 text-secondary-text">
             Join a community of writers and collaborate on stories, poems, and
@@ -41,9 +44,9 @@ const LandingPage: React.FC = () => {
           <Button
             className="bg-secondary-button text-secondary-text hover:bg-secondary-button-hover border border-primary-border cursor-pointer"
             variant="default"
-            onClick={() => navigate("/sessions")}
+            onClick={() => navigate("/stories")}
           >
-            Explore Sessions
+            Explore Stories
           </Button>
         </section>
       </section>

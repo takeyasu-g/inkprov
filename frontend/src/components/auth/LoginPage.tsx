@@ -1,17 +1,17 @@
 import { useState } from "react";
-import { createClient } from "@supabase/supabase-js";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { loginSchema } from "@/utils/formSchemas";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useAuth } from "@/contexts/AuthContext";
 import { BookOpen, Loader2 } from "lucide-react";
+import { supabase } from "@/utils/supabase";
 
 import {
   Form,
@@ -22,20 +22,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-// Supabase configuration
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-const supabaseKey = import.meta.env.VITE_SUPABASE_KEY as string;
-
-// Initialize Supabase client
-const supabase = createClient(supabaseUrl, supabaseKey);
-
 // The LoginPage component
 export default function LoginPage() {
   const navigate = useNavigate();
   const { setIsAuthenticated, setUser } = useAuth();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [rememberMe, setRememberMe] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
 
   // Form Validation
   const form = useForm<z.infer<typeof loginSchema>>({
@@ -75,10 +67,9 @@ export default function LoginPage() {
         toast.success("Successfully logged in!");
         navigate("/sessions");
       }
-    } catch (error: any) {
+    } catch (dataError: any) {
       setIsLoading(false);
-      toast.error(error.message || "An error occurred during login");
-      setError(error.message || "An error occurred during login");
+      toast.error(dataError.message || "An dataError occurred during login");
     } finally {
       setIsLoading(false);
     }
@@ -101,39 +92,38 @@ export default function LoginPage() {
       }
     } catch (error: any) {
       toast.error(error.message || "An error occurred during Google login");
-      setError(error.message || "An error occurred during Google login");
     }
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-background grid grid-cols-2 grid-rows-1 gap-0">
+    <div className="min-h-[calc(100vh-52px)] bg-background grid grid-cols-2 grid-rows-1 gap-0">
       {/* Left Column */}
       <div
-        className="row-span-5 bg-accent relative pb-4 
-  before:absolute before:inset-y-0 before:left-[-100vw] before:w-[100vw] before:-z-10 before:bg-accent"
+        className="row-span-5 bg-accent relative pb-4 -mt-[4rem] 
+  before:absolute before:inset-0 before:left-[-100vw] before:w-[100vw] before:-z-10 before:bg-accent"
       >
-        <div className="relative w-100 h-75 mt-10 top-20">
+        <div className="relative w-100 h-87 mt-10 top-35">
           {/* Styled Borders */}
           <div className="absolute -inset-4 rounded-lg bg-tertiary-background rotate-2"></div>
           <div className="relative w-full h-full rounded-lg border-8 border-white bg-white shadow-lg flex items-center justify-center text-tertiary-text">
             {/* Styled Content */}
             <div className="p-4">
               <BookOpen size={44} />
-              <h1 className="text-2xl font-bold text-primary-text text-center mt-4">
+              <h1 className="text-2xl font-bold text-primary-text text-center mt-2">
                 Join our writing community
               </h1>
               <p className="text-sm text-secondary-text text-left mt-2">
                 "The act of writing is an act of optimism. You would not take
-                the trouble to do it if you felt it didn't matter."
+                the trouble to do it if you felt it didn"t matter."
               </p>
               <p className="text-sm text-tertiary-text text text-right mt-2">
                 - Edwared Albee
               </p>
-              <div className="mt-6 flex justify-center">
-                <div className="h-px w-16 bg-tertiary-background"></div>
+              <div className="mt-3 flex justify-center">
+                <div className="h-px w-16 my-2 bg-tertiary-background"></div>
               </div>
-              <p className="text-sm text-tertiary-text text-left mt-2">
-                Inkprove brings writers together in a cozy, collaborative
+              <p className="text-sm text-tertiary-text text-left my-3">
+                Inkprov brings writers together in a cozy, collaborative
                 environment where creaativity flows freely.
               </p>
             </div>
@@ -143,7 +133,6 @@ export default function LoginPage() {
 
       {/* Right Column */}
       <div className="row-span-5 mt-3">
-        <ToastContainer />
         <div className="w-full float-right max-w-md space-y-8 bg-background p-8 rounded-lg">
           <div>
             <h2 className="text-3xl font-bold text-primary-text text-center">
@@ -153,15 +142,6 @@ export default function LoginPage() {
               Sign in to continue your writing journey
             </p>
           </div>
-
-          {error && (
-            <div
-              className="bg-destructive/10 border border-destructive text-destructive px-4 py-3 rounded-md"
-              role="alert"
-            >
-              <span className="block sm:inline">{error}</span>
-            </div>
-          )}
 
           {/* Form */}
           <Form {...form}>
@@ -191,7 +171,7 @@ export default function LoginPage() {
                           />
                         </FormControl>
 
-                        {/* Form Error Message */}
+                        {/* Form error Message */}
                         <FormMessage className="text-left" />
                       </FormItem>
                     )}
@@ -232,21 +212,27 @@ export default function LoginPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <div className="flex gap-2">
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={(checked) => {
-                              field.onChange(checked);
-                              setRememberMe(checked === true || checked === false ? checked : false);
-                            }}
-                            disabled={isLoading}
-                            className="h-4 w-4 rounded border border-primary-button focus:ring-ring cursor-pointer accent-primary-button-hover"
-                          />
-                          <FormLabel className="block text-sm font-medium text-primary-text">Remember me</FormLabel>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={(checked) => {
+                                field.onChange(checked);
+                                setRememberMe(
+                                  checked === true || checked === false
+                                    ? checked
+                                    : false
+                                );
+                              }}
+                              disabled={isLoading}
+                              className="h-4 w-4 rounded border border-primary-button focus:ring-ring cursor-pointer accent-primary-button-hover"
+                            />
+                            <FormLabel className="text-sm font-medium text-primary-text">
+                              Remember me
+                            </FormLabel>
                           </div>
                         </FormControl>
                         <div className="space-y-1 leading-none">
-                          {/* Form Error Message */}
+                          {/* Form error Message */}
                           <FormMessage className="text-left" />
                         </div>
                       </FormItem>

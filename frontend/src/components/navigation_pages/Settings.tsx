@@ -3,6 +3,12 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { settingsSchema } from "@/utils/formSchemas";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Loader2 } from "lucide-react";
 import {
   getUsername,
   getBio,
@@ -11,11 +17,6 @@ import {
   updateBio,
   updateMatureContent,
 } from "@/utils/supabase";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Loader2 } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -62,13 +63,18 @@ const Settings: React.FC = () => {
     // Update user data in database
     try {
       setIsLoading(true);
-      values.username.length > 0 ? await updateUsername(values.username) : null;
+      if (values.username.length > 0) {
+        await updateUsername(values.username);
+        sessionStorage.setItem("username", values.username);
+      }
       values.bio.length > 0 ? await updateBio(values.bio) : null;
       values.matureContent !== matureContent
         ? await updateMatureContent(values.matureContent)
         : null;
+      toast.success("Successfully Saved Changes");
       setIsLoading(false);
     } catch (error) {
+      toast.error("An error occured when saving changes");
       setIsLoading(false);
     }
   }

@@ -19,13 +19,10 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
 
   return (
-    <div className="container mx-auto p-4">
-      <Header
-        loggedIn={isAuthenticated}
-        page={isAuthenticated ? "dashboard" : "landing"}
-      />
+    <div className="container mx-auto h-screen">
+      <Header loggedIn={isAuthenticated} page={window.location.pathname} />
       {children}
-      <Footer />
+      {window.location.pathname === "/login" || window.location.pathname === "/register" ? null : <Footer />}
     </div>
   );
 };
@@ -81,10 +78,10 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "/projects",
+    path: "/stories",
     element: (
       <Layout>
-        <ProtectedRoute element={<ProjectsPage />} />
+        <ProjectsPage />
       </Layout>
     ),
   },

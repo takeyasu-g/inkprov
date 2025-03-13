@@ -2,9 +2,9 @@ import React from "react";
 
 const Footer: React.FC = function Footer() {
   return (
-    <footer className="flex justify-end relative pt-4 before:absolute before:top-0 before:left-1/2 before:-translate-x-1/2 before:w-screen before:h-px before:bg-primary-border">
+    <footer className="flex justify-end fixed bottom-0 left-0 w-full mb-6 pt-4 before:absolute before:top-0 before:left-1/2 before:-translate-x-1/2 before:w-screen before:h-px before:bg-primary-border">
       {/* Side Links */}
-      <div className="flex gap-4 items-center text-primary-text">
+      <div className="flex gap-4 items-center text-primary-text mr-6">
         <a href="/about" className="text-md hover:text-hover-text">
           About
         </a>
