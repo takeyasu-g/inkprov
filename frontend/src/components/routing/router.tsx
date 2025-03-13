@@ -14,6 +14,9 @@ import Header from "../Header";
 import Footer from "../Footer";
 import { useAuth } from "@/contexts/AuthContext";
 
+// Continue with Google requirement
+import AuthCallback from "../auth/AuthCallback";
+
 // Wrapper component for the layout and protected routes
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -22,7 +25,10 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     <div className="container mx-auto h-screen">
       <Header loggedIn={isAuthenticated} page={window.location.pathname} />
       {children}
-      {window.location.pathname === "/login" || window.location.pathname === "/register" ? null : <Footer />}
+      {window.location.pathname === "/login" ||
+      window.location.pathname === "/register" ? null : (
+        <Footer />
+      )}
     </div>
   );
 };
@@ -116,6 +122,10 @@ const router = createBrowserRouter([
         <ProtectedRoute element={<Settings />} />
       </Layout>
     ),
+  },
+  {
+    path: "/auth/callback",
+    element: <AuthCallback />,
   },
   {
     path: "*",

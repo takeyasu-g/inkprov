@@ -75,25 +75,21 @@ export default function LoginPage() {
     }
   }
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleSignIn = async () => {
     try {
+      // Get the current domain (works in both development and production)
+      const currentOrigin = window.location.origin;
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/sessions`,
-          queryParams: {
-            access_type: "offline",
-            prompt: "consent",
-            remember_me: rememberMe ? "true" : "false",
-          },
+          redirectTo: `${currentOrigin}/auth/callback`,
         },
       });
 
-      if (error) {
-        throw error;
-      }
-    } catch (error: any) {
-      toast.error(error.message || "An error occurred during Google login");
+      if (error) throw error;
+    } catch (error) {
+      console.error("Google sign-in error:", error);
     }
   };
 
@@ -284,7 +280,7 @@ export default function LoginPage() {
                   className="bg-secondary-button text-secondary-text hover:bg-secondary-button-hover border border-primary-border cursor-pointer w-full"
                   variant="default"
                   disabled={isLoading}
-                  onClick={handleGoogleLogin}
+                  onClick={handleGoogleSignIn}
                 >
                   <svg
                     className="h-5 w-5 mr-2"
