@@ -1,4 +1,5 @@
 import { createClient, User } from "@supabase/supabase-js";
+import { ProjectSnippet, ProjectsData } from "@/types/global";
 
 // local .env variables
 // Supabase configuration
@@ -46,7 +47,40 @@ const getSession = async () => {
   return session;
 };
 
-// get all projects + genre .where is_completed = false
+// get all project snippets where id is provided project id
+export const getProjectSnippets = async (
+  projectId: string | undefined
+): Promise<ProjectSnippet[] | null> => {
+  const { data: projectSnippets, error } = await supabase
+    .from("project_snippets")
+    .select("*")
+    .eq("project_id", projectId);
+
+  if (error) {
+    console.log("Error fetching project snippets", error);
+    return null;
+  }
+  return projectSnippets;
+};
+
+// get project at Id .where is_completed = true
+export const getProjectOfId = async (
+  projectId: string | undefined
+): Promise<ProjectsData | null> => {
+  const { data: project, error } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("is_completed", true)
+    .eq("id", projectId);
+
+  if (error) {
+    console.error("Error fetching sessions:", error);
+    return null;
+  }
+
+  return project[0];
+};
+
 export const getSessions = async () => {
   try {
     // First, let's try a simpler query to test the connection
@@ -92,7 +126,7 @@ export const getSessions = async () => {
 };
 
 // get all projects + genre .where is_completed = true
-export const getProjects = async () => {
+export const getProjects = async (): Promise<ProjectsData[] | null> => {
   const { data: project, error } = await supabase
     .from("projects")
     .select(
