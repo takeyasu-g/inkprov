@@ -121,7 +121,7 @@ export const getSessions = async () => {
 
     return fullProject || project;
   } catch (err) {
-    return null;
+    console.error(err);
   }
 };
 
@@ -129,26 +129,11 @@ export const getSessions = async () => {
 export const getProjects = async (): Promise<ProjectsData[] | null> => {
   const { data: project, error } = await supabase
     .from("projects")
-    .select(
-      `
-      *,
-      creator:users_ext(
-        auth_id,
-        user_profile_name
-      ),
-      project_contributors(
-        contributor_id,
-        contributor:users_ext(
-          auth_id,
-          user_profile_name
-        )
-      )
-    `
-    )
+    .select("*")
     .eq("is_completed", true);
 
   if (error) {
-    throw error;
+    throw new Error(`Failed to fetch projects: ${error.message}`);
   }
 
   return project;
