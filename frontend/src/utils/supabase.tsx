@@ -99,26 +99,25 @@ export const getSessions = async () => {
       .select(
         `
         *,
-        creator:users_ext!creator_id (
+        creator:users_ext!creator_id(
           auth_id,
-          user_profile_name,
-          avatar_url
-        ),
-        project_contributors (
-          contributor:users_ext!contributor_id (
-            auth_id,
-            user_profile_name,
-            avatar_url
-          )
+          user_profile_name
         )
       `
       )
       .eq("is_completed", false);
 
     if (fullError) {
+      console.error("Error fetching full session data:", fullError);
+      console.error("Full error details:", fullError.details);
       return project; // Return basic project data if full query fails
     }
 
+    console.log("Raw query result:", fullProject);
+    if (fullProject && fullProject.length > 0) {
+      console.log("First project creator:", fullProject[0].creator);
+      console.log("Creator ID of first project:", fullProject[0].creator_id);
+    }
     return fullProject || project;
   } catch (err) {
     console.error(err);

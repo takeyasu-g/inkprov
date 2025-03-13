@@ -80,7 +80,7 @@ const OpenSessionsPage: React.FC = () => {
             Open Writing Sessions
           </h1>
           <p className="text-secondary-text mt-2">
-            Join an existing session or create your own.
+            Join an existing session or create your own!
           </p>
         </div>
 

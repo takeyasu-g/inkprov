@@ -78,6 +78,10 @@ export default function RegisterPage() {
         provider: "google",
         options: {
           redirectTo: `${window.location.origin}/sessions`,
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
         },
       });
 
