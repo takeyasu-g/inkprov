@@ -6,10 +6,9 @@ import { ProjectSnippet, ProjectsData } from "@/types/global";
 const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL as string) || "";
 const supabaseKey = (import.meta.env.VITE_SUPABASE_KEY as string) || "";
 
-// Create a single supabase client for interacting with your database
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Helper functions for authentication
+// MARK: auth routes
 const signUp = async (email: string, password: string) => {
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -47,6 +46,17 @@ const getSession = async () => {
   return session;
 };
 
+/* PROJECTS and SESSIONS 
+Sessions are uncompleted projects. 
+Reasoning - if a Project has a is_completed value of false, we semantically consider it a "session", "writing session", or "open writing session". 
+For clarity in the backend, only the terms "session", "sessions", "project",and "projects" should be utilized
+*/ 
+
+
+/* PROJECT INFORMATION ROUTES */
+
+/* ** These routes should be used to retrieve completed project data only ** */
+
 // get all project snippets where id is provided project id
 export const getProjectSnippets = async (
   projectId: string | undefined
@@ -81,6 +91,8 @@ export const getProjectOfId = async (
   return project[0];
 };
 
+/* SESSION INFORMATION ROUTES */
+
 export const getSessions = async () => {
   try {
     // only get projects that have not been flagged as completed
@@ -113,12 +125,8 @@ export const getSessions = async () => {
       return project; // Return basic project data if full query fails
     }
 
-    console.log("Raw query result:", fullProject);
-
     // Update the contributor counts with real-time data
     if (fullProject && fullProject.length > 0) {
-      console.log("Updating contributor counts...");
-
       try {
         // For each project, get the actual count of contributors
         for (const project of fullProject) {
@@ -135,9 +143,6 @@ export const getSessions = async () => {
           } else if (contributors) {
             const realCount = contributors.length;
             if (realCount !== project.current_contributors_count) {
-              console.log(
-                `Updating project ${project.id} count from ${project.current_contributors_count} to ${realCount}`
-              );
               project.current_contributors_count = realCount;
 
               // Also update the project table to keep it in sync
@@ -193,13 +198,14 @@ export const getProjects = async (): Promise<ProjectsData[] | null> => {
       return null;
     }
 
-    console.log("Fetched projects:", data); // Debug output
     return data as ProjectsData[];
   } catch (err) {
     console.error("Exception in getProjects:", err);
     return null;
   }
 };
+
+/* ----- UTILITY ROUTES ----- */
 
 // function to fetch tags (currently just used for genres) from Supabase
 export const getTags = async () => {
@@ -212,6 +218,7 @@ export const getTags = async () => {
   return data;
 };
 
+// inserts the user's chosen username into their profile, default behaviour
 const insertUsername = async (): Promise<any> => {
   const currentUser: User | null = await getCurrentUser();
 
@@ -228,6 +235,11 @@ const insertUsername = async (): Promise<any> => {
 
   return { data, error };
 };
+
+/* ----- USER PROFILE / INFORMATION ROUTES ----- */
+
+// handles the user updating their username using the field in settings. 
+// TODO: Combine all settings and profile toggles into single "Profile" page
 
 const updateUsername = async (username: string): Promise<any> => {
   const currentUser: User | null = await getCurrentUser();
@@ -286,6 +298,7 @@ const getUsername = async (): Promise<any> => {
   return data;
 };
 
+// retrieve user bio information
 const getBio = async (): Promise<any> => {
   const currentUser: User | null = await getCurrentUser();
 
@@ -301,6 +314,8 @@ const getBio = async (): Promise<any> => {
   return data;
 };
 
+// handles checking if the user 
+// TODO: needs to be renamed to be more explicit: should be "getUserHasEnabledMatureContent"
 const getMatureContent = async (): Promise<any> => {
   const currentUser: User | null = await getCurrentUser();
 
@@ -317,6 +332,7 @@ const getMatureContent = async (): Promise<any> => {
 };
 
 // explicit function to get all contributors to a given project (type definitions are here temporarily for debugging)
+// update: seems to be working in production, leaving as is 
 
 // Typing
 export interface Contributor {
@@ -333,16 +349,11 @@ export interface Contributor {
   };
 }
 
-/**
- * Fetches all contributors for a specific project with correct user information
- *
- * @param projectId - The UUID of the project
- * @returns Array of contributors with user information
- */
+// handles getting the user information for all contributors on a project
+// something on the supabase side warrants this level of overengineering, so please do not attempt to refactor 
+
 async function getProjectContributors(projectId: string) {
   try {
-    // Step 1: First get basic contributor data with simple query
-    console.log(`Fetching contributors for project: ${projectId}`);
     const { data: contributors, error: contributorsError } = await supabase
       .from("project_contributors")
       .select("*")
@@ -352,60 +363,25 @@ async function getProjectContributors(projectId: string) {
       console.error("Error fetching project contributors:", contributorsError);
       return [];
     }
-
-    console.log(`Found ${contributors?.length || 0} contributors`);
-
-    // Debug log to help identify the current writer issue
-    if (contributors && contributors.length > 0) {
-      const currentWriter = contributors.find((c) => c.current_writer === true);
-      console.log(
-        "Current writer from DB:",
-        currentWriter
-          ? `User ID: ${currentWriter.user_id}, current_writer: ${currentWriter.current_writer}`
-          : "No current writer found in data"
-      );
-
-      console.log(
-        "All contributors current_writer status:",
-        contributors.map((c) => ({
-          user_id: c.user_id,
-          current_writer: c.current_writer,
-        }))
-      );
-    }
-
-    // If no contributors or empty array, return early
     if (!contributors || contributors.length === 0) {
       return [];
     }
-
-    // Step 2: Now get user data for each contributor
     const userIds = contributors.map((contributor) => contributor.user_id);
-    console.log(`Fetching user data for user IDs:`, userIds);
-
-    // Make sure we're querying the correct users table
-    // Check your Supabase schema to ensure this is the right table and fields
     const { data: usersData, error: usersError } = await supabase
-      .from("users_ext") // Make sure this is the correct table name
+      .from("users_ext")
       .select("id, user_profile_name")
       .in("id", userIds);
 
     if (usersError) {
       console.error("Error fetching user data:", usersError);
-      // Return contributors without user info rather than an empty array
       return contributors.map((contributor) => ({
         ...contributor,
         user: { id: contributor.user_id, user_profile_name: "Unknown" },
       }));
     }
-
-    console.log(`Found ${usersData?.length || 0} users`);
-
-    // Step 3: Combine contributor and user data with safe handling of null values
     const enrichedContributors = contributors.map((contributor) => {
       const user = usersData?.find((user) => user.id === contributor.user_id);
 
-      // Ensure all expected fields have sensible defaults
       return {
         ...contributor,
         user_made_contribution: contributor.user_made_contribution || false,
@@ -418,17 +394,6 @@ async function getProjectContributors(projectId: string) {
         user: user || { id: contributor.user_id, user_profile_name: "Unknown" },
       };
     });
-
-    // Final check - log the enriched contributors with writer status
-    const finalCurrentWriter = enrichedContributors.find(
-      (c) => c.current_writer === true
-    );
-    console.log(
-      "Final current writer after processing:",
-      finalCurrentWriter
-        ? `${finalCurrentWriter.user?.user_profile_name}, current_writer: ${finalCurrentWriter.current_writer}`
-        : "No current writer found"
-    );
 
     return enrichedContributors;
   } catch (err) {
