@@ -6,10 +6,9 @@ import { ProjectSnippet, ProjectsData } from "@/types/global";
 const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL as string) || "";
 const supabaseKey = (import.meta.env.VITE_SUPABASE_KEY as string) || "";
 
-// Create a single supabase client for interacting with your database
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Helper functions for authentication
+// MARK: auth routes
 const signUp = async (email: string, password: string) => {
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -47,6 +46,17 @@ const getSession = async () => {
   return session;
 };
 
+/* PROJECTS and SESSIONS 
+Sessions are uncompleted projects. 
+Reasoning - if a Project has a is_completed value of false, we semantically consider it a "session", "writing session", or "open writing session". 
+For clarity in the backend, only the terms "session", "sessions", "project",and "projects" should be utilized
+*/ 
+
+
+/* PROJECT INFORMATION ROUTES */
+
+/* ** These routes should be used to retrieve completed project data only ** */
+
 // get all project snippets where id is provided project id
 export const getProjectSnippets = async (
   projectId: string | undefined
@@ -81,9 +91,11 @@ export const getProjectOfId = async (
   return project[0];
 };
 
+/* SESSION INFORMATION ROUTES */
+
 export const getSessions = async () => {
   try {
-    // First, let's try a simpler query to test the connection
+    // only get projects that have not been flagged as completed
     const { data: project, error } = await supabase
       .from("projects")
       .select("*")
@@ -93,7 +105,7 @@ export const getSessions = async () => {
       throw error;
     }
 
-    // If the basic query works, then let's get the related data
+    // if the basic query succeeds, then get the data we need
     const { data: fullProject, error: fullError } = await supabase
       .from("projects")
       .select(
@@ -113,32 +125,89 @@ export const getSessions = async () => {
       return project; // Return basic project data if full query fails
     }
 
-    console.log("Raw query result:", fullProject);
+    // Update the contributor counts with real-time data
     if (fullProject && fullProject.length > 0) {
-      console.log("First project creator:", fullProject[0].creator);
-      console.log("Creator ID of first project:", fullProject[0].creator_id);
+      try {
+        // For each project, get the actual count of contributors
+        for (const project of fullProject) {
+          const { data: contributors, error: countError } = await supabase
+            .from("project_contributors")
+            .select("id")
+            .eq("project_id", project.id);
+
+          if (countError) {
+            console.error(
+              `Error fetching contributors for project ${project.id}:`,
+              countError
+            );
+          } else if (contributors) {
+            const realCount = contributors.length;
+            if (realCount !== project.current_contributors_count) {
+              project.current_contributors_count = realCount;
+
+              // Also update the project table to keep it in sync
+              const { error: updateError } = await supabase
+                .from("projects")
+                .update({ current_contributors_count: realCount })
+                .eq("id", project.id);
+
+              if (updateError) {
+                console.error(
+                  `Error updating project count in database:`,
+                  updateError
+                );
+              }
+            }
+          }
+        }
+      } catch (countErr) {
+        console.error("Error updating contributor counts:", countErr);
+      }
     }
+
     return fullProject || project;
   } catch (err) {
-    console.error(err);
+    console.error("Error in getSessions:", err);
+    return null;
   }
 };
 
-// get all projects + genre .where is_completed = true
+// get all projects + genre where is_completed = true
 export const getProjects = async (): Promise<ProjectsData[] | null> => {
-  const { data: project, error } = await supabase
-    .from("projects")
-    .select("*")
-    .eq("is_completed", true);
+  try {
+    const { data, error } = await supabase
+      .from("projects")
+      .select(
+        `
+        id,
+        title,
+        description,
+        project_genre,
+        is_completed,
+        creator_id,
+        creator:users_ext!creator_id(
+          user_profile_name
+        )
+      `
+      )
+      .eq("is_completed", true);
 
-  if (error) {
-    throw new Error(`Failed to fetch projects: ${error.message}`);
+    if (error) {
+      console.error("Error fetching projects:", error.message);
+      console.error("Error details:", error.details);
+      return null;
+    }
+
+    return data as ProjectsData[];
+  } catch (err) {
+    console.error("Exception in getProjects:", err);
+    return null;
   }
-
-  return project;
 };
 
-// Function to fetch tags from Supabase
+/* ----- UTILITY ROUTES ----- */
+
+// function to fetch tags (currently just used for genres) from Supabase
 export const getTags = async () => {
   const { data, error } = await supabase.from("tags").select("*").order("name");
 
@@ -149,6 +218,7 @@ export const getTags = async () => {
   return data;
 };
 
+// inserts the user's chosen username into their profile, default behaviour
 const insertUsername = async (): Promise<any> => {
   const currentUser: User | null = await getCurrentUser();
 
@@ -166,6 +236,11 @@ const insertUsername = async (): Promise<any> => {
   return { data, error };
 };
 
+/* ----- USER PROFILE / INFORMATION ROUTES ----- */
+
+// handles the user updating their username using the field in settings. 
+// TODO: Combine all settings and profile toggles into single "Profile" page
+
 const updateUsername = async (username: string): Promise<any> => {
   const currentUser: User | null = await getCurrentUser();
 
@@ -179,6 +254,7 @@ const updateUsername = async (username: string): Promise<any> => {
   }
 };
 
+// updates the user bio field
 const updateBio = async (bio: string): Promise<any> => {
   const currentUser: User | null = await getCurrentUser();
 
@@ -192,6 +268,7 @@ const updateBio = async (bio: string): Promise<any> => {
   }
 };
 
+// enable viewing mature content flag on user profile
 const updateMatureContent = async (matureContent: boolean): Promise<any> => {
   const currentUser: User | null = await getCurrentUser();
 
@@ -205,6 +282,7 @@ const updateMatureContent = async (matureContent: boolean): Promise<any> => {
   }
 };
 
+// returns the verbose username by user id
 const getUsername = async (): Promise<any> => {
   const currentUser: User | null = await getCurrentUser();
 
@@ -220,6 +298,7 @@ const getUsername = async (): Promise<any> => {
   return data;
 };
 
+// retrieve user bio information
 const getBio = async (): Promise<any> => {
   const currentUser: User | null = await getCurrentUser();
 
@@ -235,6 +314,8 @@ const getBio = async (): Promise<any> => {
   return data;
 };
 
+// handles checking if the user 
+// TODO: needs to be renamed to be more explicit: should be "getUserHasEnabledMatureContent"
 const getMatureContent = async (): Promise<any> => {
   const currentUser: User | null = await getCurrentUser();
 
@@ -250,6 +331,77 @@ const getMatureContent = async (): Promise<any> => {
   return data;
 };
 
+// explicit function to get all contributors to a given project (type definitions are here temporarily for debugging)
+// update: seems to be working in production, leaving as is 
+
+// Typing
+export interface Contributor {
+  id: string;
+  user_id: string;
+  project_id: string;
+  user_made_contribution: boolean;
+  current_writer: boolean;
+  joined_at?: string;
+  last_contribution_at?: string;
+  user?: {
+    id: string;
+    user_profile_name: string;
+  };
+}
+
+// handles getting the user information for all contributors on a project
+// something on the supabase side warrants this level of overengineering, so please do not attempt to refactor 
+
+async function getProjectContributors(projectId: string) {
+  try {
+    const { data: contributors, error: contributorsError } = await supabase
+      .from("project_contributors")
+      .select("*")
+      .eq("project_id", projectId);
+
+    if (contributorsError) {
+      console.error("Error fetching project contributors:", contributorsError);
+      return [];
+    }
+    if (!contributors || contributors.length === 0) {
+      return [];
+    }
+    const userIds = contributors.map((contributor) => contributor.user_id);
+    const { data: usersData, error: usersError } = await supabase
+      .from("users_ext")
+      .select("id, user_profile_name")
+      .in("id", userIds);
+
+    if (usersError) {
+      console.error("Error fetching user data:", usersError);
+      return contributors.map((contributor) => ({
+        ...contributor,
+        user: { id: contributor.user_id, user_profile_name: "Unknown" },
+      }));
+    }
+    const enrichedContributors = contributors.map((contributor) => {
+      const user = usersData?.find((user) => user.id === contributor.user_id);
+
+      return {
+        ...contributor,
+        user_made_contribution: contributor.user_made_contribution || false,
+        current_writer: contributor.current_writer || false,
+        user_is_project_creator: contributor.user_is_project_creator || false,
+        last_contribution_at:
+          contributor.last_contribution_at ||
+          contributor.joined_at ||
+          new Date().toISOString(),
+        user: user || { id: contributor.user_id, user_profile_name: "Unknown" },
+      };
+    });
+
+    return enrichedContributors;
+  } catch (err) {
+    console.error("Exception when fetching project contributors:", err);
+    return [];
+  }
+}
+
 export {
   supabase,
   signUp,
@@ -259,6 +411,7 @@ export {
   getUsername,
   getBio,
   getMatureContent,
+  getProjectContributors,
   getSession,
   insertUsername,
   updateUsername,
