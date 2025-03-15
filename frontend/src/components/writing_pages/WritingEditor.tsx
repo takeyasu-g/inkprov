@@ -17,31 +17,36 @@ import {
   supabase,
   getCurrentUser,
   getProjectContributors,
+  getProjectSnippets,
 } from "../../utils/supabase";
 import SnippetSkeleton from "../SnippetSkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PenTool, Crown } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { ProjectSnippet } from "@/types/global";
 
 // Basic interfaces for our data
 interface Project {
   id: string;
   title: string;
   description: string;
-  max_contributors: number;
+  max_snippets: number; // Renamed field to focus on snippet count rather than contributors
   current_contributors_count: number;
   is_completed: boolean;
+  is_locked: boolean;
+  locked_by?: string;
 }
 
-interface ProjectSnippet {
-  content: string;
-  creator_id: string;
-  sequence_number: number;
-  created_at: string;
-  creator?: {
-    user_profile_name: string;
-  };
-}
+// Use the imported type instead of redefining it
+// interface ProjectSnippet {
+//   content: string;
+//   creator_id: string;
+//   sequence_number: number;
+//   created_at: string;
+//   creator?: {
+//     user_profile_name: string;
+//   };
+// }
 
 // Interface for contributor (imported from supabase utils)
 interface Contributor {
@@ -67,7 +72,7 @@ const WritingEditor: React.FC = () => {
   // State management
   const [project, setProject] = useState<Project | null>(null);
   const [isContributor, setIsContributor] = useState(false);
-  const [isMyTurn, setIsMyTurn] = useState(false);
+  const [isCurrentlyWriting, setIsCurrentlyWriting] = useState(false); // Renamed from isMyTurn
   const [content, setContent] = useState("");
   const [wordCount, setWordCount] = useState(0);
   const [previousSnippets, setPreviousSnippets] = useState<ProjectSnippet[]>(
@@ -80,8 +85,10 @@ const WritingEditor: React.FC = () => {
   const [contributors, setContributors] = useState<Contributor[]>([]);
   const [loadingContributors, setLoadingContributors] = useState(false);
   const [isProjectCreator, setIsProjectCreator] = useState(false);
+  const [projectLocked, setProjectLocked] = useState(false);
+  const [lockedBy, setLockedBy] = useState<string | null>(null);
 
-  // Function to fetch contributors
+  // Function to fetch contributors - simplified version
   const fetchContributors = async () => {
     if (!projectId) return;
 
@@ -90,65 +97,54 @@ const WritingEditor: React.FC = () => {
       console.log("Fetching contributors for project:", projectId);
       const contributorsData = await getProjectContributors(projectId);
 
-      // Debug log to check the current_writer status
-      console.log("Contributors data received:", contributorsData);
-
-      // Explicitly check if anyone has current_writer set to true
-      const currentWriter = contributorsData.find(
-        (c) => c.current_writer === true
-      );
-      console.log(
-        "Current writer:",
-        currentWriter?.user?.user_profile_name || "None"
+      // Sort contributors by joined_at to ensure consistent display order
+      const sortedContributors = [...contributorsData].sort(
+        (a, b) =>
+          new Date(a.joined_at || "").getTime() -
+          new Date(b.joined_at || "").getTime()
       );
 
-      setContributors(contributorsData);
+      setContributors(sortedContributors);
 
-      // If we're one of the contributors, update our status
+      // Check if current user is a contributor
       if (userData?.auth_id) {
         const myStatus = contributorsData.find(
           (c) => c.user_id === userData.auth_id
         );
         if (myStatus) {
-          console.log("My contributor status:", myStatus);
-          setIsMyTurn(myStatus.current_writer || false);
+          setIsContributor(true);
           setIsProjectCreator(myStatus.user_is_project_creator || false);
         }
       }
     } catch (error) {
+      // Keeping error log as it's important for all functionality
       console.error("Failed to load contributors:", error);
     } finally {
       setLoadingContributors(false);
     }
   };
 
-  // Function to fetch snippets
+  // replaces the original code with a call to the supabase utility function
   const fetchSnippets = async () => {
     setIsRefreshing(true);
     try {
-      const { data: snippets, error: snippetsError } = await supabase
-        .from("project_snippets")
-        .select(
-          `
-          *,
-          creator:creator_id (
-            user_profile_name
-          )
-        `
-        )
-        .eq("project_id", projectId)
-        .order("sequence_number", { ascending: true });
-
-      if (snippetsError) throw snippetsError;
-      setPreviousSnippets(snippets || []);
+      const snippets = await getProjectSnippets(projectId);
+      if (snippets) {
+        // redundancy
+        setPreviousSnippets(snippets);
+      } else {
+        setPreviousSnippets([]);
+      }
     } catch (error) {
+      console.error("Error fetching snippets:", error);
       toast.error("Failed to refresh snippets");
+      setPreviousSnippets([]);
     } finally {
       setIsRefreshing(false);
     }
   };
 
-  // Fetch project data and check user status
+  // Fetch project data and check lock status
   useEffect(() => {
     const fetchProjectData = async () => {
       try {
@@ -172,7 +168,23 @@ const WritingEditor: React.FC = () => {
           .single();
 
         if (projectError) throw projectError;
-        setProject(projectData);
+
+        // Cap max_snippets at 12 if a larger value is provided
+        const cappedProjectData = {
+          ...projectData,
+          max_snippets: projectData.max_snippets
+            ? Math.min(projectData.max_snippets, 12)
+            : 12,
+        };
+
+        setProject(cappedProjectData);
+
+        // Check if project is locked and by whom
+        setProjectLocked(cappedProjectData.is_locked || false);
+        setLockedBy(cappedProjectData.locked_by || null);
+
+        // Check if user is currently writing
+        setIsCurrentlyWriting(cappedProjectData.locked_by === user.id);
 
         // Check if user is a contributor
         const { data: contributorData } = await supabase
@@ -182,18 +194,30 @@ const WritingEditor: React.FC = () => {
           .eq("user_id", user.id)
           .single();
 
-        setIsContributor(!!contributorData); // force convert to a boolean value
-        setIsMyTurn(contributorData?.current_writer || false); // if user is not current_writer, its not their turn to write
-        setIsProjectCreator(contributorData?.user_is_project_creator || false); // set project creator status
+        setIsContributor(!!contributorData);
+        setIsProjectCreator(contributorData?.user_is_project_creator || false);
 
         // Fetch project contributors
         await fetchContributors();
 
-        // Check if the project has a valid current writer
-        await checkAndFixCurrentWriter();
-
         // Fetch previous snippets
         await fetchSnippets();
+
+        // Check if project has reached max snippets (using capped value)
+        if (
+          previousSnippets.length >= (cappedProjectData.max_snippets || 0) &&
+          cappedProjectData.max_snippets > 0
+        ) {
+          // Mark project as completed if it's reached max snippets
+          const { error: updateError } = await supabase
+            .from("projects")
+            .update({ is_completed: true })
+            .eq("id", projectId);
+
+          if (updateError) {
+            console.error("Error marking project as completed:", updateError);
+          }
+        }
       } catch (error) {
         toast.error("Error loading project");
       } finally {
@@ -204,93 +228,12 @@ const WritingEditor: React.FC = () => {
     fetchProjectData();
   }, [projectId, navigate]);
 
-  // Helper function to check if there's a current writer and fix if not
-  const checkAndFixCurrentWriter = async () => {
-    try {
-      // Get all contributors
-      const { data: allContributors, error } = await supabase
-        .from("project_contributors")
-        .select("*")
-        .eq("project_id", projectId);
-
-      if (error) {
-        console.error("Error checking for current writer:", error);
-        return;
-      }
-
-      // Check if any contributor has current_writer set to true
-      const hasCurrentWriter =
-        allContributors &&
-        allContributors.some(
-          (contributor) => contributor.current_writer === true
-        );
-
-      console.log(`Project has a current writer: ${hasCurrentWriter}`);
-
-      // If no one is set as current writer, assign someone
-      if (!hasCurrentWriter && allContributors && allContributors.length > 0) {
-        console.log("No current writer found, assigning one...");
-
-        // Get the first contributor by join date
-        const firstContributor = allContributors.sort(
-          (a, b) =>
-            new Date(a.joined_at).getTime() - new Date(b.joined_at).getTime()
-        )[0];
-
-        // Update this contributor to be current writer
-        const { error: updateError } = await supabase
-          .from("project_contributors")
-          .update({ current_writer: true })
-          .eq("id", firstContributor.id);
-
-        if (updateError) {
-          console.error("Error assigning new writer:", updateError);
-        } else {
-          console.log(`Assigned ${firstContributor.user_id} as current writer`);
-          // Refresh the contributors list
-          await fetchContributors();
-        }
-      }
-    } catch (err) {
-      console.error("Error in checkAndFixCurrentWriter:", err);
-    }
-  };
-
-  // Handle word count
-  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newContent = e.target.value;
-    setContent(newContent);
-    setWordCount(newContent.trim().split(/\s+/).filter(Boolean).length);
-  };
-
-  // Join project
-  const handleJoin = async () => {
+  // Handle making a contribution - replacing handleJoin
+  const handleStartContribution = async () => {
     try {
       const user = await getCurrentUser();
       if (!user) {
-        toast.error("Please log in to join this project");
-        return;
-      }
-
-      // Check if user is already a contributor
-      const { data: existingContributor, error: existingContributorError } =
-        await supabase
-          .from("project_contributors")
-          .select("id")
-          .eq("project_id", projectId)
-          .eq("user_id", user.id);
-
-      // Handle checking for existing contributor more robustly
-      if (existingContributorError) {
-        console.error(
-          "Error checking existing contributor:",
-          existingContributorError
-        );
-        // Continue instead of throwing, as this might be a "not found" error which is expected
-      }
-
-      if (existingContributor && existingContributor.length > 0) {
-        toast.error("You've already joined this project");
+        toast.error("Please log in to contribute to this project");
         return;
       }
 
@@ -300,248 +243,53 @@ const WritingEditor: React.FC = () => {
         return;
       }
 
-      // Check if project is at max contributors
+      // Check if max snippets has been reached
       if (
-        project &&
-        project.current_contributors_count >= project.max_contributors
+        project?.max_snippets &&
+        previousSnippets.length >= project.max_snippets
       ) {
+        toast.error("This project has reached its maximum number of snippets");
+        return;
+      }
+
+      // Check if project is currently locked
+      if (project?.is_locked) {
         toast.error(
-          "This project has reached its maximum number of contributors"
+          `Someone else is currently writing. Please try again later.`
         );
         return;
       }
 
-      // Check if there are any current writers
-      const { data: currentWriters, error: currentWritersError } =
-        await supabase
-          .from("project_contributors")
-          .select("*")
-          .eq("project_id", projectId)
-          .eq("current_writer", true);
-
-      if (currentWritersError) {
-        console.error("Error checking current writers:", currentWritersError);
-      }
-
-      // If no current writers or error fetching (meaning no results), this user should be the writer
-      const shouldBeCurrentWriter =
-        !currentWriters || currentWriters.length === 0;
-
-      // Check if this user is the project creator
-      const { data: projectData } = await supabase
-        .from("projects")
-        .select("creator_id")
-        .eq("id", projectId)
-        .single();
-
-      const isProjectCreator = projectData?.creator_id === user.id;
-
-      // Insert new contributor with all required fields
-      const newContributorData = {
-        project_id: projectId,
-        user_id: user.id,
-        joined_at: new Date().toISOString(),
-        current_writer: shouldBeCurrentWriter,
-        user_made_contribution: false,
-        user_is_project_creator: isProjectCreator,
-        // Adding a default value for last_contribution_at to prevent null issues
-        last_contribution_at: new Date().toISOString(),
-      };
-
-      // Insert with more detailed error handling
-      const { data: newContributor, error } = await supabase
-        .from("project_contributors")
-        .insert(newContributorData)
-        .select();
-
-      if (error) {
-        console.error("Failed to insert new contributor:", error);
-
-        // If we get a 406 error, it might be missing fields or a constraint violation
-        if (error.code === "406" || error.code === "23502") {
-          // 23502 is PostgreSQL's not-null violation code
-          toast.error("Failed to join project: Missing required information");
-        } else {
-          toast.error(`Failed to join project: ${error.message}`);
-        }
-        return;
-      }
-
-      // Update the project's current_contributors_count
-      const { error: updateError } = await supabase
+      // Lock the project for this user
+      const { error: lockError } = await supabase
         .from("projects")
         .update({
-          current_contributors_count:
-            (project?.current_contributors_count || 0) + 1,
+          is_locked: true,
+          locked_by: user.id,
         })
         .eq("id", projectId);
 
-      if (updateError) {
-        console.error(
-          "Failed to update project contributor count:",
-          updateError
-        );
-        // Continue execution even if this fails
+      if (lockError) {
+        console.error("Error locking project:", lockError);
+        toast.error("Failed to start contribution. Please try again.");
+        return;
       }
 
-      // Set a flag in sessionStorage to signal to the sessions page that data should be refreshed
-      sessionStorage.setItem("refreshSessions", "true");
+      // Update local state
+      setProjectLocked(true);
+      setLockedBy(user.id);
+      setIsCurrentlyWriting(true);
 
-      setIsContributor(true);
-      setIsMyTurn(shouldBeCurrentWriter);
-      setIsProjectCreator(isProjectCreator);
-
-      if (shouldBeCurrentWriter) {
-        toast.success(
-          "Successfully joined the project! It's your turn to write!"
-        );
-      } else {
-        toast.success(
-          "Successfully joined the project! Waiting for your turn..."
-        );
-      }
-
-      // Refresh the contributors list
-      await fetchContributors();
-
-      // Refresh the snippets list
-      await fetchSnippets();
-
-      // Force refresh project data to ensure we have latest state
-      const { data: refreshedProject } = await supabase
-        .from("projects")
-        .select("*")
-        .eq("id", projectId)
-        .single();
-
-      if (refreshedProject) {
-        setProject(refreshedProject);
-      }
+      toast.success("You can now write your contribution!");
     } catch (error: any) {
-      console.error("Join project error:", error);
+      console.error("Start contribution error:", error);
       toast.error(
-        `Failed to join project: ${error.message || "Unknown error"}`
+        `Failed to start contribution: ${error.message || "Unknown error"}`
       );
     }
   };
 
-  // Leave project
-  const handleLeave = async () => {
-    // Add confirmation dialog
-    if (
-      !window.confirm(
-        "Are you sure you want to leave this project? You'll lose your spot in the writing queue."
-      )
-    ) {
-      return;
-    }
-
-    try {
-      if (!userData?.auth_id) {
-        toast.error("User data not available. Please try again.");
-        return;
-      }
-
-      // Check if this user is the current writer
-      const { data: contributorData, error: contributorError } = await supabase
-        .from("project_contributors")
-        .select("current_writer")
-        .eq("project_id", projectId)
-        .eq("user_id", userData.auth_id)
-        .single();
-
-      if (contributorError) {
-        console.error("Error checking writer status:", contributorError);
-      }
-
-      const isCurrentWriter = contributorData?.current_writer || false;
-
-      // Before deleting, fetch all contributors to find the next writer
-      let nextWriterId = null;
-
-      if (isCurrentWriter) {
-        // Get all contributors ordered by join date
-        const { data: allContributors } = await supabase
-          .from("project_contributors")
-          .select("*")
-          .eq("project_id", projectId)
-          .order("joined_at", { ascending: true });
-
-        if (allContributors && allContributors.length > 1) {
-          // Find the current user's index
-          const currentUserIndex = allContributors.findIndex(
-            (contributor) => contributor.user_id === userData.auth_id
-          );
-
-          // Find the next user in rotation, or the first if current user is last
-          let nextUserIndex = (currentUserIndex + 1) % allContributors.length;
-
-          // Make sure we're not selecting the current user
-          if (allContributors[nextUserIndex].user_id === userData.auth_id) {
-            nextUserIndex = (nextUserIndex + 1) % allContributors.length;
-          }
-
-          nextWriterId = allContributors[nextUserIndex].id;
-        }
-      }
-
-      // Delete the user from project contributors
-      const { error } = await supabase
-        .from("project_contributors")
-        .delete()
-        .eq("project_id", projectId)
-        .eq("user_id", userData.auth_id);
-
-      if (error) {
-        console.error("Error leaving project:", error);
-        toast.error(`Failed to leave project: ${error.message}`);
-        return;
-      }
-
-      // If this user was the current writer, assign a new one based on our earlier calculation
-      if (isCurrentWriter && nextWriterId) {
-        const { error: updateWriterError } = await supabase
-          .from("project_contributors")
-          .update({ current_writer: true })
-          .eq("id", nextWriterId);
-
-        if (updateWriterError) {
-          console.error("Error updating new writer:", updateWriterError);
-        }
-      }
-
-      // Update the project's current_contributors_count
-      const { error: updateError } = await supabase
-        .from("projects")
-        .update({
-          current_contributors_count: Math.max(
-            (project?.current_contributors_count || 1) - 1,
-            0
-          ),
-        })
-        .eq("id", projectId);
-
-      if (updateError) {
-        console.error("Error updating project count:", updateError);
-      }
-
-      // Signal that sessions page needs to refresh data
-      sessionStorage.setItem("refreshSessions", "true");
-
-      setIsContributor(false);
-      setIsMyTurn(false);
-      setIsProjectCreator(false);
-      toast.success("Successfully left the project");
-      navigate("/sessions");
-    } catch (error: any) {
-      console.error("Leave project error:", error);
-      toast.error(
-        `Failed to leave project: ${error.message || "Unknown error"}`
-      );
-    }
-  };
-
-  // Submit contribution
+  // Modify handleSubmit to focus on snippets over contributors
   const handleSubmit = async () => {
     if (wordCount < 50 || wordCount > 100) {
       toast.error("Please write between 50 and 100 words");
@@ -574,91 +322,245 @@ const WritingEditor: React.FC = () => {
         return;
       }
 
-      // Update contributor status
-      const { error: contributorError } = await supabase
+      // Check if user is already a contributor
+      const { data: existingContributor } = await supabase
         .from("project_contributors")
-        .update({
-          current_writer: false,
-          user_made_contribution: true,
-          last_contribution_at: new Date().toISOString(),
-        })
+        .select("id")
         .eq("project_id", projectId)
         .eq("user_id", userData.auth_id);
 
-      if (contributorError) {
-        console.error("Error updating contributor status:", contributorError);
-        toast.error(
-          `Failed to update contributor status: ${contributorError.message}`
-        );
-        // Continue to pass the pen even if this fails
-      }
+      // If not already a contributor, add them
+      if (!existingContributor || existingContributor.length === 0) {
+        // Check if this user is the project creator
+        const { data: projectData } = await supabase
+          .from("projects")
+          .select("creator_id")
+          .eq("id", projectId)
+          .single();
 
-      // Fetch all contributors for this project to implement a proper rotation
-      const { data: allContributors, error: allContributorsError } =
-        await supabase
+        const isProjectCreator = projectData?.creator_id === userData.auth_id;
+
+        // Insert new contributor
+        const { error: contributorError } = await supabase
           .from("project_contributors")
-          .select("*")
-          .eq("project_id", projectId)
-          .order("joined_at", { ascending: true });
+          .insert({
+            project_id: projectId,
+            user_id: userData.auth_id,
+            joined_at: new Date().toISOString(),
+            user_made_contribution: true,
+            user_is_project_creator: isProjectCreator,
+            last_contribution_at: new Date().toISOString(),
+            current_writer: false, // No longer tracking current_writer
+          });
 
-      if (allContributorsError) {
-        console.error("Error fetching all contributors:", allContributorsError);
-      }
+        if (contributorError) {
+          console.error("Error adding new contributor:", contributorError);
+          // Continue execution even if this fails
+        }
 
-      let nextWriter = null;
+        // We no longer need to update current_contributors_count since we're focusing on snippets
+        // But we'll keep the record for historical purposes
+        const { error: updateError } = await supabase
+          .from("projects")
+          .update({
+            current_contributors_count:
+              (project?.current_contributors_count || 0) + 1,
+          })
+          .eq("id", projectId);
 
-      // If we have contributors, implement a rotation system
-      if (allContributors && allContributors.length > 0) {
-        if (allContributors.length === 1) {
-          // If there's only one contributor (just the current user), they remain the writer
-          nextWriter = allContributors[0];
-        } else {
-          // Find the current writer's index
-          const currentWriterIndex = allContributors.findIndex(
-            (contributor) => contributor.user_id === userData.auth_id
+        if (updateError) {
+          console.error(
+            "Failed to update project contributor count:",
+            updateError
           );
-
-          // Calculate the next writer's index with rotation
-          // If currentWriterIndex is the last one, go back to index 0
-          const nextWriterIndex =
-            currentWriterIndex === allContributors.length - 1
-              ? 0
-              : currentWriterIndex + 1;
-
-          nextWriter = allContributors[nextWriterIndex];
+          // Continue execution even if this fails
         }
+      } else {
+        // Update existing contributor
+        const { error: updateError } = await supabase
+          .from("project_contributors")
+          .update({
+            user_made_contribution: true,
+            last_contribution_at: new Date().toISOString(),
+          })
+          .eq("project_id", projectId)
+          .eq("user_id", userData.auth_id);
 
-        // Update the next writer
-        if (nextWriter) {
-          const { error: updateWriterError } = await supabase
-            .from("project_contributors")
-            .update({ current_writer: true })
-            .eq("id", nextWriter.id);
-
-          if (updateWriterError) {
-            console.error("Error updating next writer:", updateWriterError);
-          }
+        if (updateError) {
+          console.error("Error updating contributor:", updateError);
+          // Continue execution even if this fails
         }
       }
 
-      // Immediately fetch updated snippets
-      await fetchSnippets();
+      // Check if project has reached max snippets
+      if (
+        project?.max_snippets &&
+        previousSnippets.length + 1 >= project.max_snippets
+      ) {
+        // Mark project as completed
+        const { error: completedError } = await supabase
+          .from("projects")
+          .update({
+            is_completed: true,
+            is_locked: false,
+            locked_by: null,
+          })
+          .eq("id", projectId);
 
-      // Refresh contributors list
+        if (completedError) {
+          console.error("Error marking project as completed:", completedError);
+        } else {
+          toast.success("Project completed! This was the final contribution.");
+        }
+      } else {
+        // Unlock the project
+        const { error: unlockError } = await supabase
+          .from("projects")
+          .update({
+            is_locked: false,
+            locked_by: null,
+          })
+          .eq("id", projectId);
+
+        if (unlockError) {
+          console.error("Error unlocking project:", unlockError);
+        }
+      }
+
+      // Refresh the data
+      await fetchSnippets();
       await fetchContributors();
+
+      // Update local state
+      setProjectLocked(false);
+      setLockedBy(null);
+      setIsCurrentlyWriting(false);
+      setIsContributor(true);
+
+      // Signal that sessions page needs to refresh data
+      sessionStorage.setItem("refreshSessions", "true");
 
       toast.success("Contribution submitted successfully!");
       setContent("");
       setWordCount(0);
-      setIsMyTurn(false);
+
+      // Refresh project data
+      const { data: refreshedProject } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("id", projectId)
+        .single();
+
+      if (refreshedProject) {
+        setProject(refreshedProject);
+      }
     } catch (error: any) {
       console.error("Submit contribution error:", error);
       toast.error(
         `Failed to submit contribution: ${error.message || "Unknown error"}`
       );
+
+      // Attempt to unlock the project even if there was an error
+      try {
+        await supabase
+          .from("projects")
+          .update({
+            is_locked: false,
+            locked_by: null,
+          })
+          .eq("id", projectId);
+
+        setProjectLocked(false);
+        setLockedBy(null);
+        setIsCurrentlyWriting(false);
+      } catch (unlockError) {
+        console.error(
+          "Error unlocking project after failed submission:",
+          unlockError
+        );
+      }
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Add a function to cancel writing
+  const handleCancelWriting = async () => {
+    if (!userData?.auth_id) return;
+
+    try {
+      // Unlock the project
+      const { error: unlockError } = await supabase
+        .from("projects")
+        .update({
+          is_locked: false,
+          locked_by: null,
+        })
+        .eq("id", projectId)
+        .eq("locked_by", userData.auth_id); // Make sure only the current locker can unlock
+
+      if (unlockError) {
+        console.error("Error unlocking project:", unlockError);
+        toast.error("Failed to cancel. Please try again.");
+        return;
+      }
+
+      // Update local state
+      setProjectLocked(false);
+      setLockedBy(null);
+      setIsCurrentlyWriting(false);
+      setContent("");
+      setWordCount(0);
+
+      toast.success(
+        "Writing cancelled. The project is now available for others."
+      );
+    } catch (error: any) {
+      console.error("Cancel writing error:", error);
+      toast.error(`Failed to cancel: ${error.message || "Unknown error"}`);
+    }
+  };
+
+  // Add a manual refresh function
+  const handleManualRefresh = async () => {
+    try {
+      await fetchContributors();
+      await fetchSnippets();
+
+      // Refresh project data to get current lock status
+      const { data: refreshedProject, error } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("id", projectId)
+        .single();
+
+      if (error) {
+        console.error("Error refreshing project data:", error);
+        return;
+      }
+
+      if (refreshedProject) {
+        setProject(refreshedProject);
+        setProjectLocked(refreshedProject.is_locked || false);
+        setLockedBy(refreshedProject.locked_by || null);
+
+        // Update writing status if the current user is the one writing
+        if (userData?.auth_id) {
+          setIsCurrentlyWriting(
+            refreshedProject.locked_by === userData.auth_id
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Error during manual refresh:", error);
+    }
+  };
+
+  // Handle word count
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newContent = e.target.value;
+    setContent(newContent);
+    setWordCount(newContent.trim().split(/\s+/).filter(Boolean).length);
   };
 
   const handleDeleteProject = async () => {
@@ -689,7 +591,14 @@ const WritingEditor: React.FC = () => {
   };
 
   const renderContributors = (contributors: Contributor[]) => {
-    return contributors.map((contributor) => (
+    // Always sort contributors by join date for consistent display
+    const sortedContributors = [...contributors].sort(
+      (a, b) =>
+        new Date(a.joined_at || "").getTime() -
+        new Date(b.joined_at || "").getTime()
+    );
+
+    return sortedContributors.map((contributor) => (
       <div key={contributor.id} className="flex items-center gap-2">
         {contributor.user_is_project_creator && <Crown className="text-gold" />}
         <span
@@ -701,58 +610,9 @@ const WritingEditor: React.FC = () => {
         >
           {contributor.user?.user_profile_name || "Unknown"}
         </span>
-        {contributor.current_writer && (
-          <PenTool className="text-primary-text" />
-        )}
       </div>
     ));
   };
-
-  const checkIfContributor = async () => {
-    try {
-      const user = await getCurrentUser();
-      if (!user) {
-        // Not logged in, so can't be a contributor
-        setIsContributor(false);
-        return;
-      }
-
-      // Check if user is already a contributor
-      const { data: contributorData, error } = await supabase
-        .from("project_contributors")
-        .select("*") // Select all fields to get additional information like current_writer status
-        .eq("project_id", projectId)
-        .eq("user_id", user.id);
-
-      if (error) {
-        console.error("Error checking contributor status:", error);
-        // Don't throw, handle gracefully
-        setIsContributor(false);
-        return;
-      }
-
-      // Check if contributorData is not empty
-      const isUserContributor = contributorData && contributorData.length > 0;
-      setIsContributor(isUserContributor);
-
-      // If the user is a contributor, update their status
-      if (isUserContributor && contributorData[0]) {
-        setIsMyTurn(contributorData[0].current_writer || false);
-        setIsProjectCreator(
-          contributorData[0].user_is_project_creator || false
-        );
-      }
-    } catch (error) {
-      console.error("Error checking contributor status:", error);
-      // In case of error, assume not a contributor for safety
-      setIsContributor(false);
-    }
-  };
-
-  // Call this function when the component mounts or when the user tries to join
-  useEffect(() => {
-    checkIfContributor();
-  }, [projectId]);
 
   return (
     <div className="container mx-auto py-8 px-4 pb-16 max-w-xl">
@@ -767,7 +627,22 @@ const WritingEditor: React.FC = () => {
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>{project?.title || "Loading..."}</CardTitle>
+          <CardTitle className="flex justify-between items-center">
+            <span>{project?.title || "Loading..."}</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleManualRefresh}
+              disabled={isSubmitting || isRefreshing || loadingContributors}
+              className="ml-2"
+            >
+              {isRefreshing || loadingContributors ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Refresh"
+              )}
+            </Button>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {/* Project Description */}
@@ -775,9 +650,37 @@ const WritingEditor: React.FC = () => {
             {isLoading ? (
               <Skeleton className="h-4 w-3/4" />
             ) : (
-              <p className="text-secondary-text text-justify">
-                {project?.description}
-              </p>
+              <div>
+                <p className="text-secondary-text text-justify mb-2">
+                  {project?.description}
+                </p>
+                {project?.max_snippets && (
+                  <div className="mt-3">
+                    <p className="text-sm text-primary-text">
+                      <span className="font-medium">Contributions:</span>{" "}
+                      {previousSnippets.length} / {project.max_snippets}
+                      {project.is_completed && " (Completed)"}
+                    </p>
+                    <p className="text-xs text-secondary-text mt-1">
+                      Each contribution: 50-100 words
+                    </p>
+                    <p className="text-xs text-secondary-text">
+                      Estimated total story length: {project.max_snippets * 50}-
+                      {project.max_snippets * 100} words
+                    </p>
+                    <p className="text-xs text-secondary-text mt-1 italic">
+                      Note: Stories are limited to a maximum of 12 contributions
+                    </p>
+                  </div>
+                )}
+                {projectLocked &&
+                  lockedBy &&
+                  lockedBy !== userData?.auth_id && (
+                    <p className="text-sm text-amber-500 mt-2 font-medium">
+                      Someone is currently writing a contribution
+                    </p>
+                  )}
+              </div>
             )}
           </div>
 
@@ -821,9 +724,11 @@ const WritingEditor: React.FC = () => {
             )}
           </div>
 
-          {/* Contributors section */}
+          {/* Contributors section - renamed */}
           <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-2">Contributors:</h3>
+            <h3 className="text-lg font-semibold mb-2">
+              Authors who have contributed:
+            </h3>
             {loadingContributors ? (
               <Skeleton className="h-10 w-full" />
             ) : contributors.length > 0 ? (
@@ -831,89 +736,99 @@ const WritingEditor: React.FC = () => {
                 {renderContributors(contributors)}
               </div>
             ) : (
-              <p className="text-secondary-text">No contributors yet</p>
+              <p className="text-secondary-text">
+                No authors have contributed yet
+              </p>
             )}
           </div>
 
           {/* Writing Area */}
-          {isContributor ? (
+          {isCurrentlyWriting ? (
             <>
               <div className="mb-4">
-                {isMyTurn ? (
-                  <>
-                    <Textarea
-                      value={content}
-                      onChange={handleContentChange}
-                      placeholder="Add your contribution (50-100 words)..."
-                      className="min-h-[200px] mb-2"
-                      disabled={!isMyTurn || isSubmitting}
-                    />
-                    <div className="flex justify-between items-center">
-                      <span
-                        className={
-                          wordCount > 100 || wordCount < 50
-                            ? "text-red-500"
-                            : ""
-                        }
-                      >
-                        {wordCount} words
-                      </span>
-                      <Button
-                        onClick={handleSubmit}
-                        disabled={
-                          wordCount > 100 || wordCount < 50 || isSubmitting
-                        }
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Submitting...
-                          </>
-                        ) : (
-                          "Submit Contribution"
-                        )}
-                      </Button>
-                    </div>
-                  </>
-                ) : (
-                  <p className="text-center text-secondary-text">
-                    Waiting for your turn...
-                  </p>
-                )}
-                <div className="flex justify-center mt-4 gap-4">
-                  <Button
-                    variant="outline"
-                    onClick={handleLeave}
-                    disabled={isSubmitting}
+                <Textarea
+                  value={content}
+                  onChange={handleContentChange}
+                  placeholder="Add your contribution (50-100 words)..."
+                  className="min-h-[200px] mb-2"
+                  disabled={isSubmitting}
+                />
+                <div className="flex justify-between items-center">
+                  <span
+                    className={
+                      wordCount > 100 || wordCount < 50 ? "text-red-500" : ""
+                    }
                   >
-                    Leave Project
-                  </Button>
-                  {isProjectCreator && (
+                    {wordCount} words
+                  </span>
+                  <div className="flex gap-2">
                     <Button
-                      className="bg-red-500 hover:bg-red-600 text-white"
-                      onClick={handleDeleteProject}
+                      variant="outline"
+                      onClick={handleCancelWriting}
+                      disabled={isSubmitting}
                     >
-                      Delete Project
+                      Cancel
                     </Button>
-                  )}
+                    <Button
+                      onClick={handleSubmit}
+                      disabled={
+                        wordCount > 100 || wordCount < 50 || isSubmitting
+                      }
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Submitting...
+                        </>
+                      ) : (
+                        "Submit Contribution"
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </div>
             </>
           ) : (
-            <Button
-              onClick={handleJoin}
-              className="w-full"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Loading...
-                </>
-              ) : (
-                "Join Project"
-              )}
-            </Button>
+            <div className="flex justify-center">
+              <Button
+                onClick={handleStartContribution}
+                className="w-full max-w-md"
+                disabled={
+                  isLoading ||
+                  projectLocked ||
+                  project?.is_completed === true ||
+                  (project?.max_snippets !== undefined &&
+                    previousSnippets.length >= project.max_snippets)
+                }
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Loading...
+                  </>
+                ) : project?.is_completed === true ||
+                  (project?.max_snippets !== undefined &&
+                    previousSnippets.length >= project.max_snippets) ? (
+                  "Project Completed"
+                ) : projectLocked ? (
+                  "Someone is currently writing..."
+                ) : (
+                  "Make Contribution"
+                )}
+              </Button>
+            </div>
+          )}
+
+          {/* Project creator actions */}
+          {isProjectCreator && (
+            <div className="flex justify-center mt-4">
+              <Button
+                className="bg-red-500 hover:bg-red-600 text-white"
+                onClick={handleDeleteProject}
+              >
+                Delete Project
+              </Button>
+            </div>
           )}
         </CardContent>
       </Card>

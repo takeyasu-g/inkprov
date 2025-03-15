@@ -5,7 +5,7 @@ import SessionCard, { SessionCardSkeleton } from "../SessionCard";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ProjectsData } from "@/types/global";
-import { BookPlus } from "lucide-react";
+import { BookPlus, Loader2, RefreshCw } from "lucide-react";
 import { getSessions } from "@/utils/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -51,38 +51,36 @@ const OpenSessionsPage: React.FC = () => {
 
   // useEffect to fetch allSessions once on mount
   useEffect(() => {
-    handleFetchAllSessions();
+    console.log("OpenSessionsPage mounted, fetching initial data");
 
     // Check if we need to refresh due to joining a project
     const shouldRefresh = sessionStorage.getItem("refreshSessions");
     if (shouldRefresh === "true") {
-      // Clear the flag
+      // Clear the flag immediately to prevent multiple refreshes
       sessionStorage.removeItem("refreshSessions");
-      // Set a small delay to ensure the DB has been updated
-      setTimeout(() => {
-        handleFetchAllSessions();
-      }, 500);
+      console.log("refreshSessions flag found - fetching with latest data");
     }
+
+    // Always fetch data on mount, regardless of the flag
+    handleFetchAllSessions();
   }, []);
 
   // Refresh data when the component regains focus (user returns from another page)
   useEffect(() => {
-    const handleFocus = () => {
-      // Always refresh when the page gains focus - this ensures contributor counts are up-to-date
-      console.log("Window gained focus, refreshing sessions data");
+    // Only refresh when location changes (user navigates back to this page)
+    console.log(
+      "Location changed, checking if we need to refresh sessions data"
+    );
+
+    // If we're on the sessions page, fetch fresh data
+    if (location.pathname === "/sessions") {
       handleFetchAllSessions();
-      setLastFocusTime(Date.now());
-    };
+    }
 
-    // Add event listener for when the window regains focus
-    window.addEventListener("focus", handleFocus);
+    // No longer adding the focus event listener
+    setLastFocusTime(Date.now());
 
-    // Also refresh when location changes (user navigates back to this page)
-    handleFocus();
-
-    return () => {
-      window.removeEventListener("focus", handleFocus);
-    };
+    // No need for cleanup function since we're not adding event listeners
   }, [location.pathname]);
 
   // handler to change assign filters
@@ -113,6 +111,7 @@ const OpenSessionsPage: React.FC = () => {
 
   // Add a refresh button to manually refresh sessions
   const handleManualRefresh = () => {
+    console.log("Manual refresh requested by user");
     handleFetchAllSessions();
     setLastFocusTime(Date.now());
   };
@@ -134,8 +133,19 @@ const OpenSessionsPage: React.FC = () => {
             variant="outline"
             onClick={handleManualRefresh}
             disabled={isLoading}
+            className="flex items-center gap-1"
           >
-            {isLoading ? "Refreshing..." : "Refresh"}
+            {isLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Refreshing...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="h-4 w-4" />
+                Refresh
+              </>
+            )}
           </Button>
           <SearchBar onSearch={handleSearch} />
           <Button

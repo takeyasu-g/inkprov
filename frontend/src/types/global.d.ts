@@ -25,7 +25,7 @@ export interface ProjectsData {
   } | null;
   created_at: Date;
   current_contributors_count: number;
-  max_contributors: number;
+  max_snippets: number;
   project_contributors?: ProjectContributor[];
 }
 
@@ -36,7 +36,10 @@ export interface ProjectSnippet {
   content: string;
   word_count: number;
   sequence_number: number;
-  created_at: Date;
+  created_at: Date | string;
+  creator?: {
+    user_profile_name: string;
+  };
 }
 
 export interface ProjectContributors {

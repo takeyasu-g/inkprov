@@ -71,44 +71,43 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
   };
 
   return (
-    <Card className='w-[350px] h-[250px] bg-background-card'>
+    <Card className="w-[350px] h-[250px] bg-background-card">
       {/* header of card => Genre, Title, Contributors */}
       <CardHeader>
-        <div className='flex justify-between items-center'>
+        <div className="flex justify-between items-center">
           {/* TO DO change badge color based on genre, e.g. Horror = black background white text */}
           <Badge className={`genre-${projectData.project_genre.toLowerCase()}`}>
             {projectData.project_genre}
           </Badge>
-          <div className='flex items-center gap-1'>
-            <Users className='text-secondary-text p-0.5' />
-            <span className='text-secondary-text text-sm'>
-              {projectData.total_contributors}
+          <div className="flex items-center gap-1">
+            <Users className="text-secondary-text p-0.5" />
+            <span className="text-secondary-text text-sm">
+              {projectData.current_contributors_count}
             </span>
           </div>
         </div>
-        <CardTitle className='text-primary-text text-left font-bold'>
+        <CardTitle className="text-primary-text text-left font-bold">
           {projectData.title}
         </CardTitle>
       </CardHeader>
-      <div className='bg-white'>
-        <CardDescription className='m-4 text-secondary-text'>
+      <div className="bg-white">
+        <CardDescription className="m-4 text-secondary-text">
           {projectData.description}
         </CardDescription>
       </div>
-      <CardFooter className='flex justify-between items-center'>
-        <span className='text-sm text-secondary-text'>
+      <CardFooter className="flex justify-between items-center">
+        <span className="text-sm text-secondary-text">
           {projectData.is_completed
-            ? `Completed: ${new Date(projectData.updated_at).toDateString()}`
-            : `Contributors: ${projectData.current_contributors_count}/${projectData.max_contributors}`}
+            ? `Completed`
+            : `Contributors: ${projectData.current_contributors_count}/${projectData.max_snippets}`}
         </span>
         <Button
-          className='bg-primary-button hover:bg-primary-button-hover'
+          className="bg-primary-button hover:bg-primary-button-hover"
           onClick={handleProjectAction}
           disabled={
             !projectData.is_completed &&
             !isContributor &&
-            projectData.current_contributors_count >=
-              projectData.max_contributors
+            projectData.current_contributors_count >= projectData.max_snippets
           }
         >
           {getButtonText()}

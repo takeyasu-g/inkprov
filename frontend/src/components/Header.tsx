@@ -7,6 +7,7 @@ import {
   User,
   Settings,
   LogOut,
+  GitBranchPlus,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -26,6 +27,9 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
+
+// Check if we're in development mode
+const isDevelopment = process.env.NODE_ENV === "development";
 
 interface HeaderProps {
   loggedIn: boolean;
@@ -99,6 +103,17 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
         >
           Inkprov
         </Button>
+
+        {/* Development Mode Indicator */}
+        {isDevelopment && (
+          <div
+            className="ml-2 px-2 py-1 rounded-md bg-amber-100 border border-amber-300 flex items-center"
+            title="Development Environment"
+          >
+            <GitBranchPlus className="h-4 w-4 text-amber-600" />
+            <span className="ml-1 text-xs font-medium text-amber-700">DEV</span>
+          </div>
+        )}
       </div>
       {page === "/login" || page === "/register" ? null : loggedIn ? (
         // Navigation menu only appears if the user has logged in
