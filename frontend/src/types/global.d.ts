@@ -31,6 +31,20 @@ export interface ProjectsData {
   is_public: boolean;
 }
 
+// interface for just ProjectStoriesCompleted
+export interface CompletedStoriesData {
+  id: string;
+  title: string; // Title of the project
+  description: string; // User written description, hard-limited to 280 characters
+  project_genre: string; // user-selected genre, string selected from "tags" fk
+  creator_id: string;
+  users_ext: {
+    user_profile_name: string; // this the creator of the project, profile name
+  }[0]; // this needs to be an array, as this is what supabase returns
+  updated_at: string; // used for the completed Date, as this will be the last Date when lasted touched
+  created_at: string;
+  current_contributors_count: number; // provides the number of total project contributors (cumulative)
+}
 export interface ProjectSnippet {
   id: string;
   project_id: string;

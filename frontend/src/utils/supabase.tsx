@@ -1,5 +1,9 @@
 import { createClient, User } from "@supabase/supabase-js";
-import { ProjectSnippet, ProjectsData } from "@/types/global";
+import {
+  CompletedStoriesData,
+  ProjectSnippet,
+  ProjectsData,
+} from "@/types/global";
 
 // local .env variables
 // Supabase configuration
@@ -185,7 +189,7 @@ const getProjectsInprogress = async () => {
   return projects;
 };
 // get all projects + genre where is_completed = true
-export const getProjects = async (): Promise<ProjectsData[] | null> => {
+export const getProjects = async (): Promise<CompletedStoriesData[] | null> => {
   try {
     const currentUser: User | null = await getCurrentUser();
 
@@ -201,7 +205,7 @@ export const getProjects = async (): Promise<ProjectsData[] | null> => {
       return null;
     }
 
-    return data as ProjectsData[];
+    return data as CompletedStoriesData[];
   } catch (err) {
     console.error("Exception in getProjects:", err);
     return null;

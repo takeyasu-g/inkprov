@@ -10,69 +10,55 @@ import {
   CardTitle,
   Badge,
 } from "@/components/ui";
-import { ProjectsData } from "@/types/global";
-import { supabase, getCurrentUser } from "@/utils/supabase";
+import { CompletedStoriesData } from "@/types/global";
+import { supabase } from "@/utils/supabase";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ProjectCardDataProp {
-  projectData: ProjectsData;
+  projectData: CompletedStoriesData;
 }
 
 // ProjectCards
 const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [isContributor, setIsContributor] = useState(false);
+  const [isCreator, setIsCreator] = useState(false);
 
-  // Check if user is a contributor
+  // Check if user is a contributor of the story
   useEffect(() => {
     const checkContributorStatus = async () => {
-      const user = await getCurrentUser();
-
+      console.log(projectData);
+      // check first if user exists, meaning authenticated and in session
       if (!user) return;
 
-      // Get user's auth_id from users_ext
-      const { data: userExtData, error: userExtError } = await supabase
-        .from("users_ext")
-        .select("id")
-        .eq("user_email", user.email)
-        .single();
-
-      if (userExtError || !userExtData) return;
+      // first check if is creator of the story
+      if (user.id === projectData.creator_id) return setIsCreator(true);
+      console.log("it went through");
 
       // Check if user is a contributor
       const { data: contributorData, error: contributorError } = await supabase
         .from("project_contributors")
-        .select("id")
+        .select("*")
         .eq("project_id", projectData.id)
-        .eq("user_id", userExtData.id)
+        .eq("user_id", user.id)
         .eq("user_made_contribution", true)
-        .single();
+        .maybeSingle(); // this is for if can't find a project of user_id it will not return a error in the console log
 
-      if (contributorError) return;
-
-      // gives true user is in the project
-      setIsContributor(!!contributorData);
+      if (contributorError) {
+        return;
+      } else {
+        // gives true user is in the project
+        setIsContributor(!!contributorData);
+        console.log("it got here");
+      }
     };
 
     checkContributorStatus();
-  }, [projectData.id]);
-
-  // const handleProjectAction = () => {
-  //   if (projectData.is_completed) {
-  //     navigate(`/projects/${projectData.id}/read`);
-  //   } else {
-  //     // Both contributor and non-contributor cases go to writing page
-  //     navigate(`/writing/${projectData.id}`);
-  //   }
-  // };
-
-  // const getButtonText = () => {
-  //   if (projectData.is_completed) return "Read Story";
-  //   if (isContributor) return "View Session";
-  //   return "Join Session";
-  // };
+  }, [projectData, user]);
 
   return (
-    <Card className="w-[350px] h-[250px] bg-background-card">
+    <Card className="w-[350px] h-[290px] bg-background-card">
       {/* header of card => Genre, Title, Contributors */}
       <CardHeader>
         <div className="flex justify-between items-center">
@@ -80,17 +66,33 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
           <Badge className={`genre-${projectData.project_genre.toLowerCase()}`}>
             {projectData.project_genre}
           </Badge>
-          {isContributor && <span>You Contributed</span>}
+
           <div className="flex items-center gap-1">
-            <Users className="text-secondary-text p-0.5" />
+            <Users
+              className={`p-0.5 ${
+                isContributor || isCreator
+                  ? "text-green-600"
+                  : "text-secondary-text"
+              }`}
+            />
             <span className="text-secondary-text text-sm">
               {projectData.current_contributors_count}
             </span>
           </div>
         </div>
-        <CardTitle className="text-primary-text text-left font-bold">
-          {projectData.title}
-        </CardTitle>
+        <div className="flex flex-col gap-1">
+          <CardTitle className="text-amber-900 text-left font-bold">
+            {projectData.title}
+          </CardTitle>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-secondary-text">by</span>
+            <span className="text-sm font-medium">
+              {isCreator
+                ? "you"
+                : projectData.users_ext.user_profile_name || "Anonymous"}
+            </span>
+          </div>
+        </div>
       </CardHeader>
       <div className="bg-white">
         <CardDescription className="m-4 text-secondary-text">
