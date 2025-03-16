@@ -125,30 +125,34 @@ export const getSessions = async () => {
   }
 };
 
-// get all projects + genre .where is_completed = true
-export const getProjects = async (): Promise<ProjectsData[] | null> => {
+const getProjectsInprogress = async () => {
+  const currentUser: User | null = await getCurrentUser();
+
   const { data: project, error } = await supabase
     .from("projects")
-    .select(
-      `
-      *,
-      creator:users_ext(
-        auth_id,
-        user_profile_name
-      ),
-      project_contributors(
-        contributor_id,
-        contributor:users_ext(
-          auth_id,
-          user_profile_name
-        )
-      )
-    `
-    )
+    .select("*")
+    .eq("creator_id", currentUser?.id)
+    .eq("is_completed", false);
+
+  if (error) {
+    throw new Error(`Failed to fetch projects: ${error.message}`);
+  }
+
+  return project;
+};
+
+// get all projects + genre .where is_completed = true
+export const getProjects = async (): Promise<ProjectsData[] | null> => {
+  const currentUser: User | null = await getCurrentUser();
+
+  const { data: project, error } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("creator_id", currentUser?.id)
     .eq("is_completed", true);
 
   if (error) {
-    throw error;
+    throw new Error(`Failed to fetch projects: ${error.message}`);
   }
 
   return project;
@@ -163,6 +167,53 @@ export const getTags = async () => {
   }
 
   return data;
+};
+
+const getProfilePictureOptions = async () => {
+  // Get the public URLs of the images
+  const bookShelfImageData = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("BookShelf.png");
+  const bookStackImageData = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("BookStack.png");
+  const lanturnBookImageData = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("LanturnBook.png");
+
+  return [
+    bookShelfImageData.data.publicUrl,
+    bookStackImageData.data.publicUrl,
+    lanturnBookImageData.data.publicUrl,
+  ];
+};
+
+const getProfilePicture = async () => {
+  const currentUser: User | null = await getCurrentUser();
+
+  const { data, error } = await supabase
+    .from("users_ext")
+    .select("profile_pic_url")
+    .eq("auth_id", currentUser?.id);
+
+  if (error) {
+    throw new Error(`Failed to fetch profile picture: ${error.message}`);
+  }
+
+  return data[0].profile_pic_url;
+};
+
+const updateProfilePicture = async (url: string): Promise<any> => {
+  const currentUser: User | null = await getCurrentUser();
+
+  const { error } = await supabase
+    .from("users_ext")
+    .update({ profile_pic_url: url })
+    .eq("auth_id", currentUser?.id);
+
+  if (error) {
+    throw new Error(`Failed to update profile picture: ${error.message}`);
+  }
 };
 
 const insertUsername = async (): Promise<any> => {
@@ -272,11 +323,15 @@ export {
   signIn,
   signOut,
   getCurrentUser,
+  getProjectsInprogress,
+  getProfilePictureOptions,
+  getProfilePicture,
   getUsername,
   getBio,
   getMatureContent,
   getSession,
   insertUsername,
+  updateProfilePicture,
   updateUsername,
   updateBio,
   updateMatureContent,

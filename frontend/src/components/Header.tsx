@@ -11,7 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { supabase, getUsername } from "@/utils/supabase";
+import { supabase, getUsername, getProfilePicture } from "@/utils/supabase";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -36,16 +36,27 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
   const navigate = useNavigate();
   const { isAuthenticated, user, setIsAuthenticated, setUser } = useAuth();
   const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
+  const [currentProfilePicture, setCurrentProfilePicture] = useState<string>();
+  const [username, setUsername] = useState<string>("");
 
   useEffect(() => {
-    let username = sessionStorage.getItem("username");
-    if (username === null) {
-      let currentUsername = getDisplayName();
-      currentUsername.then((res: string) =>
-        sessionStorage.setItem("username", res)
-      );
-    }
-  });
+    // Get username
+    const fetchUsername = async () => {
+      const usernameData = await getUsername();
+      const user = usernameData[0].user_profile_name.split("@")[0];
+      const username = user[0].toUpperCase() + user.substring(1);
+      setUsername(username);
+    };
+
+    // Get Profile Picture
+    const fetchProfilePicture = async () => {
+      const profilePicture = await getProfilePicture();
+      setCurrentProfilePicture(profilePicture);
+    };
+
+    fetchUsername();
+    fetchProfilePicture();
+  }, []);
 
   const handleLoggedInHomepage = () => {
     if (isAuthenticated) {
@@ -63,7 +74,6 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
 
       setIsAuthenticated(false);
       setUser(null);
-      sessionStorage.removeItem("username");
       toast.success("Successfully logged out");
       navigate("/");
     } catch (error: any) {
@@ -72,7 +82,6 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
   };
 
   // Get user's initials for avatar fallback (Google image pull doesn't seem to work yet)
-  // TODO: this only gets the first letter of the first name for now, not sure what I did wrong
   const getInitials = () => {
     if (!user?.email) return "?";
     return user.email
@@ -82,15 +91,9 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
       .join("");
   };
 
-  // Get user's display name
-  const getDisplayName = async (): Promise<string> => {
-    const username = await getUsername();
-    return username[0].user_profile_name;
-  };
-
   const headerLayout = (
     <>
-      <div className="flex ml-4 items-center text-primary-text mt-3">
+      <div className="flex ml-4 items-center text-primary-text">
         <Feather />
         <Button
           className="text-primary-text text-xl font-bold pl-2 hover:no-underline cursor-pointer"
@@ -151,8 +154,14 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
             <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
               <PopoverTrigger asChild>
                 <Avatar className="w-9 h-9 cursor-pointer">
-                  <AvatarImage src={user?.user_metadata?.avatar_url || ""} />
-                  <AvatarFallback>{getInitials()}</AvatarFallback>
+                  <AvatarImage
+                    src={
+                      currentProfilePicture || user?.user_metadata?.avatar_url
+                    }
+                  />
+                  <AvatarFallback className="bg-white">
+                    {getInitials()}
+                  </AvatarFallback>
                 </Avatar>
               </PopoverTrigger>
               <PopoverContent
@@ -163,7 +172,7 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
                 <div className="divide-y-2 divide-primary-border border border-primary-border">
                   <div className="pb-2 p-4">
                     <h1 className="text-lg text-primary-text font-medium">
-                      {sessionStorage.getItem("username")}
+                      {username}
                     </h1>
                     <p className="text-secondary-text">{user?.email}</p>
                   </div>
@@ -202,7 +211,7 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
           </div>
         </>
       ) : (
-        <div className="flex gap-4 mt-3">
+        <div className="flex gap-4">
           {/* Auth Buttons */}
           <Button
             className="text-primary-text text-md hover:no-underline hover:text-hover-text cursor-pointer"
@@ -228,8 +237,8 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
     <header
       className={
         page === "/login" || page === "/register"
-          ? "grid grid-cols-2 grid-rows-1 gap-0 relative"
-          : "flex justify-between relative pb-4 before:absolute before:bottom-0 before:left-1/2 before:-translate-x-1/2 before:w-screen before:h-px before:bg-primary-border"
+          ? "grid grid-cols-2 grid-rows-1 gap-0 relative mt-3"
+          : "flex justify-between relative pb-4 before:absolute before:bottom-0 before:left-1/2 before:-translate-x-1/2 before:w-screen before:h-px before:bg-primary-border mt-3"
       }
     >
       {page === "/login" || page === "/register" ? (
