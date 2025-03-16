@@ -66,7 +66,8 @@ export const getProjectSnippets = async (
   const { data: projectSnippets, error } = await supabase
     .from("project_snippets")
     .select("*")
-    .eq("project_id", projectId);
+    .eq("project_id", projectId)
+    .order("sequence_number", { ascending: true }); // order snippets by sequence_number
 
   if (error) {
     return null;

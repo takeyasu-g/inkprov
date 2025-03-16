@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { ProjectSnippet, ProjectsData } from "@/types/global";
+import { useParams, useLocation } from "react-router-dom";
+import { ProjectSnippet, CompletedStoriesData } from "@/types/global";
 import { getProjectOfId, getProjectSnippets } from "@/utils/supabase";
 import {
   Card,
@@ -17,36 +17,24 @@ const ReadingPage: React.FC = () => {
   // extract params in the URL to ge the projectId
   const { projectId } = useParams();
 
+  // this gets the passed state from the projectCard => projectData
+  const location = useLocation();
+  const project = location.state?.project;
+
   const [projectSnippets, setProjectSnippets] = useState<
     ProjectSnippet[] | null
   >();
-  const [projectData, setProjectData] = useState<ProjectsData | null>();
 
   // handles fetching Project Snippets from the Project ID
   const handleFetchProjectSnippets = async () => {
     const projectSnippetsData = await getProjectSnippets(projectId);
 
-    if (projectSnippetsData) {
-      // need to refactor this since can do this in the fetcher in supabase.tsx with .order
-      const orderedSnippets = projectSnippetsData
-        .slice() // Create a shallow copy to avoid mutating the original array
-        .sort((a, b) => a.sequence_number - b.sequence_number); // Sort in ascending order
-      // .map((snippet) => snippet.content); // gets only content
-
-      setProjectSnippets(orderedSnippets);
-    }
-  };
-
-  // handles fetching projectData where = projectId
-  const handleFetchProjectData = async () => {
-    const projectData = await getProjectOfId(projectId);
-    setProjectData(projectData);
+    setProjectSnippets(projectSnippetsData);
   };
 
   //useEffect on inital render
   useEffect(() => {
     handleFetchProjectSnippets();
-    handleFetchProjectData();
   }, []);
 
   return (
@@ -54,16 +42,16 @@ const ReadingPage: React.FC = () => {
       <Card className="bg-background rounded-lg p-8 shadow-lg border border-primary-border">
         <CardHeader className="mb-2">
           <CardTitle className="text-3xl font-bold text-primary-text mb-2">
-            {projectData?.title}
+            {project?.title}
           </CardTitle>
           <div className="flex flex-wrap gap-4 items-center text-secondary-text">
             <Badge className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm">
-              {projectData?.project_genre}
+              {project?.project_genre}
             </Badge>
             <span>
               Completed:{" "}
-              {projectData?.updated_at
-                ? new Date(projectData.updated_at).toDateString()
+              {project?.updated_at
+                ? new Date(project.updated_at).toDateString()
                 : "No date found"}
             </span>
             <div className="flex items-center gap-2">
@@ -82,17 +70,15 @@ const ReadingPage: React.FC = () => {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <ScrollArea className="h-[320px] p-2">
-            {projectSnippets?.map((snippet) => (
-              <p
-                key={snippet.id}
-                className="text-primary-text break-words whitespace-normal"
-              >
-                {snippet.content}
-              </p>
-            ))}
-          </ScrollArea>
+        <CardContent className="space-y-4 pb-10 pt-2 px-15">
+          {projectSnippets?.map((snippet) => (
+            <p
+              key={snippet.id}
+              className="text-primary-text text-left leading-relaxed  indent-6 break-words whitespace-normal"
+            >
+              {snippet.content}
+            </p>
+          ))}
         </CardContent>
       </Card>
     </div>

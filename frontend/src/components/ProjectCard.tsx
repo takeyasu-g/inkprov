@@ -28,13 +28,11 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
   // Check if user is a contributor of the story
   useEffect(() => {
     const checkContributorStatus = async () => {
-      console.log(projectData);
       // check first if user exists, meaning authenticated and in session
       if (!user) return;
 
       // first check if is creator of the story
       if (user.id === projectData.creator_id) return setIsCreator(true);
-      console.log("it went through");
 
       // Check if user is a contributor
       const { data: contributorData, error: contributorError } = await supabase
@@ -50,7 +48,6 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
       } else {
         // gives true user is in the project
         setIsContributor(!!contributorData);
-        console.log("it got here");
       }
     };
 
@@ -105,7 +102,11 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
         </span>
         <Button
           className="bg-primary-button hover:bg-primary-button-hover"
-          onClick={() => navigate(`/projects/${projectData.id}/read`)}
+          onClick={() =>
+            navigate(`/projects/${projectData.id}/read`, {
+              state: { project: projectData }, // passing in projectData so we don't have to fetch it again in ReadingPage
+            })
+          }
         >
           Read Story
         </Button>
