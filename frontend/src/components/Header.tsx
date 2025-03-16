@@ -56,7 +56,7 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
 
     fetchUsername();
     fetchProfilePicture();
-  }, []);
+  });
 
   const handleLoggedInHomepage = () => {
     if (isAuthenticated) {

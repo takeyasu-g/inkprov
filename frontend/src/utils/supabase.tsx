@@ -184,6 +184,7 @@ const getProjectsInprogress = async () => {
 };
 // get all projects + genre where is_completed = true
 export const getProjects = async (): Promise<ProjectsData[] | null> => {
+  const currentUser: User | null = await getCurrentUser();
   try {
   const currentUser: User | null = await getCurrentUser();
 
@@ -199,7 +200,7 @@ export const getProjects = async (): Promise<ProjectsData[] | null> => {
       return null;
     }
 
-    return data as ProjectsData[];
+    return data as ProjectsData[]; 
   } catch (err) {
     console.error("Exception in getProjects:", err);
     return null;
