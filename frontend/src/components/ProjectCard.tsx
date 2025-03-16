@@ -30,7 +30,6 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
     const checkContributorStatus = async () => {
       // check first if user exists, meaning authenticated and in session
       if (!user) return;
-      console.log(user);
 
       // first check if is creator of the story
       if (user.id === projectData.creator_id) return setIsCreator(true);

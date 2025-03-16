@@ -38,7 +38,6 @@ const ReadingPage: React.FC = () => {
       if (!projectSnippetsData) {
         throw new Error("No data returned for project snippets");
       }
-      console.log(projectSnippetsData);
 
       setProjectSnippets(projectSnippetsData);
 
@@ -52,7 +51,6 @@ const ReadingPage: React.FC = () => {
         contributors
       );
       setContributorsProfile(profilesOfContributors);
-      console.log(profilesOfContributors);
     } catch (error) {
       console.error("Error fetching project snippets:", error);
 
