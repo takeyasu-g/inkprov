@@ -6,6 +6,13 @@ interface UserProfile {
   avatar_url?: string;
 }
 
+interface UserProfilePopUp {
+  id: string;
+  user_profile_name: string;
+  profile_pic_url?: string;
+  user_email: string;
+}
+
 interface ProjectContributor {
   contributor_id: string;
   contributor?: UserProfile;

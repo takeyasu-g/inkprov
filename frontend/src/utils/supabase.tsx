@@ -3,6 +3,7 @@ import {
   CompletedStoriesData,
   ProjectSnippet,
   ProjectsData,
+  UserProfilePopUp,
 } from "@/types/global";
 
 // local .env variables
@@ -293,6 +294,23 @@ const insertUsername = async (): Promise<any> => {
 };
 
 /* ----- USER PROFILE / INFORMATION ROUTES ----- */
+
+// get profilesData for popup in ReadingPage
+export const getProfilesByUserIdsForPopUp = async (
+  userIds: string[]
+): Promise<UserProfilePopUp[] | []> => {
+  const { data, error } = await supabase
+    .from("users_ext")
+    .select("id, user_profile_name, profile_pic_url, user_email")
+    .in("id", userIds);
+
+  if (error) {
+    console.error("Error fetching profiles:", error);
+    return [];
+  }
+
+  return data;
+};
 
 // handles the user updating their username using the field in settings.
 

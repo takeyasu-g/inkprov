@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useLocation } from "react-router-dom";
-import { ProjectSnippet, CompletedStoriesData } from "@/types/global";
-import { getProjectOfId, getProjectSnippets } from "@/utils/supabase";
+import { ProjectSnippet, UserProfilePopUp } from "@/types/global";
+import {
+  getProfilesByUserIdsForPopUp,
+  getProjectSnippets,
+} from "@/utils/supabase";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   Badge,
-  ScrollArea,
 } from "@/components/ui";
-// temp samples
-const exampleContributors: string[] = ["G", "D", "T"];
+import ContributorPopup from "@/components/ContributorPopup";
 
 const ReadingPage: React.FC = () => {
   // extract params in the URL to ge the projectId
@@ -21,15 +22,43 @@ const ReadingPage: React.FC = () => {
   const location = useLocation();
   const project = location.state?.project;
 
+  // useStates
   const [projectSnippets, setProjectSnippets] = useState<
     ProjectSnippet[] | null
   >();
+  const [contributorsProfile, setContributorsProfile] = useState<
+    UserProfilePopUp[] | []
+  >([]);
 
   // handles fetching Project Snippets from the Project ID
   const handleFetchProjectSnippets = async () => {
-    const projectSnippetsData = await getProjectSnippets(projectId);
+    try {
+      const projectSnippetsData = await getProjectSnippets(projectId);
 
-    setProjectSnippets(projectSnippetsData);
+      if (!projectSnippetsData) {
+        throw new Error("No data returned for project snippets");
+      }
+      console.log(projectSnippetsData);
+
+      setProjectSnippets(projectSnippetsData);
+
+      // need to get unique contributors, in case a user contributed more then once
+      const contributors = [
+        ...new Set(projectSnippetsData.map((snippet) => snippet.creator_id)),
+      ];
+
+      // get profileData for each contributors
+      const profilesOfContributors = await getProfilesByUserIdsForPopUp(
+        contributors
+      );
+      setContributorsProfile(profilesOfContributors);
+      console.log(profilesOfContributors);
+    } catch (error) {
+      console.error("Error fetching project snippets:", error);
+
+      // Show error feedback (replace with a toast, modal, or UI message)
+      alert("Failed to load project snippets. Please try again.");
+    }
   };
 
   //useEffect on inital render
@@ -45,7 +74,7 @@ const ReadingPage: React.FC = () => {
             {project?.title}
           </CardTitle>
           <div className="flex flex-wrap gap-4 items-center text-secondary-text">
-            <Badge className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm">
+            <Badge className={`genre-${project.project_genre.toLowerCase()}`}>
               {project?.project_genre}
             </Badge>
             <span>
@@ -54,31 +83,36 @@ const ReadingPage: React.FC = () => {
                 ? new Date(project.updated_at).toDateString()
                 : "No date found"}
             </span>
-            <div className="flex items-center gap-2">
-              <span>Contributors:</span>
-              <div className="flex -space-x-2">
-                {exampleContributors.map((contributor, index) => (
-                  <div
-                    key={index}
-                    className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-sm border-2 border-background"
-                    title={contributor}
-                  >
-                    {contributor[0]}
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4 pb-10 pt-2 px-15">
-          {projectSnippets?.map((snippet) => (
-            <p
-              key={snippet.id}
-              className="text-primary-text text-left leading-relaxed  indent-6 break-words whitespace-normal"
-            >
-              {snippet.content}
-            </p>
-          ))}
+        <CardContent className="space-y-4 pb-10">
+          {projectSnippets?.map((snippet) => {
+            const contributor = contributorsProfile.find(
+              (profile) => profile.id === snippet.creator_id
+            );
+
+            return (
+              <div key={snippet.id} className="flex items-start gap-5">
+                {/* Reusable Contributor Popup */}
+                <ContributorPopup
+                  profile={
+                    contributor || {
+                      // had to pass this to make accepet null or undefined contribtor
+                      id: "unknown",
+                      user_profile_name: "Unknown",
+                      user_email: "No email",
+                      profile_pic_url: "https://ui-avatars.com/api/?name=?",
+                    }
+                  }
+                />
+
+                {/* Snippet Text */}
+                <p className="text-primary-text text-left leading-relaxed indent-6 break-words whitespace-normal">
+                  {snippet.content}
+                </p>
+              </div>
+            );
+          })}
         </CardContent>
       </Card>
     </div>

@@ -30,6 +30,7 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
     const checkContributorStatus = async () => {
       // check first if user exists, meaning authenticated and in session
       if (!user) return;
+      console.log(user);
 
       // first check if is creator of the story
       if (user.id === projectData.creator_id) return setIsCreator(true);
@@ -82,7 +83,7 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
             {projectData.title}
           </CardTitle>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-secondary-text">by</span>
+            <span className="text-sm text-secondary-text">started by:</span>
             <span className="text-sm font-medium">
               {isCreator
                 ? "you"
