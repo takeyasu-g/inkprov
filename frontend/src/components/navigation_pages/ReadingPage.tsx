@@ -66,7 +66,7 @@ const ReadingPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <Card className="bg-background rounded-lg p-8 shadow-lg border border-primary-border">
+      <Card className="p-8">
         <CardHeader className="mb-2">
           <CardTitle className="text-3xl font-bold text-primary-text mb-2">
             {project?.title}
@@ -75,7 +75,7 @@ const ReadingPage: React.FC = () => {
             <Badge className={`genre-${project.project_genre.toLowerCase()}`}>
               {project?.project_genre}
             </Badge>
-            <span>
+            <span className="text-secondary-text">
               Completed:{" "}
               {project?.updated_at
                 ? new Date(project.updated_at).toDateString()
