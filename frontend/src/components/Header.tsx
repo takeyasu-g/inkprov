@@ -97,7 +97,7 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
 
   const headerLayout = (
     <>
-      <div className="flex-none ml-4 items-center text-primary-text">
+      <div className="flex-none flex ml-4 items-center text-primary-text">
         <Feather />
         <Button
           className="text-primary-text text-xl font-bold pl-2 hover:no-underline cursor-pointer"
