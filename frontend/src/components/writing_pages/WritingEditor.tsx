@@ -28,7 +28,7 @@ interface Project {
   id: string;
   title: string;
   description: string;
-  max_snippets: number; // Renamed field to focus on snippet count rather than contributors
+  max_snippets: number;
   current_contributors_count: number;
   is_completed: boolean;
   is_locked: boolean;
@@ -70,7 +70,7 @@ const WritingEditor: React.FC = () => {
   // State management
   const [project, setProject] = useState<Project | null>(null);
   const [isContributor, setIsContributor] = useState(false);
-  const [isCurrentlyWriting, setIsCurrentlyWriting] = useState(false); // Renamed from isMyTurn
+  const [isCurrentlyWriting, setIsCurrentlyWriting] = useState(false);
   const [content, setContent] = useState("");
   const [wordCount, setWordCount] = useState(0);
   const [previousSnippets, setPreviousSnippets] = useState<ProjectSnippet[]>(
@@ -236,13 +236,11 @@ const WritingEditor: React.FC = () => {
         return;
       }
 
-      // Check if project is completed
       if (project?.is_completed) {
         toast.error("This project is already completed");
         return;
       }
 
-      // Check if max snippets has been reached
       if (
         project?.max_snippets &&
         previousSnippets.length >= project.max_snippets
@@ -251,7 +249,6 @@ const WritingEditor: React.FC = () => {
         return;
       }
 
-      // Check if project is currently locked
       if (project?.is_locked) {
         toast.error(
           `Someone else is currently writing. Please try again later.`
@@ -259,7 +256,6 @@ const WritingEditor: React.FC = () => {
         return;
       }
 
-      // Lock the project for this user
       const { error: lockError } = await supabase
         .from("projects")
         .update({
@@ -274,7 +270,6 @@ const WritingEditor: React.FC = () => {
         return;
       }
 
-      // Update local state
       setProjectLocked(true);
       setLockedBy(user.id);
       setIsCurrentlyWriting(true);
@@ -302,7 +297,6 @@ const WritingEditor: React.FC = () => {
       }
       setIsSubmitting(true);
 
-      // Add new snippet
       const { error: snippetError } = await supabase
         .from("project_snippets")
         .insert({
@@ -321,16 +315,13 @@ const WritingEditor: React.FC = () => {
         return;
       }
 
-      // Check if user is already a contributor
       const { data: existingContributor } = await supabase
         .from("project_contributors")
         .select("id")
         .eq("project_id", projectId)
         .eq("user_id", userData.auth_id);
 
-      // If not already a contributor, add them
       if (!existingContributor || existingContributor.length === 0) {
-        // Check if this user is the project creator
         const { data: projectData } = await supabase
           .from("projects")
           .select("creator_id")
@@ -339,7 +330,6 @@ const WritingEditor: React.FC = () => {
 
         const isProjectCreator = projectData?.creator_id === userData.auth_id;
 
-        // Insert new contributor
         const { error: contributorError } = await supabase
           .from("project_contributors")
           .insert({
@@ -349,16 +339,13 @@ const WritingEditor: React.FC = () => {
             user_made_contribution: true,
             user_is_project_creator: isProjectCreator,
             last_contribution_at: new Date().toISOString(),
-            current_writer: false, // No longer tracking current_writer
+            current_writer: false,
           });
 
         if (contributorError) {
           console.error("Error adding new contributor:", contributorError);
-          // Continue execution even if this fails
         }
 
-        // We no longer need to update current_contributors_count since we're focusing on snippets
-        // But we'll keep the record for historical purposes
         const { error: updateError } = await supabase
           .from("projects")
           .update({
@@ -372,10 +359,8 @@ const WritingEditor: React.FC = () => {
             "Failed to update project contributor count:",
             updateError
           );
-          // Continue execution even if this fails
         }
       } else {
-        // Update existing contributor
         const { error: updateError } = await supabase
           .from("project_contributors")
           .update({
@@ -387,16 +372,13 @@ const WritingEditor: React.FC = () => {
 
         if (updateError) {
           console.error("Error updating contributor:", updateError);
-          // Continue execution even if this fails
         }
       }
 
-      // Check if project has reached max snippets
       if (
         project?.max_snippets &&
         previousSnippets.length + 1 >= project.max_snippets
       ) {
-        // Mark project as completed
         const { error: completedError } = await supabase
           .from("projects")
           .update({
@@ -412,7 +394,6 @@ const WritingEditor: React.FC = () => {
           toast.success("Project completed! This was the final contribution.");
         }
       } else {
-        // Unlock the project
         const { error: unlockError } = await supabase
           .from("projects")
           .update({
@@ -426,7 +407,6 @@ const WritingEditor: React.FC = () => {
         }
       }
 
-      // Refresh the data
       await fetchSnippets();
       await fetchContributors();
 
@@ -644,7 +624,6 @@ const WritingEditor: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {/* Project Description */}
           <div className="mb-6">
             {isLoading ? (
               <Skeleton className="h-4 w-3/4" />
@@ -683,7 +662,6 @@ const WritingEditor: React.FC = () => {
             )}
           </div>
 
-          {/* Previous Snippets */}
           <div className="mb-6 space-y-4">
             <h3 className="text-lg font-semibold">Story So Far:</h3>
             {isLoading ? (
@@ -723,21 +701,17 @@ const WritingEditor: React.FC = () => {
             )}
           </div>
 
-          {/* Contributors section - renamed */}
           <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-2">
-              Authors who have contributed:
-            </h3>
+            <h3 className="text-lg font-semibold mb-3">Contributors:</h3>
             {loadingContributors ? (
-              <Skeleton className="h-10 w-full" />
-            ) : contributors.length > 0 ? (
+              <div className="flex gap-2">
+                <Skeleton className="h-8 w-24 rounded-full" />
+                <Skeleton className="h-8 w-24 rounded-full" />
+              </div>
+            ) : (
               <div className="flex flex-wrap gap-2">
                 {renderContributors(contributors)}
               </div>
-            ) : (
-              <p className="text-secondary-text">
-                No authors have contributed yet
-              </p>
             )}
           </div>
 

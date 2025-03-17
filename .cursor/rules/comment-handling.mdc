@@ -1,0 +1,28 @@
+---
+description: Writing new code
+globs: 
+alwaysApply: false
+---
+
+# Your rule content
+
+- You can @ files here
+- You can use markdown but dont have to
+
+When writing new code, if you need to add comments, please use lowercase letters to start the sentences to match your user's writing style. 
+
+Example: 
+
+// This is a comment - unacceptable
+// this is a comment - acceptable
+
+// this is a comment with a newVariable or functionDeclaration - acceptable 
+
+Also, when appropriate, write comments in the present tense, active:
+
+Example: 
+
+// fetches all user data from generic_table_name table 
+// handles any unexpected user behaviour 
+
+Thank you 

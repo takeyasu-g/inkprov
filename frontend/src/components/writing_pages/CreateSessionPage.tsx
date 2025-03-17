@@ -190,7 +190,6 @@ const CreateSession: React.FC = () => {
         throw new Error("User ID not found");
       }
 
-      // Inserts project into the 'projects' table
       const newProject: Project = {
         title,
         description,
@@ -212,7 +211,6 @@ const CreateSession: React.FC = () => {
         throw projectError;
       }
 
-      // Inserts the first snippet into project_snippets
       const newSnippet: ProjectSnippet = {
         project_id: projectData.id,
         content,
@@ -230,7 +228,6 @@ const CreateSession: React.FC = () => {
         throw snippetError;
       }
 
-      // Insert the project creator into the project_contributors table
       const { error: contributorError } = await supabase
         .from("project_contributors")
         .insert([
@@ -250,7 +247,6 @@ const CreateSession: React.FC = () => {
         description: "Your writing session has been created successfully!",
       });
 
-      // Redirect to the sessions list
       navigate("/sessions");
     } catch (error: any) {
       toast.error("Creation Failed", {

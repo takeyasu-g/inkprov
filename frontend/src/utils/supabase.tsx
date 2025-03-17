@@ -513,6 +513,189 @@ async function getProjectContributors(projectId: string) {
   }
 }
 
+/* ----- PROJECT REACTIONS ROUTES ----- */
+
+// Get the current user's reaction for a specific project
+export const getUserProjectReaction = async (
+  projectId: string
+): Promise<string | null> => {
+  const currentUser = await getCurrentUser();
+
+  if (!currentUser) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("reactions")
+    .select(
+      "reaction_cool, reaction_funny, reaction_sad, reaction_heartwarming, reaction_interesting, reaction_scary"
+    )
+    .eq("project_id", projectId)
+    .eq("user_id", currentUser.id)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Error fetching user reaction:", error);
+    return null;
+  }
+
+  // Find which reaction field is true
+  if (!data) return null;
+
+  if (data.reaction_cool) return "cool";
+  if (data.reaction_funny) return "funny";
+  if (data.reaction_sad) return "sad";
+  if (data.reaction_heartwarming) return "heartwarming";
+  if (data.reaction_interesting) return "interesting";
+  if (data.reaction_scary) return "scary";
+
+  return null;
+};
+
+// Add or update a reaction to a project
+export const addOrUpdateProjectReaction = async (
+  projectId: string,
+  reactionType: string
+): Promise<boolean> => {
+  const currentUser = await getCurrentUser();
+
+  if (!currentUser) {
+    return false;
+  }
+
+  // Create reaction data with all fields set to false
+  const reactionData = {
+    reaction_cool: false,
+    reaction_funny: false,
+    reaction_sad: false,
+    reaction_heartwarming: false,
+    reaction_interesting: false,
+    reaction_scary: false,
+    project_id: projectId,
+    user_id: currentUser.id,
+  };
+
+  // Set the selected reaction to true if provided
+  if (reactionType) {
+    // Update the correct reaction field based on the type
+    switch (reactionType) {
+      case "cool":
+        reactionData.reaction_cool = true;
+        break;
+      case "funny":
+        reactionData.reaction_funny = true;
+        break;
+      case "sad":
+        reactionData.reaction_sad = true;
+        break;
+      case "heartwarming":
+        reactionData.reaction_heartwarming = true;
+        break;
+      case "interesting":
+        reactionData.reaction_interesting = true;
+        break;
+      case "scary":
+        reactionData.reaction_scary = true;
+        break;
+    }
+  }
+
+  // First check if the user already has a reaction for this project
+  const { data: existingReaction, error: lookupError } = await supabase
+    .from("reactions")
+    .select("*") // Select all columns instead of just "id"
+    .eq("project_id", projectId)
+    .eq("user_id", currentUser.id)
+    .maybeSingle(); // Changed from .single() to avoid errors
+
+  if (lookupError) {
+    console.error("Error looking up existing reaction:", lookupError);
+    return false;
+  }
+
+  if (existingReaction) {
+    if (!reactionType) {
+      // If user clicked the same reaction again (to remove it),
+      // delete the reaction entry entirely
+      const { error: deleteError } = await supabase
+        .from("reactions")
+        .delete()
+        .match({ project_id: projectId, user_id: currentUser.id });
+
+      if (deleteError) {
+        console.error("Error deleting reaction:", deleteError);
+        return false;
+      }
+    } else {
+      // Update existing reaction
+      const { error: updateError } = await supabase
+        .from("reactions")
+        .update(reactionData)
+        .match({ project_id: projectId, user_id: currentUser.id });
+
+      if (updateError) {
+        console.error("Error updating reaction:", updateError);
+        return false;
+      }
+    }
+  } else {
+    // Insert new reaction only if a reaction type is provided
+    if (reactionType) {
+      const { error: insertError } = await supabase
+        .from("reactions")
+        .insert(reactionData);
+
+      if (insertError) {
+        console.error("Error adding reaction:", insertError);
+        return false;
+      }
+    } else {
+      // No reaction to add
+      return true;
+    }
+  }
+
+  return true;
+};
+
+// Get counts of reactions for a project
+export const getProjectReactionCounts = async (
+  projectId: string
+): Promise<Record<string, number>> => {
+  const { data, error } = await supabase
+    .from("reactions")
+    .select(
+      "reaction_cool, reaction_funny, reaction_sad, reaction_heartwarming, reaction_interesting, reaction_scary"
+    )
+    .eq("project_id", projectId);
+
+  if (error) {
+    console.error("Error fetching project reactions:", error);
+    return {};
+  }
+
+  // Count reactions by type
+  const counts: Record<string, number> = {
+    cool: 0,
+    funny: 0,
+    sad: 0,
+    heartwarming: 0,
+    interesting: 0,
+    scary: 0,
+  };
+
+  data.forEach((item) => {
+    if (item.reaction_cool) counts.cool++;
+    if (item.reaction_funny) counts.funny++;
+    if (item.reaction_sad) counts.sad++;
+    if (item.reaction_heartwarming) counts.heartwarming++;
+    if (item.reaction_interesting) counts.interesting++;
+    if (item.reaction_scary) counts.scary++;
+  });
+
+  return counts;
+};
+
 export {
   supabase,
   signUp,

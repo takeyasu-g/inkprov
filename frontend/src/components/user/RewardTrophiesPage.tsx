@@ -13,6 +13,7 @@ import {
   faGem,
   faFire,
   faHeart,
+  faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   Card,
@@ -26,7 +27,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase, getCurrentUser } from "@/utils/supabase";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// Define types for achievements
 interface Achievement {
   id: string;
   name: string;
@@ -39,7 +39,6 @@ interface Achievement {
   color: string; // Color for the achievement icon
 }
 
-// Define the props for the component
 interface RewardTrophiesPageProps {
   userId?: string; // Optional - if not provided, will use the current user
 }
@@ -50,7 +49,6 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
   const [userStats, setUserStats] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<string>("all");
 
-  // Fetches user stats and calculates achievements
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -136,9 +134,7 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
     fetchUserData();
   }, [userId]);
 
-  // Calculates which achievements are unlocked based on user stats
   const calculateAchievements = (stats: any) => {
-    // Define all possible achievements
     const allAchievements: Achievement[] = [
       // Writing achievements
       {
@@ -225,14 +221,14 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
 
       // Social achievements
       {
-        id: "first_comment",
-        name: "First Comment",
-        description: "Left your first comment on a project",
-        icon: faComments,
+        id: "loyal_user",
+        name: "Loyal User",
+        description: "Logged into the platform 5 times",
+        icon: faUser,
         category: "social",
-        requiredValue: 1,
-        isUnlocked: stats.comments_made >= 1,
-        progress: Math.min(stats.comments_made, 1) * 100,
+        requiredValue: 5,
+        isUnlocked: stats.user_total_logins >= 5,
+        progress: Math.min(stats.user_total_logins / 5, 1) * 100,
         color: "#14B8A6", // teal
       },
       {
@@ -285,7 +281,6 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
       },
     ];
 
-    // Calculate "All-Star" achievement
     const unlockedCount = allAchievements.filter(
       (a) => a.id !== "all_star" && a.isUnlocked
     ).length;
@@ -299,7 +294,6 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
     setAchievements(allAchievements);
   };
 
-  // Filter achievements by category
   const filteredAchievements =
     activeTab === "all"
       ? achievements
@@ -307,7 +301,6 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
           (achievement) => achievement.category === activeTab
         );
 
-  // Count of unlocked achievements by category
   const unlockedCounts = {
     all: achievements.filter((a) => a.isUnlocked).length,
     writing: achievements.filter(
@@ -326,7 +319,6 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
     ).length,
   };
 
-  // Render the trophy achievement cards
   const renderAchievementCard = (achievement: Achievement) => {
     return (
       <Card
@@ -358,7 +350,6 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
               {achievement.description}
             </p>
 
-            {/* Progress bar */}
             <div className="mt-2 w-full bg-gray-200 rounded-full h-2.5">
               <div
                 className="h-2.5 rounded-full transition-all duration-500 ease-in-out"
@@ -371,7 +362,6 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
               />
             </div>
 
-            {/* Badge for unlocked achievements */}
             {achievement.isUnlocked && (
               <Badge
                 className="mt-2"
@@ -386,7 +376,6 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
     );
   };
 
-  // Loading skeleton
   if (loading) {
     return (
       <div className="space-y-4">

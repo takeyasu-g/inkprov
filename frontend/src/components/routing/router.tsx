@@ -24,7 +24,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
 
   return (
-    <div className="container mx-auto h-screen">
+    <div className="container mx-auto h-screen pt-12">
       <Header loggedIn={isAuthenticated} page={window.location.pathname} />
       {children}
       {window.location.pathname === "/login" ||

@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useLocation } from "react-router-dom";
-import { ProjectSnippet, UserProfilePopUp } from "@/types/global";
+import { ProjectSnippet, ProjectsData, UserProfilePopUp } from "@/types/global";
 import {
-  getProfilesByUserIdsForPopUp,
+  getProjectOfId,
   getProjectSnippets,
+  getUserProjectReaction,
+  addOrUpdateProjectReaction,
+  getProjectReactionCounts,
+  getProfilesByUserIdsForPopUp,
 } from "@/utils/supabase";
 import {
   Card,
@@ -11,11 +15,47 @@ import {
   CardHeader,
   CardTitle,
   Badge,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
 } from "@/components/ui";
 import ContributorPopup from "@/components/ContributorPopup";
+import { toast } from "sonner";
+
+// adds reactions to the project
+// cool, funny, sad, heartwarming, interesting, scary
+// database table: reactions
+import {
+  ThumbsUp,
+  Laugh,
+  HeartCrack,
+  Heart,
+  Sparkles,
+  Ghost,
+} from "lucide-react";
+
+// Define reaction types
+const reactionTypes = [
+  { type: "cool", icon: ThumbsUp, color: "#3b82f6", label: "Cool" },
+  { type: "funny", icon: Laugh, color: "#f59e0b", label: "Funny" },
+  { type: "sad", icon: HeartCrack, color: "#6b7280", label: "Sad" },
+  {
+    type: "heartwarming",
+    icon: Heart,
+    color: "#ef4444",
+    label: "Moving",
+  },
+  {
+    type: "interesting",
+    icon: Sparkles,
+    color: "#8b5cf6",
+    label: "Interesting",
+  },
+  { type: "scary", icon: Ghost, color: "#10b981", label: "Scary" },
+];
 
 const ReadingPage: React.FC = () => {
-  // extract params in the URL to ge the projectId
   const { projectId } = useParams();
 
   // this gets the passed state from the projectCard => projectData
@@ -29,21 +69,26 @@ const ReadingPage: React.FC = () => {
   const [contributorsProfile, setContributorsProfile] = useState<
     UserProfilePopUp[] | []
   >([]);
+  const [projectData, setProjectData] = useState<ProjectsData | null>();
+  const [userReaction, setUserReaction] = useState<string | null>(null);
+  const [reactionCounts, setReactionCounts] = useState<Record<string, number>>(
+    {}
+  );
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // handles fetching Project Snippets from the Project ID
   const handleFetchProjectSnippets = async () => {
     try {
       const projectSnippetsData = await getProjectSnippets(projectId);
 
       if (!projectSnippetsData) {
-        throw new Error("No data returned for project snippets");
+        console.error("No data returned for project snippets");
       }
 
       setProjectSnippets(projectSnippetsData);
 
       // need to get unique contributors, in case a user contributed more then once
       const contributors = [
-        ...new Set(projectSnippetsData.map((snippet) => snippet.creator_id)),
+        ...new Set(projectSnippetsData?.map((snippet) => snippet.creator_id)),
       ];
 
       // get profileData for each contributors
@@ -53,16 +98,76 @@ const ReadingPage: React.FC = () => {
       setContributorsProfile(profilesOfContributors);
     } catch (error) {
       console.error("Error fetching project snippets:", error);
+    }
+  };
 
-      // Show error feedback (replace with a toast, modal, or UI message)
-      alert("Failed to load project snippets. Please try again.");
+  const handleFetchProjectData = async () => {
+    if (!projectId) return;
+    try {
+      const projectData = await getProjectOfId(projectId);
+      setProjectData(projectData);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const fetchReactions = async () => {
+    if (!projectId) return;
+
+    const userReaction = await getUserProjectReaction(projectId);
+    setUserReaction(userReaction);
+
+    const counts = await getProjectReactionCounts(projectId);
+    setReactionCounts(counts);
+  };
+
+  // handle the user clicking on a reaction
+  // users can react to a project with one of the 6 reactions
+  const handleReactionClick = async (reactionType: string) => {
+    if (!projectId || isLoading) return;
+
+    setIsLoading(true);
+    try {
+      const newReaction = userReaction === reactionType ? null : reactionType;
+
+      const success = await addOrUpdateProjectReaction(
+        projectId,
+        newReaction || ""
+      );
+
+      if (success) {
+        setUserReaction(newReaction);
+
+        const counts = await getProjectReactionCounts(projectId);
+        setReactionCounts(counts);
+
+        const reactionLabel =
+          reactionTypes.find(
+            (toastMessage) => toastMessage.type === newReaction
+          )?.label || "";
+
+        toast.success(
+          newReaction
+            ? `Marked this story as ${reactionLabel}`
+            : "Reaction removed"
+        );
+      } else {
+        toast.error("Couldn't update your reaction");
+      }
+    } catch (error) {
+      console.error("Error updating reaction:", error);
+      toast.error("Something went wrong");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   //useEffect on inital render
   useEffect(() => {
     handleFetchProjectSnippets();
-  }, []);
+    handleFetchProjectData();
+    fetchReactions();
+  }, [projectId]);
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -111,6 +216,62 @@ const ReadingPage: React.FC = () => {
               </div>
             );
           })}
+
+          {projectData?.is_completed && (
+            <div className="mt-6 border-t pt-4">
+              <h3 className="text-primary-text font-medium mb-3">
+                How did this story make you feel?
+              </h3>
+              <div className="flex flex-wrap gap-4 justify-center">
+                <TooltipProvider>
+                  {reactionTypes.map((reaction) => {
+                    const Icon = reaction.icon;
+                    const count = reactionCounts[reaction.type] || 0;
+                    const isSelected = userReaction === reaction.type;
+
+                    return (
+                      <Tooltip key={reaction.type}>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={() => handleReactionClick(reaction.type)}
+                            className={`reaction-btn flex flex-col items-center w-14 h-16 rounded-lg transition-all ${
+                              isSelected
+                                ? "bg-gray-100 dark:bg-gray-800 shadow-sm"
+                                : "hover:bg-gray-50 dark:hover:bg-gray-800"
+                            }`}
+                            disabled={isLoading}
+                            aria-label={`React with ${reaction.label}`}
+                          >
+                            <div className="flex items-center justify-center h-7 w-full mt-2">
+                              <Icon
+                                size={20}
+                                color={isSelected ? reaction.color : "#6b7280"}
+                                fill={isSelected ? reaction.color : "none"}
+                                strokeWidth={isSelected ? 2.5 : 2}
+                                className="transition-all"
+                              />
+                            </div>
+                            {count > 0 && (
+                              <span className="text-xs text-center text-tertiary-text mb-1">
+                                {count}
+                              </span>
+                            )}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">
+                          <p>
+                            {isSelected
+                              ? "Remove reaction"
+                              : `Mark as ${reaction.label}`}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  })}
+                </TooltipProvider>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
