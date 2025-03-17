@@ -50,8 +50,6 @@ const getSession = async () => {
 Sessions are uncompleted projects. 
 Reasoning - if a Project has a is_completed value of false, we semantically consider it a "session", "writing session", or "open writing session". 
 For clarity in the backend, only the terms "session", "sessions", "project",and "projects" should be utilized
-*/ 
-
 
 /* PROJECT INFORMATION ROUTES */
 
@@ -127,7 +125,6 @@ export const getSessions = async () => {
 
     // Update the contributor counts with real-time data
     if (fullProject && fullProject.length > 0) {
-     
       try {
         // For each project, get the actual count of contributors
         for (const project of fullProject) {
@@ -144,7 +141,6 @@ export const getSessions = async () => {
           } else if (contributors) {
             const realCount = contributors.length;
             if (realCount !== project.current_contributors_count) {
-
               project.current_contributors_count = realCount;
 
               // Also update the project table to keep it in sync
@@ -257,7 +253,6 @@ export const getTags = async () => {
   return data;
 };
 
-
 const getProfilePictureOptions = async () => {
   // Get the public URLs of the images
   const bookShelfImageData = supabase.storage
@@ -327,8 +322,7 @@ const insertUsername = async (): Promise<any> => {
 
 /* ----- USER PROFILE / INFORMATION ROUTES ----- */
 
-// handles the user updating their username using the field in settings. 
-// TODO: Combine all settings and profile toggles into single "Profile" page
+// handles the user updating their username using the field in settings.
 
 const updateUsername = async (username: string): Promise<any> => {
   const currentUser: User | null = await getCurrentUser();
@@ -402,8 +396,8 @@ const getBio = async (): Promise<any> => {
 
   return data;
 };
-
-// handles checking if the user 
+    
+// handles checking if the user
 // TODO: needs to be renamed to be more explicit: should be "getUserHasEnabledMatureContent"
 const getMatureContent = async (): Promise<any> => {
   const currentUser: User | null = await getCurrentUser();
@@ -421,6 +415,7 @@ const getMatureContent = async (): Promise<any> => {
 };
 
 // explicit function to get all contributors to a given project (type definitions are here temporarily for debugging)
+// update: seems to be working in production, leaving as is
 
 // update: seems to be working in production, leaving as is 
 
@@ -439,20 +434,11 @@ export interface Contributor {
   };
 }
 
-
-/**
- * Fetches all contributors for a specific project with correct user information
- *
- * @param projectId - The UUID of the project
- * @returns Array of contributors with user information
- */
-
 // handles getting the user information for all contributors on a project
 // something on the supabase side warrants this level of overengineering, so please do not attempt to refactor 
 
 async function getProjectContributors(projectId: string) {
   try {
-
     const { data: contributors, error: contributorsError } = await supabase
       .from("project_contributors")
       .select("*")
@@ -472,23 +458,9 @@ async function getProjectContributors(projectId: string) {
     if (!contributors || contributors.length === 0) {
       return [];
     }
-
-    // Step 2: Now get user data for each contributor
-    const userIds = contributors.map((contributor) => contributor.user_id);
-    console.log(`Fetching user data for user IDs:`, userIds);
-
-    // Make sure we're querying the correct users table
-    // Check your Supabase schema to ensure this is the right table and fields
-    const { data: usersData, error: usersError } = await supabase
-      .from("users_ext") // Make sure this is the correct table name
-
-    if (!contributors || contributors.length === 0) {
-      return [];
-    }
     const userIds = contributors.map((contributor) => contributor.user_id);
     const { data: usersData, error: usersError } = await supabase
       .from("users_ext")
-
       .select("id, user_profile_name")
       .in("id", userIds);
 
@@ -502,20 +474,9 @@ async function getProjectContributors(projectId: string) {
         user: { id: contributor.user_id, user_profile_name: "Unknown" },
       }));
     }
-
-
     
-
-    // Step 3: Combine contributor and user data with safe handling of null values
     const enrichedContributors = contributors.map((contributor) => {
       const user = usersData?.find((user) => user.id === contributor.user_id);
-
-      // Ensure all expected fields have sensible defaults
-
-    const enrichedContributors = contributors.map((contributor) => {
-      const user = usersData?.find((user) => user.id === contributor.user_id);
-
-
       return {
         ...contributor,
         user_made_contribution: contributor.user_made_contribution || false,
@@ -528,7 +489,6 @@ async function getProjectContributors(projectId: string) {
         user: user || { id: contributor.user_id, user_profile_name: "Unknown" },
       };
     });
-
 
     // Final check - log the enriched contributors with writer status
     const finalCurrentWriter = enrichedContributors.find(

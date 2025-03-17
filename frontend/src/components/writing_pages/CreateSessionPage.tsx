@@ -37,7 +37,7 @@ interface Project {
   is_public: boolean;
   is_mature_content: boolean;
   project_genre: string;
-  max_contributors: number;
+  max_snippets: number;
 }
 
 // Defines ProjectSnippet interface
@@ -66,13 +66,14 @@ const CreateSession: React.FC = () => {
   const [genre, setGenre] = useState<string>("");
   const [isPublic, setIsPublic] = useState<boolean>(true);
   const [isMatureContent, setIsMatureContent] = useState<boolean>(false);
-  const [maxContributors, setMaxContributors] = useState<number>(5);
+  const [maxSnippets, setMaxSnippets] = useState<number>(5);
   const [tags, setTags] = useState<Tag[]>([]);
   const [wordCount, setWordCount] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
 
   const MAX_DESCRIPTION_LENGTH = 280;
+  const MAX_TITLE_LENGTH = 50;
 
   // Check authentication on mount
   useEffect(() => {
@@ -133,6 +134,14 @@ const CreateSession: React.FC = () => {
     }
   };
 
+  // Update the title change handler to limit characters
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value;
+    if (newTitle.length <= MAX_TITLE_LENGTH) {
+      setTitle(newTitle);
+    }
+  };
+
   // Handles form submission
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>
@@ -190,7 +199,7 @@ const CreateSession: React.FC = () => {
         is_public: isPublic,
         is_mature_content: isMatureContent,
         project_genre: genre,
-        max_contributors: maxContributors,
+        max_snippets: maxSnippets,
       };
 
       const { data: projectData, error: projectError } = await supabase
@@ -272,8 +281,9 @@ const CreateSession: React.FC = () => {
         <CardHeader>
           <CardTitle>Create New Writing Session</CardTitle>
           <CardDescription>
-            Start a new collaborative writing session. Each participant can
-            contribute up to 100 words, with a maximum of 5 participants.
+            Start a new collaborative writing session. Each contributor adds
+            50-100 words per snippet. Set how many total contributions you want
+            for your story.
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
@@ -285,12 +295,22 @@ const CreateSession: React.FC = () => {
               <Input
                 id="title"
                 value={title}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setTitle(e.target.value)
-                }
+                onChange={handleTitleChange}
                 placeholder="Enter session title"
+                maxLength={MAX_TITLE_LENGTH}
                 required
               />
+              <div className="text-sm text-right">
+                <span
+                  className={
+                    title.length === MAX_TITLE_LENGTH
+                      ? "text-red-500"
+                      : "text-secondary-text"
+                  }
+                >
+                  {title.length}/{MAX_TITLE_LENGTH} characters
+                </span>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -337,7 +357,30 @@ const CreateSession: React.FC = () => {
               </Select>
             </div>
 
-            <div className="flex items-center space-x-8">
+            <div className="space-y-2">
+              <Label htmlFor="maxSnippets">Maximum Number of Snippets</Label>
+              <Select
+                value={maxSnippets.toString()}
+                onValueChange={(value) => setMaxSnippets(Number(value))}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select snippet count" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((num) => (
+                    <SelectItem key={num} value={num.toString()}>
+                      {num} snippets
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Each snippet is 50-100 words. Estimated total story length:{" "}
+                {maxSnippets * 50}-{maxSnippets * 100} words
+              </p>
+            </div>
+
+            <div className="flex items-center space-x-8 mt-4">
               <div className="flex items-center space-x-2">
                 <Switch
                   id="public"
@@ -354,25 +397,6 @@ const CreateSession: React.FC = () => {
                   onCheckedChange={setIsMatureContent}
                 />
                 <Label htmlFor="mature">Mature Content</Label>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Label htmlFor="maxContributors">Max Contributors:</Label>
-                <Select
-                  value={maxContributors.toString()}
-                  onValueChange={(value) => setMaxContributors(Number(value))}
-                >
-                  <SelectTrigger className="w-20">
-                    <SelectValue placeholder="Max" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[1, 2, 3, 4, 5].map((num) => (
-                      <SelectItem key={num} value={num.toString()}>
-                        {num}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
             </div>
 

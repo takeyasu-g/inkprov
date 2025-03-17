@@ -25,6 +25,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Link } from "react-router-dom";
+import { UserCircle } from "lucide-react";
 
 const Settings: React.FC = () => {
   // Setting states
@@ -178,7 +180,7 @@ const Settings: React.FC = () => {
             <p className="text-sm text-tertiary-text text-left">
               Manage your account preferences
             </p>
-            <div className="text-primary-text">
+            <div className="text-primary-text space-y-8">
               {/* Allow Mature Content Switch */}
               <FormField
                 control={form.control}
@@ -215,6 +217,24 @@ const Settings: React.FC = () => {
                   </FormItem>
                 )}
               />
+
+              {/* Profile Preview Button (Temporary) */}
+              <div className="border-t pt-6">
+                <h4 className="text-lg font-medium mb-3">Development</h4>
+                <p className="text-sm text-tertiary-text mb-4">
+                  Preview pages in development
+                </p>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full flex items-center justify-center gap-2"
+                >
+                  <Link to="/profile">
+                    <UserCircle className="h-5 w-5" />
+                    Preview Profile Page
+                  </Link>
+                </Button>
+              </div>
             </div>
           </div>
         </div>

@@ -80,11 +80,11 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
           <Badge className={`genre-${projectData.project_genre.toLowerCase()}`}>
             {projectData.project_genre}
           </Badge>
-          {/* probably horrible place to put this, need a better place to put thison the card */}
-          {isContributor && <span>You Contributed</span>}
+        {isContributor && <span>You Contributed</span>}
           <div className="flex items-center gap-1">
             <Users className="text-secondary-text p-0.5" />
             <span className="text-secondary-text text-sm">
+              {projectData.current_contributors_count}
               {projectData.total_contributors}
             </span>
           </div>

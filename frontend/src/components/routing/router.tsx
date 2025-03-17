@@ -149,7 +149,6 @@ const router = createBrowserRouter([
     ),
   },
   {
-
     path: "/profile",
     element: (
       <Layout>
@@ -158,7 +157,6 @@ const router = createBrowserRouter([
     ),
   },
   {
-
     path: "/auth/callback",
     element: <AuthCallback />,
   },

@@ -96,7 +96,7 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
               }`}
             >
               {sessionData.current_contributors_count} /{" "}
-              {sessionData.max_contributors}
+              {sessionData.max_snippets}
             </span>
           </div>
         </div>
@@ -105,7 +105,7 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
             {sessionData.title}
           </CardTitle>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-secondary-text">by</span>
+            <span className="text-sm text-secondary-text">Started by: </span>
             <span className="text-sm font-medium">
               {sessionData.creator?.user_profile_name || "Anonymous"}
             </span>

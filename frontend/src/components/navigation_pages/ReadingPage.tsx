@@ -40,7 +40,6 @@ const ReadingPage: React.FC = () => {
   // handles fetching projectData where = projectId
   const handleFetchProjectData = async () => {
     const projectData = await getProjectOfId(projectId);
-
     setProjectData(projectData);
   };
 
