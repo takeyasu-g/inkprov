@@ -23,7 +23,7 @@ const LandingPage: React.FC = () => {
       <section className="flex flex-col justify-center items-center w-full">
         <header>
           <h1 className="text-6xl font-bold mt-8 w-2xl text-primary-text">
-            Write Together,
+            Write Together
           </h1>
           <h1 className="text-6xl font-bold mb-8 w-2xl text-primary-text">
             Create Together

@@ -68,8 +68,8 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
     ? `Created ${formatDistanceToNow(new Date(sessionData.created_at))} ago`
     : "";
 
-  const isProjectCreator =
-    sessionData.creator_id === sessionData.creator?.auth_id;
+  // const isProjectCreator =
+  //   sessionData.creator_id === sessionData.creator?.auth_id;
 
   const isUserContributor =
     currentUser &&

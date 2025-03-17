@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { Loader2 } from "lucide-react";
+import { Crown, Loader2 } from "lucide-react";
 import {
   supabase,
   getCurrentUser,
@@ -21,8 +21,6 @@ import {
 } from "../../utils/supabase";
 import SnippetSkeleton from "../SnippetSkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PenTool, Crown } from "lucide-react";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ProjectSnippet } from "@/types/global";
 
 // Basic interfaces for our data
@@ -88,13 +86,14 @@ const WritingEditor: React.FC = () => {
   const [projectLocked, setProjectLocked] = useState(false);
   const [lockedBy, setLockedBy] = useState<string | null>(null);
 
+  console.log(isContributor);
+
   // Function to fetch contributors - simplified version
   const fetchContributors = async () => {
     if (!projectId) return;
 
     setLoadingContributors(true);
     try {
-      console.log("Fetching contributors for project:", projectId);
       const contributorsData = await getProjectContributors(projectId);
 
       // Sort contributors by joined_at to ensure consistent display order
@@ -219,7 +218,7 @@ const WritingEditor: React.FC = () => {
           }
         }
       } catch (error) {
-        toast.error("Error loading project");
+        toast.error(`${error}`);
       } finally {
         setIsLoading(false);
       }
@@ -586,7 +585,7 @@ const WritingEditor: React.FC = () => {
       toast.success("Project deleted successfully!");
       navigate("/sessions");
     } catch (error) {
-      toast.error("Failed to delete project");
+      toast.error(`${error}`);
     }
   };
 

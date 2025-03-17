@@ -76,7 +76,7 @@ const Settings: React.FC = () => {
       toast.success("Successfully Saved Changes");
       setIsLoading(false);
     } catch (error) {
-      toast.error("An error occured when saving changes");
+      toast.error(`${error}`);
       setIsLoading(false);
     }
   }
@@ -202,10 +202,8 @@ const Settings: React.FC = () => {
                                 ? "Mature content enabled"
                                 : "Mature content disabled"
                             );
-                          } catch (error) {
-                            toast.error(
-                              "Failed to update mature content setting"
-                            );
+                          } catch (error: any) {
+                            toast.error(`${error.message}`);
                             // Revert the switch if the update failed
                             field.onChange(!checked);
                             setMatureContent(!checked);
