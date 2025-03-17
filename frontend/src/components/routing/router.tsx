@@ -31,10 +31,12 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       window.location.pathname === "/register" ? null : (
         <Footer />
       )}
+
       {window.location.pathname === "/login" ||
       window.location.pathname === "/register" ? null : (
         <Footer />
       )}
+
     </div>
   );
 };
@@ -147,6 +149,7 @@ const router = createBrowserRouter([
     ),
   },
   {
+
     path: "/profile",
     element: (
       <Layout>
@@ -155,6 +158,7 @@ const router = createBrowserRouter([
     ),
   },
   {
+
     path: "/auth/callback",
     element: <AuthCallback />,
   },

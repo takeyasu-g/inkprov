@@ -201,8 +201,8 @@
     @apply bg-teal-700 text-white;
   }
 
-  .genre-comedy {
-    @apply bg-yellow-400 text-white;
+  .genre-mystery {
+    @apply bg-indigo-700 text-white;
   }
 
   .genre-romance {
@@ -215,10 +215,11 @@
 
   .genre-history {
     @apply bg-amber-800 text-white;
+
   }
 
-  .genre-all {
-    @apply bg-amber-600 text-white;
+  .genre-comedy {
+    @apply bg-yellow-400 text-white;
   }
 
   .in-progress {
@@ -227,5 +228,10 @@
 
   .completed {
     @apply border-amber-600 text-primary-text;
+  }
+
+  .genre-all {
+    @apply bg-amber-600 text-white;
+
   }
 }

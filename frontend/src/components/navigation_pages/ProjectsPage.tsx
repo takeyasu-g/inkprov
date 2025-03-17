@@ -15,7 +15,9 @@ const ProjectsPage: React.FC = () => {
     try {
       const allProjectsData = await getProjects();
 
+
       // if allProjectsData returns null, it will return empty []
+
 
       setAllProjects(allProjectsData || []);
     } catch (error) {
