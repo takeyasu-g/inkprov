@@ -1,5 +1,10 @@
 import { createClient, User } from "@supabase/supabase-js";
-import { ProjectSnippet, ProjectsData } from "@/types/global";
+import {
+  CompletedStoriesData,
+  ProjectSnippet,
+  ProjectsData,
+  UserProfilePopUp,
+} from "@/types/global";
 
 // local .env variables
 // Supabase configuration
@@ -62,7 +67,8 @@ export const getProjectSnippets = async (
   const { data: projectSnippets, error } = await supabase
     .from("project_snippets")
     .select("*")
-    .eq("project_id", projectId);
+    .eq("project_id", projectId)
+    .order("sequence_number", { ascending: true }); // order snippets by sequence_number
 
   if (error) {
     return null;
@@ -208,6 +214,42 @@ export const getProjects = async (): Promise<ProjectsData[] | null> => {
   }
 };
 
+export const getAllStoriesWithProfileName = async (): Promise<
+  CompletedStoriesData[] | null
+> => {
+  try {
+    const { data, error } = await supabase
+      .from("projects")
+      .select(
+        `
+        id,
+        title,
+        description,
+        project_genre,
+        creator_id,
+        users_ext!projects_creator_id_fkey(   
+        user_profile_name
+        ),
+        updated_at,
+        created_at,
+        current_contributors_count
+      `
+      )
+      .eq("is_completed", true);
+
+    if (error) {
+      console.error("Error fetching projects:", error.message);
+      console.error("Error details:", error.details);
+      return null;
+    }
+
+    return data as CompletedStoriesData[];
+  } catch (err) {
+    console.error("Exception in getProjects:", err);
+    return null;
+  }
+};
+
 /* ----- UTILITY ROUTES ----- */
 
 // function to fetch tags (currently just used for genres) from Supabase
@@ -288,6 +330,23 @@ const insertUsername = async (): Promise<any> => {
 };
 
 /* ----- USER PROFILE / INFORMATION ROUTES ----- */
+
+// get profilesData for popup in ReadingPage
+export const getProfilesByUserIdsForPopUp = async (
+  userIds: string[]
+): Promise<UserProfilePopUp[] | []> => {
+  const { data, error } = await supabase
+    .from("users_ext")
+    .select("id, user_profile_name, profile_pic_url, user_email")
+    .in("id", userIds);
+
+  if (error) {
+    console.error("Error fetching profiles:", error);
+    return [];
+  }
+
+  return data;
+};
 
 // handles the user updating their username using the field in settings.
 

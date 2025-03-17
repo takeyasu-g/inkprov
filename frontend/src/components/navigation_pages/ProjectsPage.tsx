@@ -2,23 +2,18 @@ import React, { useEffect, useState } from "react";
 import ProjectCard from "../ProjectCard";
 import SearchBar from "../SearchBar";
 import GenreFilter from "../GenreFilter";
-import { ProjectsData } from "@/types/global";
-import { getProjects } from "@/utils/supabase";
+import { CompletedStoriesData } from "@/types/global";
+import { getAllStoriesWithProfileName } from "@/utils/supabase";
 
 const ProjectsPage: React.FC = () => {
   const [genreFilter, setGenreFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [allProjects, setAllProjects] = useState<ProjectsData[]>([]);
+  const [allProjects, setAllProjects] = useState<CompletedStoriesData[]>([]);
 
-  // getAllProjects
+  // getAllProjects + users auth_id and user_profile_name
   const handleFetchAllProjects = async () => {
     try {
-      const allProjectsData = await getProjects();
-
-
-      // if allProjectsData returns null, it will return empty []
-
-
+      const allProjectsData = await getAllStoriesWithProfileName();
       setAllProjects(allProjectsData || []);
     } catch (error) {
       console.error(error);

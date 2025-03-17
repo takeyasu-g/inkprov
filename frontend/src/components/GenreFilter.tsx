@@ -47,7 +47,7 @@ const GenreFilter: React.FC<GenreFilterProps> = ({ onSelect }) => {
       {/* map through hard coded genres */}
       {genres.map((genre) => (
         <ToggleGroupItem
-          className="px-3 hover:bg-amber-600 rounded-lg not-data-[state=on]:hover:text-white data-[state=on]:text-white data-[state=on]:bg-amber-700 data-[state=on]:rounded-lg cursor-pointer"
+          className="px-4 min-w-auto  hover:bg-amber-600 rounded-lg not-data-[state=on]:hover:text-white data-[state=on]:text-white data-[state=on]:bg-amber-700 data-[state=on]:rounded-lg cursor-pointer"
           key={genre}
           value={genre}
         >
