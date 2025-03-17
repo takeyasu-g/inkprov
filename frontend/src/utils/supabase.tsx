@@ -218,8 +218,6 @@ export const getAllStoriesWithProfileName = async (): Promise<
   CompletedStoriesData[] | null
 > => {
   try {
-    const currentUser: User | null = await getCurrentUser();
-
     const { data, error } = await supabase
       .from("projects")
       .select(
