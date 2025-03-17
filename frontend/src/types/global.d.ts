@@ -38,7 +38,7 @@ export interface ProjectsData {
   is_public: boolean;
 }
 
-// interface for just ProjectStoriesCompleted
+// interface for just ProjectStoriesCompletedCards
 export interface CompletedStoriesData {
   id: string;
   title: string; // Title of the project

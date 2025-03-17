@@ -191,7 +191,7 @@ const getProjectsInprogress = async () => {
   return projects;
 };
 // get all projects + genre where is_completed = true
-export const getProjects = async (): Promise<CompletedStoriesData[] | null> => {
+export const getProjects = async (): Promise<ProjectsData[] | null> => {
   try {
     const currentUser: User | null = await getCurrentUser();
 
@@ -199,6 +199,44 @@ export const getProjects = async (): Promise<CompletedStoriesData[] | null> => {
       .from("projects")
       .select("*")
       .eq("creator_id", currentUser?.id)
+      .eq("is_completed", true);
+
+    if (error) {
+      console.error("Error fetching projects:", error.message);
+      console.error("Error details:", error.details);
+      return null;
+    }
+
+    return data as ProjectsData[];
+  } catch (err) {
+    console.error("Exception in getProjects:", err);
+    return null;
+  }
+};
+
+export const getAllStoriesWithProfileName = async (): Promise<
+  CompletedStoriesData[] | null
+> => {
+  try {
+    const currentUser: User | null = await getCurrentUser();
+
+    const { data, error } = await supabase
+      .from("projects")
+      .select(
+        `
+        id,
+        title,
+        description,
+        project_genre,
+        creator_id,
+        users_ext!projects_creator_id_fkey(   
+        user_profile_name
+        ),
+        updated_at,
+        created_at,
+        current_contributors_count
+      `
+      )
       .eq("is_completed", true);
 
     if (error) {

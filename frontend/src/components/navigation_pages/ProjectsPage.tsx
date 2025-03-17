@@ -3,7 +3,7 @@ import ProjectCard from "../ProjectCard";
 import SearchBar from "../SearchBar";
 import GenreFilter from "../GenreFilter";
 import { CompletedStoriesData } from "@/types/global";
-import { getProjects } from "@/utils/supabase";
+import { getAllStoriesWithProfileName } from "@/utils/supabase";
 
 const ProjectsPage: React.FC = () => {
   const [genreFilter, setGenreFilter] = useState<string>("All");
@@ -13,12 +13,7 @@ const ProjectsPage: React.FC = () => {
   // getAllProjects + users auth_id and user_profile_name
   const handleFetchAllProjects = async () => {
     try {
-      const allProjectsData = await getProjects();
-
-
-      // if allProjectsData returns null, it will return empty []
-
-
+      const allProjectsData = await getAllStoriesWithProfileName();
       setAllProjects(allProjectsData || []);
     } catch (error) {
       console.error(error);
