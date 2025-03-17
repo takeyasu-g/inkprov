@@ -65,7 +65,6 @@ export const getProjectSnippets = async (
     .eq("project_id", projectId);
 
   if (error) {
-    console.log("Error fetching project snippets", error);
     return null;
   }
   return projectSnippets;

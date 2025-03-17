@@ -36,7 +36,6 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       window.location.pathname === "/register" ? null : (
         <Footer />
       )}
-
     </div>
   );
 };
@@ -50,7 +49,7 @@ const ProtectedRoute: React.FC<{ element: React.ReactNode }> = ({
 
   useEffect(() => {
     // Check for session on mount
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(() => {
       setIsLoading(false);
     });
   }, []);
