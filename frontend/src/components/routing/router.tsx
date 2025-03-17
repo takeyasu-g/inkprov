@@ -6,6 +6,7 @@ import RegisterPage from "../auth/RegisterPage";
 import WritingEditor from "../writing_pages/WritingEditor";
 import LandingPage from "../navigation_pages/LandingPage";
 import Settings from "../navigation_pages/Settings";
+import Profile from "../navigation_pages/Profile";
 import OpenSessionsPage from "../navigation_pages/OpenSessionsPage";
 import ProjectsPage from "../navigation_pages/ProjectsPage";
 import ReadingPage from "../navigation_pages/ReadingPage";
@@ -138,6 +139,14 @@ const router = createBrowserRouter([
     element: (
       <Layout>
         <ProtectedRoute element={<Settings />} />
+      </Layout>
+    ),
+  },
+  {
+    path: "/profile",
+    element: (
+      <Layout>
+        <ProtectedRoute element={<Profile />} />
       </Layout>
     ),
   },
