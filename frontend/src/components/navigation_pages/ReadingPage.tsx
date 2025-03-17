@@ -27,6 +27,7 @@ const ReadingPage: React.FC = () => {
     const projectSnippetsData = await getProjectSnippets(projectId);
 
     if (projectSnippetsData) {
+      // need to refactor this since can do this in the fetcher in supabase.tsx with .order
       const orderedSnippets = projectSnippetsData
         .slice() // Create a shallow copy to avoid mutating the original array
         .sort((a, b) => a.sequence_number - b.sequence_number); // Sort in ascending order

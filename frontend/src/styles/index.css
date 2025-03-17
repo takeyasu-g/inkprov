@@ -27,7 +27,7 @@
   --menu-background: oklch(96.92% 0.0162 95.22);
   --menu-hover: oklch(96.19% 0.058 95.62);
   --accent: oklch(96.19% 0.058 95.62);
-  --background-card: oklch(96.74% 0.001 286.38);
+  --background-card: oklch(0.987 0.022 95.277);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -37,7 +37,7 @@
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
+  --muted: oklch(0.987 0.022 95.277);
   --muted-foreground: oklch(0.556 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
@@ -173,31 +173,65 @@
     @apply bg-gray-700 text-white;
   }
 
-  .genre-fantasy {
-    @apply bg-purple-500 text-white;
-  }
-
-  .genre-sci-fi {
-    @apply bg-blue-500 text-white;
-  }
-
-  .genre-comedy {
-    @apply bg-yellow-400 text-white;
+  .genre-thriller {
+    @apply bg-red-700 text-white;
   }
 
   .genre-adventure {
     @apply bg-green-600 text-white;
   }
 
-  .genre-all {
-    @apply bg-amber-600 text-white;
+  .genre-crime {
+    @apply bg-gray-900 text-white;
+  }
+
+  .genre-fantasy {
+    @apply bg-purple-500 text-white;
+  }
+
+  .genre-western {
+    @apply bg-orange-700 text-white;
+  }
+
+  .genre-mystery {
+    @apply bg-indigo-700 text-white;
+  }
+
+  .genre-paranormal {
+    @apply bg-teal-700 text-white;
+  }
+
+  .genre-mystery {
+    @apply bg-indigo-700 text-white;
   }
 
   .genre-romance {
     @apply bg-pink-500 text-white;
   }
 
-  .genre-mystery {
-    @apply bg-indigo-700 text-white;
+  .genre-sci-fi {
+    @apply bg-blue-500 text-white;
+  }
+
+  .genre-history {
+    @apply bg-amber-800 text-white;
+
+  }
+
+  .genre-comedy {
+    @apply bg-yellow-400 text-white;
+  }
+
+  .in-progress {
+    @apply border-green-500 text-green-700;
+  }
+
+  .completed {
+    @apply border-amber-600 text-primary-text;
+  }
+
+  .genre-all {
+    @apply bg-amber-600 text-white;
+
   }
 }

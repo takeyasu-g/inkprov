@@ -1,210 +1,324 @@
 import React, { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Pen, User, Award, Settings, Activity } from "lucide-react";
-import { supabase, getCurrentUser } from "@/utils/supabase";
-import RewardTrophiesPage from "../user/RewardTrophiesPage";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/contexts/AuthContext";
+import { BookOpen, PenTool } from "lucide-react";
+import ProfileStoriesCard from "../ProfileStoriesCard";
+import ProfileSkeleton from "../ProfileSkeleton";
+import { ProjectsData } from "@/types/global";
+import {
+  getUsername,
+  getBio,
+  getProjects,
+  getProjectsInprogress,
+  getProfilePictureOptions,
+  getProfilePicture,
+  updateProfilePicture,
+} from "@/utils/supabase";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
-interface UserProfile {
-  auth_id: string;
-  user_profile_name: string;
-  user_email: string;
-  avatar_url?: string;
-  created_at: string;
-  bio?: string;
-}
 
 const Profile: React.FC = () => {
-  const [activeTab, setActiveTab] = useState("profile");
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
-  // Fetch user data when component mounts
+  // Profile States
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [username, setUsername] = useState<string>("");
+  const [bio, setBio] = useState<string>("");
+  const [selectedProfilePicture, setSelectedProfilePicture] = useState<number | null>(null);
+  const [profilepictureOptions, setProfilePictureOptions] = useState<string[]>([]);
+  const [currentProfilePicture, setCurrentProfilePicture] = useState<string | null>(null);
+  const [storiesCompleted, setStoriesCompleted] = useState<ProjectsData[] | null>([]);
+  const [storiesInprogress, setStoriesInprogress] = useState<ProjectsData[] | null>([]);
+
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        setLoading(true);
-
-        // Gets current user
-        const user = await getCurrentUser();
-
-        if (!user) {
-          console.error("No user logged in");
-          return;
-        }
-
-        // Gets user profile from users_ext table
-        const { data, error } = await supabase
-          .from("users_ext")
-          .select("*")
-          .eq("auth_id", user.id)
-          .single();
-
-        if (error) {
-          console.error("Error fetching user profile:", error);
-          return;
-        }
-
-        setUserProfile(data);
-      } catch (error) {
-        console.error("Error in fetchUserProfile:", error);
-      } finally {
-        setLoading(false);
-      }
+    setIsLoading(true);
+    // Get username
+    const fetchUsername = async () => {
+      const usernameData = await getUsername();
+      const user = usernameData[0].user_profile_name.split("@")[0];
+      const username = user[0].toUpperCase() + user.substring(1);
+      setUsername(username);
     };
 
-    fetchUserProfile();
+    // Get user bio
+    const fetchBio = async () => {
+      const bio = await getBio();
+      setBio(bio[0].user_profile_bio);
+    };
+
+    // Get Completed stories
+    const fetchStoriesCompleted = async () => {
+      const stories = await getProjects();
+      setStoriesCompleted(stories);
+    };
+
+    // Get Inprogress stories
+    const fetchInProgressStories = async () => {
+      const inprogressStories = await getProjectsInprogress();
+      setStoriesInprogress(inprogressStories);
+    };
+
+    // Get array of URLs of Profile Pictures for users to select from
+    const fetchProfilePictureOptions = async () => {
+      const profilePictures = await getProfilePictureOptions();
+      setProfilePictureOptions(profilePictures);
+    };
+
+    // Get Profile Picture for logged in user
+    const fetchProfilePicture = async () => {
+      const profilePicture = await getProfilePicture();
+      setCurrentProfilePicture(profilePicture);
+    };
+
+    fetchUsername();
+    fetchBio();
+    fetchProfilePicture();
+    fetchProfilePictureOptions();
+    fetchStoriesCompleted();
+    fetchInProgressStories();
+
+    setIsLoading(false);
   }, []);
 
-  // Gets initials for avatar fallback
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((part) => part[0])
-      .join("")
-      .toUpperCase()
-      .substring(0, 2);
+  const getInitials = () => {
+    if (!user?.email) return "?";
+    return user.email
+      .split("@")[0]
+      .split(".")
+      .map((n: string) => n[0].toUpperCase())
+      .join("");
   };
 
-  if (loading) {
-    return (
-      <div className="container mx-auto py-8 max-w-3xl space-y-6">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <Skeleton className="h-24 w-24 rounded-full" />
-              <div className="space-y-2">
-                <Skeleton className="h-6 w-48" />
-                <Skeleton className="h-4 w-32" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Skeleton className="h-64 w-full" />
-      </div>
-    );
-  }
-
   return (
-    <div className="container mx-auto py-8 max-w-3xl">
-      {/* User Profile Header */}
-      <Card className="mb-6">
-        <CardContent className="pt-6">
-          <div className="flex flex-col md:flex-row md:items-center gap-6">
-            <Avatar className="h-24 w-24">
-              <AvatarImage src={userProfile?.avatar_url} />
-              <AvatarFallback className="text-lg">
-                {userProfile?.user_profile_name
-                  ? getInitials(userProfile.user_profile_name)
-                  : "U"}
-              </AvatarFallback>
-            </Avatar>
-
-            <div className="space-y-2 flex-1">
-              <h1 className="text-2xl font-bold">
-                {userProfile?.user_profile_name}
-              </h1>
-              <p className="text-secondary-text">{userProfile?.user_email}</p>
-              <p className="text-sm text-secondary-text">
-                Member since{" "}
-                {userProfile?.created_at
-                  ? new Date(userProfile.created_at).toLocaleDateString()
-                  : "Unknown date"}
+    <>
+      {isLoading ? (
+        <ProfileSkeleton />
+      ) : (
+        <div className="h-full mb-5">
+          <section className="w-full space-y-8 bg-card p-8 mt-5 rounded-lg border border-primary-border pb-4">
+            <section className="flex">
+              <div>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <div className="relative group w-22 h-22 cursor-pointer">
+                      <Avatar className="w-22 h-22 cursor-pointer">
+                        <AvatarImage
+                          src={
+                            currentProfilePicture ||
+                            user?.user_metadata?.avatar_url
+                          }
+                        />
+                        <AvatarFallback className="bg-white border border-tab-active">
+                          {getInitials()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="absolute inset-0 bg-background bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-60 transition-opacity duration-300 rounded-full">
+                        <span className="text-primary-text text-sm font-bold">
+                          Change
+                        </span>
+                      </div>
+                    </div>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="text-primary-text font-bold">
+                        Select Profile Picture
+                      </AlertDialogTitle>
+                      <AlertDialogDescription className="flex justify-between flex-wrap">
+                        {profilepictureOptions.length > 0
+                          ? profilepictureOptions.map((url, index) => (
+                              <img
+                                key={index}
+                                src={url}
+                                alt={url.substring(url.lastIndexOf("/") + 1)}
+                                className={`w-32 h-32 rounded-full cursor-pointer ${
+                                  selectedProfilePicture === index
+                                    ? "border-3 border-primary-button-hover"
+                                    : ""
+                                }`}
+                                onClick={() => setSelectedProfilePicture(index)}
+                              />
+                            ))
+                          : "No Profile Pictures Available"}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel
+                        className="cursor-pointer"
+                        onClick={() => setSelectedProfilePicture(null)}
+                      >
+                        Cancel
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        disabled={selectedProfilePicture === null}
+                        onClick={() => {
+                          if (selectedProfilePicture !== null) {
+                            setCurrentProfilePicture(
+                              profilepictureOptions[selectedProfilePicture]
+                            );
+                            setSelectedProfilePicture(null);
+                            updateProfilePicture(
+                              profilepictureOptions[selectedProfilePicture]
+                            );
+                          }
+                        }}
+                        className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
+                      >
+                        Select
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+              <article>
+                <h3 className="text-2xl font-bold text-primary-text text-left mb-1 ml-3">
+                  {username}
+                </h3>
+                {/* Completed Stories Tracker */}
+                <div className="flex items-center ml-3 text-secondary-text">
+                  <BookOpen size={20} />
+                  <p className="ml-2 mb-1">
+                    {storiesCompleted?.length} Completed Stories
+                  </p>
+                </div>
+                {/* In Progress Stories Tracker */}
+                <div className="flex items-center ml-3 text-secondary-text">
+                  <PenTool size={20} />
+                  <p className="ml-2 mb-1">
+                    {storiesInprogress?.length}/5 In Progress Stories
+                  </p>
+                </div>
+              </article>
+            </section>
+            {/* Bio */}
+            <section className="flex flex-col">
+              <h3 className="text-xl font-bold text-primary-text text-left mb-1 ml-3">
+                About Me
+              </h3>
+              <p className="ml-3 text-secondary-text text-left">
+                {bio.length > 0 ? bio : "No Bio Written"}
               </p>
-              {userProfile?.bio && (
-                <p className="text-sm mt-2">{userProfile.bio}</p>
-              )}
-            </div>
-
-            <Button variant="outline" className="self-start">
-              <Pen className="h-4 w-4 mr-2" />
-              Edit Profile
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Tabs Navigation */}
-      <Tabs
-        defaultValue="profile"
-        className="w-full"
-        onValueChange={setActiveTab}
-      >
-        <TabsList className="mb-4">
-          <TabsTrigger value="profile">
-            <User className="h-4 w-4 mr-2" />
-            Profile
-          </TabsTrigger>
-          <TabsTrigger value="achievements">
-            <Award className="h-4 w-4 mr-2" />
-            Achievements
-          </TabsTrigger>
-          <TabsTrigger value="activity">
-            <Activity className="h-4 w-4 mr-2" />
-            Activity
-          </TabsTrigger>
-          <TabsTrigger value="settings">
-            <Settings className="h-4 w-4 mr-2" />
-            Settings
-          </TabsTrigger>
-        </TabsList>
-
-        {/* Tab Content */}
-        <TabsContent value="profile">
-          <Card>
-            <CardHeader>
-              <CardTitle>Profile</CardTitle>
-              <CardDescription>
-                View and manage your personal information
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p>Profile information and stats will be displayed here.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="achievements">
-          <RewardTrophiesPage />
-        </TabsContent>
-
-        <TabsContent value="activity">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>
-                Your recent contributions and project activity
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p>Activity timeline will be displayed here.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="settings">
-          <Card>
-            <CardHeader>
-              <CardTitle>Account Settings</CardTitle>
-              <CardDescription>Manage your account preferences</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p>Account settings will be displayed here.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+            </section>
+          </section>
+          {/* My Stories */}
+          <section className="w-full space-y-8 bg-card p-8 my-5 rounded-lg border border-primary-border">
+            <section className="flex flex-col">
+              <div className="flex items-center text-secondary-text">
+                <BookOpen />
+                <h3 className="text-xl font-bold text-primary-text text-left mb-1 ml-3">
+                  Your Stories
+                </h3>
+              </div>
+              <p className="ml-3 text-secondary-text text-left">
+                Stories you've contributed to
+              </p>
+            </section>
+            {/* Completed and In Progress Stories Tabs */}
+            <Tabs defaultValue="completed">
+              <TabsList className="grid grid-cols-2 bg-tab-background">
+                <TabsTrigger
+                  value="completed"
+                  className="data-[state=active]:text-white data-[state=active]:bg-tab-active cursor-pointer"
+                >
+                  Completed
+                </TabsTrigger>
+                <TabsTrigger
+                  value="in-progress"
+                  className="data-[state=active]:text-white data-[state=active]:bg-tab-active cursor-pointer"
+                >
+                  In progress
+                </TabsTrigger>
+              </TabsList>
+              {/* Completed Stories Tab Content*/}
+              <TabsContent value="completed">
+                <section className="flex gap-4 flex-wrap">
+                  {storiesCompleted == undefined ||
+                  storiesCompleted?.length == 0 ? (
+                    <div className="h-auto flex flex-col">
+                      <p className="text-secondary-text font-medium mb-2">
+                        No Completed Stories
+                      </p>
+                      <Button
+                        className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
+                        variant="default"
+                        onClick={() => navigate("/sessions/create")}
+                      >
+                        Start Creating
+                      </Button>
+                    </div>
+                  ) : (
+                    // Completed Stories Cards
+                    storiesCompleted?.map((story) => (
+                      <ProfileStoriesCard
+                        selectedTab="completed"
+                        genre={story.project_genre}
+                        creationDate={story.created_at}
+                        title={story.title}
+                        collaborators={story.total_contributors}
+                        wordCount={1051}
+                        lastUpdated={story.updated_at}
+                        publicStory={story.is_public}
+                        storyId={story.id}
+                        key={story.id}
+                      />
+                    ))
+                  )}
+                </section>
+              </TabsContent>
+              {/* In Progress Stories Tab Content*/}
+              <TabsContent value="in-progress">
+                <section className="flex gap-4 flex-wrap">
+                  {storiesInprogress == undefined ||
+                  storiesInprogress?.length == 0 ? (
+                    <div className="h-auto flex flex-col">
+                      <p className="text-secondary-text font-medium mb-2">
+                        No Stories in progress
+                      </p>
+                      <Button
+                        className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
+                        variant="default"
+                        onClick={() => navigate("/sessions/create")}
+                      >
+                        Start Creating
+                      </Button>
+                    </div>
+                  ) : (
+                    // In Progress Stories Cards
+                    storiesInprogress?.map((story) => (
+                      <ProfileStoriesCard
+                        selectedTab="in-progress"
+                        genre={story.project_genre}
+                        creationDate={story.created_at}
+                        title={story.title}
+                        collaborators={story.total_contributors}
+                        wordCount={1051}
+                        lastUpdated={story.updated_at}
+                        publicStory={story.is_public}
+                        storyId={story.id}
+                        key={story.id}
+                      />
+                    ))
+                  )}
+                </section>
+              </TabsContent>
+            </Tabs>
+          </section>
+        </div>
+      )}
   );
 };
 

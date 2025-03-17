@@ -20,6 +20,7 @@ const OpenSessionsPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const [lastFocusTime, setLastFocusTime] = useState<number>(Date.now());
 
+  // entry handling 
   const handleCreateSession = () => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -29,6 +30,8 @@ const OpenSessionsPage: React.FC = () => {
   };
 
   // getAllSessions
+  // this gets all sessions (open projects) for display on the main page
+  
   const handleFetchAllSessions = async () => {
     try {
       setIsLoading(true);
@@ -58,7 +61,10 @@ const OpenSessionsPage: React.FC = () => {
     if (shouldRefresh === "true") {
       // Clear the flag immediately to prevent multiple refreshes
       sessionStorage.removeItem("refreshSessions");
-      console.log("refreshSessions flag found - fetching with latest data");
+      // Set a small delay to ensure the DB has been updated otherwise stuff breaks
+      setTimeout(() => {
+        handleFetchAllSessions();
+      }, 500);
     }
 
     // Always fetch data on mount, regardless of the flag
@@ -68,9 +74,6 @@ const OpenSessionsPage: React.FC = () => {
   // Refresh data when the component regains focus (user returns from another page)
   useEffect(() => {
     // Only refresh when location changes (user navigates back to this page)
-    console.log(
-      "Location changed, checking if we need to refresh sessions data"
-    );
 
     // If we're on the sessions page, fetch fresh data
     if (location.pathname === "/sessions") {
@@ -103,13 +106,15 @@ const OpenSessionsPage: React.FC = () => {
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
 
+  // loading placeholders 
   const renderSkeletons = () => {
     return Array(6)
       .fill(0)
       .map((_, index) => <SessionCardSkeleton key={index} />);
   };
 
-  // Add a refresh button to manually refresh sessions
+  // Adds a refresh button to manually refresh sessions
+  // TODO: this may be no longer needed 
   const handleManualRefresh = () => {
     console.log("Manual refresh requested by user");
     handleFetchAllSessions();

@@ -25,50 +25,51 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
   // Check if user is a contributor
   useEffect(() => {
     const checkContributorStatus = async () => {
-      try {
-        const user = await getCurrentUser();
-        if (!user) return;
+      const user = await getCurrentUser();
 
-        // Get user's auth_id from users_ext
-        const { data: userExtData, error: userExtError } = await supabase
-          .from("users_ext")
-          .select("auth_id")
-          .eq("user_email", user.email)
-          .single();
+      if (!user) return;
 
-        if (userExtError || !userExtData) return;
+      // Get user's auth_id from users_ext
+      const { data: userExtData, error: userExtError } = await supabase
+        .from("users_ext")
+        .select("id")
+        .eq("user_email", user.email)
+        .single();
 
-        // Check if user is a contributor
-        const { data: contributorData } = await supabase
-          .from("project_contributors")
-          .select("*")
-          .eq("project_id", projectData.id)
-          .eq("user_id", userExtData.auth_id)
-          .single();
+      if (userExtError || !userExtData) return;
 
-        setIsContributor(!!contributorData);
-      } catch (error) {
-        throw error;
-      }
+      // Check if user is a contributor
+      const { data: contributorData, error: contributorError } = await supabase
+        .from("project_contributors")
+        .select("id")
+        .eq("project_id", projectData.id)
+        .eq("user_id", userExtData.id)
+        .eq("user_made_contribution", true)
+        .single();
+
+      if (contributorError) return;
+
+      // gives true user is in the project
+      setIsContributor(!!contributorData);
     };
 
     checkContributorStatus();
   }, [projectData.id]);
 
-  const handleProjectAction = () => {
-    if (projectData.is_completed) {
-      navigate(`/projects/${projectData.id}/read`);
-    } else {
-      // Both contributor and non-contributor cases go to writing page
-      navigate(`/writing/${projectData.id}`);
-    }
-  };
+  // const handleProjectAction = () => {
+  //   if (projectData.is_completed) {
+  //     navigate(`/projects/${projectData.id}/read`);
+  //   } else {
+  //     // Both contributor and non-contributor cases go to writing page
+  //     navigate(`/writing/${projectData.id}`);
+  //   }
+  // };
 
-  const getButtonText = () => {
-    if (projectData.is_completed) return "Read Story";
-    if (isContributor) return "View Session";
-    return "Join Session";
-  };
+  // const getButtonText = () => {
+  //   if (projectData.is_completed) return "Read Story";
+  //   if (isContributor) return "View Session";
+  //   return "Join Session";
+  // };
 
   return (
     <Card className="w-[350px] h-[250px] bg-background-card">
@@ -79,10 +80,12 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
           <Badge className={`genre-${projectData.project_genre.toLowerCase()}`}>
             {projectData.project_genre}
           </Badge>
+        {isContributor && <span>You Contributed</span>}
           <div className="flex items-center gap-1">
             <Users className="text-secondary-text p-0.5" />
             <span className="text-secondary-text text-sm">
               {projectData.current_contributors_count}
+              {projectData.total_contributors}
             </span>
           </div>
         </div>
@@ -97,20 +100,13 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
       </div>
       <CardFooter className="flex justify-between items-center">
         <span className="text-sm text-secondary-text">
-          {projectData.is_completed
-            ? `Completed`
-            : `Contributors: ${projectData.current_contributors_count}/${projectData.max_snippets}`}
+          Completed: {new Date(projectData.updated_at).toDateString()}
         </span>
         <Button
           className="bg-primary-button hover:bg-primary-button-hover"
-          onClick={handleProjectAction}
-          disabled={
-            !projectData.is_completed &&
-            !isContributor &&
-            projectData.current_contributors_count >= projectData.max_snippets
-          }
+          onClick={() => navigate(`/projects/${projectData.id}/read`)}
         >
-          {getButtonText()}
+          Read Story
         </Button>
       </CardFooter>
     </Card>

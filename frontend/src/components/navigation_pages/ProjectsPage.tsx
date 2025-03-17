@@ -12,9 +12,17 @@ const ProjectsPage: React.FC = () => {
 
   // getAllProjects
   const handleFetchAllProjects = async () => {
-    const allProjectsData = await getProjects();
-    console.log("Fetched projects:", allProjectsData); // verbose debugging output
-    setAllProjects(allProjectsData || []);
+    try {
+      const allProjectsData = await getProjects();
+
+
+      // if allProjectsData returns null, it will return empty []
+
+
+      setAllProjects(allProjectsData || []);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   // useEffect to fetch allSessions once

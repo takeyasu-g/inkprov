@@ -50,7 +50,6 @@ const getSession = async () => {
 Sessions are uncompleted projects. 
 Reasoning - if a Project has a is_completed value of false, we semantically consider it a "session", "writing session", or "open writing session". 
 For clarity in the backend, only the terms "session", "sessions", "project",and "projects" should be utilized
-*/
 
 /* PROJECT INFORMATION ROUTES */
 
@@ -171,6 +170,42 @@ export const getSessions = async () => {
   }
 };
 
+
+const getProjectsInprogress = async () => {
+  const currentUser: User | null = await getCurrentUser();
+
+  const { data: projects, error } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("creator_id", currentUser?.id)
+    .eq("is_completed", false);
+
+  if (error) {
+    throw new Error(`Failed to fetch projects: ${error.message}`);
+  }
+
+  return projects;
+};
+// get all projects + genre where is_completed = true
+export const getProjects = async (): Promise<ProjectsData[] | null> => {
+  const currentUser: User | null = await getCurrentUser();
+  try {
+  const currentUser: User | null = await getCurrentUser();
+
+  const { data, error } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("creator_id", currentUser?.id)
+    .eq("is_completed", true);
+
+    if (error) {
+      console.error("Error fetching projects:", error.message);
+      console.error("Error details:", error.details);
+      return null;
+    }
+
+    return data as ProjectsData[]; 
+
 // get all projects + genre where is_completed = true
 export const getProjects = async (): Promise<ProjectsData[] | null> => {
   try {
@@ -198,6 +233,7 @@ export const getProjects = async (): Promise<ProjectsData[] | null> => {
     }
 
     return data as ProjectsData[];
+
   } catch (err) {
     console.error("Exception in getProjects:", err);
     return null;
@@ -217,7 +253,56 @@ export const getTags = async () => {
   return data;
 };
 
+const getProfilePictureOptions = async () => {
+  // Get the public URLs of the images
+  const bookShelfImageData = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("BookShelf.png");
+  const bookStackImageData = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("BookStack.png");
+  const lanturnBookImageData = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("LanturnBook.png");
+
+  return [
+    bookShelfImageData.data.publicUrl,
+    bookStackImageData.data.publicUrl,
+    lanturnBookImageData.data.publicUrl,
+  ];
+};
+
+const getProfilePicture = async () => {
+  const currentUser: User | null = await getCurrentUser();
+
+  const { data, error } = await supabase
+    .from("users_ext")
+    .select("profile_pic_url")
+    .eq("auth_id", currentUser?.id);
+
+  if (error) {
+    throw new Error(`Failed to fetch profile picture: ${error.message}`);
+  }
+
+  return data[0].profile_pic_url;
+};
+
+const updateProfilePicture = async (url: string): Promise<any> => {
+  const currentUser: User | null = await getCurrentUser();
+
+  const { error } = await supabase
+    .from("users_ext")
+    .update({ profile_pic_url: url })
+    .eq("auth_id", currentUser?.id);
+
+  if (error) {
+    throw new Error(`Failed to update profile picture: ${error.message}`);
+  }
+};
+
+
 // inserts the user's chosen username into their profile, default behaviour
+
 const insertUsername = async (): Promise<any> => {
   const currentUser: User | null = await getCurrentUser();
 
@@ -238,7 +323,6 @@ const insertUsername = async (): Promise<any> => {
 /* ----- USER PROFILE / INFORMATION ROUTES ----- */
 
 // handles the user updating their username using the field in settings.
-// TODO: Combine all settings and profile toggles into single "Profile" page
 
 const updateUsername = async (username: string): Promise<any> => {
   const currentUser: User | null = await getCurrentUser();
@@ -312,7 +396,7 @@ const getBio = async (): Promise<any> => {
 
   return data;
 };
-
+    
 // handles checking if the user
 // TODO: needs to be renamed to be more explicit: should be "getUserHasEnabledMatureContent"
 const getMatureContent = async (): Promise<any> => {
@@ -333,6 +417,8 @@ const getMatureContent = async (): Promise<any> => {
 // explicit function to get all contributors to a given project (type definitions are here temporarily for debugging)
 // update: seems to be working in production, leaving as is
 
+// update: seems to be working in production, leaving as is 
+
 // Typing
 export interface Contributor {
   id: string;
@@ -349,7 +435,7 @@ export interface Contributor {
 }
 
 // handles getting the user information for all contributors on a project
-// something on the supabase side warrants this level of overengineering, so please do not attempt to refactor
+// something on the supabase side warrants this level of overengineering, so please do not attempt to refactor 
 
 async function getProjectContributors(projectId: string) {
   try {
@@ -359,9 +445,16 @@ async function getProjectContributors(projectId: string) {
       .eq("project_id", projectId);
 
     if (contributorsError) {
-      console.error("Error fetching project contributors:", contributorsError);
+      
       return [];
     }
+
+
+    if (contributors && contributors.length > 0) {
+      const currentWriter = contributors.find((c) => c.current_writer === true);  
+    }
+
+    // If no contributors or empty array, return early
     if (!contributors || contributors.length === 0) {
       return [];
     }
@@ -373,14 +466,17 @@ async function getProjectContributors(projectId: string) {
 
     if (usersError) {
       console.error("Error fetching user data:", usersError);
+
+      // Return contributors without user info rather than an empty array
+
       return contributors.map((contributor) => ({
         ...contributor,
         user: { id: contributor.user_id, user_profile_name: "Unknown" },
       }));
     }
+    
     const enrichedContributors = contributors.map((contributor) => {
       const user = usersData?.find((user) => user.id === contributor.user_id);
-
       return {
         ...contributor,
         user_made_contribution: contributor.user_made_contribution || false,
@@ -394,6 +490,11 @@ async function getProjectContributors(projectId: string) {
       };
     });
 
+    // Final check - log the enriched contributors with writer status
+    const finalCurrentWriter = enrichedContributors.find(
+      (c) => c.current_writer === true
+    );
+    
     return enrichedContributors;
   } catch (err) {
     console.error("Exception when fetching project contributors:", err);
@@ -407,12 +508,16 @@ export {
   signIn,
   signOut,
   getCurrentUser,
+  getProjectsInprogress,
+  getProfilePictureOptions,
+  getProfilePicture,
   getUsername,
   getBio,
   getMatureContent,
   getProjectContributors,
   getSession,
   insertUsername,
+  updateProfilePicture,
   updateUsername,
   updateBio,
   updateMatureContent,
