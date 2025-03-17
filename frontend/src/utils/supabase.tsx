@@ -127,6 +127,7 @@ export const getSessions = async () => {
 
     // Update the contributor counts with real-time data
     if (fullProject && fullProject.length > 0) {
+     
       try {
         // For each project, get the actual count of contributors
         for (const project of fullProject) {
@@ -143,6 +144,7 @@ export const getSessions = async () => {
           } else if (contributors) {
             const realCount = contributors.length;
             if (realCount !== project.current_contributors_count) {
+
               project.current_contributors_count = realCount;
 
               // Also update the project table to keep it in sync
@@ -172,6 +174,42 @@ export const getSessions = async () => {
   }
 };
 
+
+const getProjectsInprogress = async () => {
+  const currentUser: User | null = await getCurrentUser();
+
+  const { data: projects, error } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("creator_id", currentUser?.id)
+    .eq("is_completed", false);
+
+  if (error) {
+    throw new Error(`Failed to fetch projects: ${error.message}`);
+  }
+
+  return projects;
+};
+// get all projects + genre where is_completed = true
+export const getProjects = async (): Promise<ProjectsData[] | null> => {
+  const currentUser: User | null = await getCurrentUser();
+  try {
+  const currentUser: User | null = await getCurrentUser();
+
+  const { data, error } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("creator_id", currentUser?.id)
+    .eq("is_completed", true);
+
+    if (error) {
+      console.error("Error fetching projects:", error.message);
+      console.error("Error details:", error.details);
+      return null;
+    }
+
+    return data as ProjectsData[]; 
+
 // get all projects + genre where is_completed = true
 export const getProjects = async (): Promise<ProjectsData[] | null> => {
   try {
@@ -199,6 +237,7 @@ export const getProjects = async (): Promise<ProjectsData[] | null> => {
     }
 
     return data as ProjectsData[];
+
   } catch (err) {
     console.error("Exception in getProjects:", err);
     return null;
@@ -218,7 +257,57 @@ export const getTags = async () => {
   return data;
 };
 
+
+const getProfilePictureOptions = async () => {
+  // Get the public URLs of the images
+  const bookShelfImageData = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("BookShelf.png");
+  const bookStackImageData = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("BookStack.png");
+  const lanturnBookImageData = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("LanturnBook.png");
+
+  return [
+    bookShelfImageData.data.publicUrl,
+    bookStackImageData.data.publicUrl,
+    lanturnBookImageData.data.publicUrl,
+  ];
+};
+
+const getProfilePicture = async () => {
+  const currentUser: User | null = await getCurrentUser();
+
+  const { data, error } = await supabase
+    .from("users_ext")
+    .select("profile_pic_url")
+    .eq("auth_id", currentUser?.id);
+
+  if (error) {
+    throw new Error(`Failed to fetch profile picture: ${error.message}`);
+  }
+
+  return data[0].profile_pic_url;
+};
+
+const updateProfilePicture = async (url: string): Promise<any> => {
+  const currentUser: User | null = await getCurrentUser();
+
+  const { error } = await supabase
+    .from("users_ext")
+    .update({ profile_pic_url: url })
+    .eq("auth_id", currentUser?.id);
+
+  if (error) {
+    throw new Error(`Failed to update profile picture: ${error.message}`);
+  }
+};
+
+
 // inserts the user's chosen username into their profile, default behaviour
+
 const insertUsername = async (): Promise<any> => {
   const currentUser: User | null = await getCurrentUser();
 
@@ -332,6 +421,7 @@ const getMatureContent = async (): Promise<any> => {
 };
 
 // explicit function to get all contributors to a given project (type definitions are here temporarily for debugging)
+
 // update: seems to be working in production, leaving as is 
 
 // Typing
@@ -349,38 +439,82 @@ export interface Contributor {
   };
 }
 
+
+/**
+ * Fetches all contributors for a specific project with correct user information
+ *
+ * @param projectId - The UUID of the project
+ * @returns Array of contributors with user information
+ */
+
 // handles getting the user information for all contributors on a project
 // something on the supabase side warrants this level of overengineering, so please do not attempt to refactor 
 
 async function getProjectContributors(projectId: string) {
   try {
+
     const { data: contributors, error: contributorsError } = await supabase
       .from("project_contributors")
       .select("*")
       .eq("project_id", projectId);
 
     if (contributorsError) {
-      console.error("Error fetching project contributors:", contributorsError);
+      
       return [];
     }
+
+
+    if (contributors && contributors.length > 0) {
+      const currentWriter = contributors.find((c) => c.current_writer === true);  
+    }
+
+    // If no contributors or empty array, return early
+    if (!contributors || contributors.length === 0) {
+      return [];
+    }
+
+    // Step 2: Now get user data for each contributor
+    const userIds = contributors.map((contributor) => contributor.user_id);
+    console.log(`Fetching user data for user IDs:`, userIds);
+
+    // Make sure we're querying the correct users table
+    // Check your Supabase schema to ensure this is the right table and fields
+    const { data: usersData, error: usersError } = await supabase
+      .from("users_ext") // Make sure this is the correct table name
+
     if (!contributors || contributors.length === 0) {
       return [];
     }
     const userIds = contributors.map((contributor) => contributor.user_id);
     const { data: usersData, error: usersError } = await supabase
       .from("users_ext")
+
       .select("id, user_profile_name")
       .in("id", userIds);
 
     if (usersError) {
       console.error("Error fetching user data:", usersError);
+
+      // Return contributors without user info rather than an empty array
+
       return contributors.map((contributor) => ({
         ...contributor,
         user: { id: contributor.user_id, user_profile_name: "Unknown" },
       }));
     }
+
+
+    
+
+    // Step 3: Combine contributor and user data with safe handling of null values
     const enrichedContributors = contributors.map((contributor) => {
       const user = usersData?.find((user) => user.id === contributor.user_id);
+
+      // Ensure all expected fields have sensible defaults
+
+    const enrichedContributors = contributors.map((contributor) => {
+      const user = usersData?.find((user) => user.id === contributor.user_id);
+
 
       return {
         ...contributor,
@@ -395,6 +529,12 @@ async function getProjectContributors(projectId: string) {
       };
     });
 
+
+    // Final check - log the enriched contributors with writer status
+    const finalCurrentWriter = enrichedContributors.find(
+      (c) => c.current_writer === true
+    );
+    
     return enrichedContributors;
   } catch (err) {
     console.error("Exception when fetching project contributors:", err);
@@ -408,12 +548,16 @@ export {
   signIn,
   signOut,
   getCurrentUser,
+  getProjectsInprogress,
+  getProfilePictureOptions,
+  getProfilePicture,
   getUsername,
   getBio,
   getMatureContent,
   getProjectContributors,
   getSession,
   insertUsername,
+  updateProfilePicture,
   updateUsername,
   updateBio,
   updateMatureContent,

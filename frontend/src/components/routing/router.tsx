@@ -6,6 +6,7 @@ import RegisterPage from "../auth/RegisterPage";
 import WritingEditor from "../writing_pages/WritingEditor";
 import LandingPage from "../navigation_pages/LandingPage";
 import Settings from "../navigation_pages/Settings";
+import Profile from "../navigation_pages/Profile";
 import OpenSessionsPage from "../navigation_pages/OpenSessionsPage";
 import ProjectsPage from "../navigation_pages/ProjectsPage";
 import ReadingPage from "../navigation_pages/ReadingPage";
@@ -30,6 +31,12 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       window.location.pathname === "/register" ? null : (
         <Footer />
       )}
+
+      {window.location.pathname === "/login" ||
+      window.location.pathname === "/register" ? null : (
+        <Footer />
+      )}
+
     </div>
   );
 };
@@ -142,6 +149,16 @@ const router = createBrowserRouter([
     ),
   },
   {
+
+    path: "/profile",
+    element: (
+      <Layout>
+        <ProtectedRoute element={<Profile />} />
+      </Layout>
+    ),
+  },
+  {
+
     path: "/auth/callback",
     element: <AuthCallback />,
   },
