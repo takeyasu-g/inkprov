@@ -29,7 +29,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-
 const Profile: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -38,11 +37,21 @@ const Profile: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [username, setUsername] = useState<string>("");
   const [bio, setBio] = useState<string>("");
-  const [selectedProfilePicture, setSelectedProfilePicture] = useState<number | null>(null);
-  const [profilepictureOptions, setProfilePictureOptions] = useState<string[]>([]);
-  const [currentProfilePicture, setCurrentProfilePicture] = useState<string | null>(null);
-  const [storiesCompleted, setStoriesCompleted] = useState<ProjectsData[] | null>([]);
-  const [storiesInprogress, setStoriesInprogress] = useState<ProjectsData[] | null>([]);
+  const [selectedProfilePicture, setSelectedProfilePicture] = useState<
+    number | null
+  >(null);
+  const [profilepictureOptions, setProfilePictureOptions] = useState<string[]>(
+    []
+  );
+  const [currentProfilePicture, setCurrentProfilePicture] = useState<
+    string | null
+  >(null);
+  const [storiesCompleted, setStoriesCompleted] = useState<
+    ProjectsData[] | null
+  >([]);
+  const [storiesInprogress, setStoriesInprogress] = useState<
+    ProjectsData[] | null
+  >([]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -268,7 +277,7 @@ const Profile: React.FC = () => {
                         genre={story.project_genre}
                         creationDate={story.created_at}
                         title={story.title}
-                        collaborators={story.total_contributors}
+                        collaborators={story.current_contributors_count}
                         wordCount={1051}
                         lastUpdated={story.updated_at}
                         publicStory={story.is_public}
@@ -304,7 +313,7 @@ const Profile: React.FC = () => {
                         genre={story.project_genre}
                         creationDate={story.created_at}
                         title={story.title}
-                        collaborators={story.total_contributors}
+                        collaborators={story.current_contributors_count}
                         wordCount={1051}
                         lastUpdated={story.updated_at}
                         publicStory={story.is_public}
@@ -319,6 +328,7 @@ const Profile: React.FC = () => {
           </section>
         </div>
       )}
+    </>
   );
 };
 

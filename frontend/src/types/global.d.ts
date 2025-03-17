@@ -27,6 +27,8 @@ export interface ProjectsData {
   current_contributors_count: number;
   max_snippets: number;
   project_contributors?: ProjectContributor[];
+  updated_at: Date;
+  is_public: boolean;
 }
 
 export interface ProjectSnippet {

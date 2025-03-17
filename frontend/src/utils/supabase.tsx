@@ -170,7 +170,6 @@ export const getSessions = async () => {
   }
 };
 
-
 const getProjectsInprogress = async () => {
   const currentUser: User | null = await getCurrentUser();
 
@@ -188,42 +187,13 @@ const getProjectsInprogress = async () => {
 };
 // get all projects + genre where is_completed = true
 export const getProjects = async (): Promise<ProjectsData[] | null> => {
-  const currentUser: User | null = await getCurrentUser();
   try {
-  const currentUser: User | null = await getCurrentUser();
+    const currentUser: User | null = await getCurrentUser();
 
-  const { data, error } = await supabase
-    .from("projects")
-    .select("*")
-    .eq("creator_id", currentUser?.id)
-    .eq("is_completed", true);
-
-    if (error) {
-      console.error("Error fetching projects:", error.message);
-      console.error("Error details:", error.details);
-      return null;
-    }
-
-    return data as ProjectsData[]; 
-
-// get all projects + genre where is_completed = true
-export const getProjects = async (): Promise<ProjectsData[] | null> => {
-  try {
     const { data, error } = await supabase
       .from("projects")
-      .select(
-        `
-        id,
-        title,
-        description,
-        project_genre,
-        is_completed,
-        creator_id,
-        creator:users_ext!creator_id(
-          user_profile_name
-        )
-      `
-      )
+      .select("*")
+      .eq("creator_id", currentUser?.id)
       .eq("is_completed", true);
 
     if (error) {
@@ -233,7 +203,6 @@ export const getProjects = async (): Promise<ProjectsData[] | null> => {
     }
 
     return data as ProjectsData[];
-
   } catch (err) {
     console.error("Exception in getProjects:", err);
     return null;
@@ -299,7 +268,6 @@ const updateProfilePicture = async (url: string): Promise<any> => {
     throw new Error(`Failed to update profile picture: ${error.message}`);
   }
 };
-
 
 // inserts the user's chosen username into their profile, default behaviour
 
@@ -396,7 +364,7 @@ const getBio = async (): Promise<any> => {
 
   return data;
 };
-    
+
 // handles checking if the user
 // TODO: needs to be renamed to be more explicit: should be "getUserHasEnabledMatureContent"
 const getMatureContent = async (): Promise<any> => {
@@ -417,7 +385,7 @@ const getMatureContent = async (): Promise<any> => {
 // explicit function to get all contributors to a given project (type definitions are here temporarily for debugging)
 // update: seems to be working in production, leaving as is
 
-// update: seems to be working in production, leaving as is 
+// update: seems to be working in production, leaving as is
 
 // Typing
 export interface Contributor {
@@ -435,7 +403,7 @@ export interface Contributor {
 }
 
 // handles getting the user information for all contributors on a project
-// something on the supabase side warrants this level of overengineering, so please do not attempt to refactor 
+// something on the supabase side warrants this level of overengineering, so please do not attempt to refactor
 
 async function getProjectContributors(projectId: string) {
   try {
@@ -445,16 +413,9 @@ async function getProjectContributors(projectId: string) {
       .eq("project_id", projectId);
 
     if (contributorsError) {
-      
+      console.error("Error fetching project contributors:", contributorsError);
       return [];
     }
-
-
-    if (contributors && contributors.length > 0) {
-      const currentWriter = contributors.find((c) => c.current_writer === true);  
-    }
-
-    // If no contributors or empty array, return early
     if (!contributors || contributors.length === 0) {
       return [];
     }
@@ -466,17 +427,14 @@ async function getProjectContributors(projectId: string) {
 
     if (usersError) {
       console.error("Error fetching user data:", usersError);
-
-      // Return contributors without user info rather than an empty array
-
       return contributors.map((contributor) => ({
         ...contributor,
         user: { id: contributor.user_id, user_profile_name: "Unknown" },
       }));
     }
-    
     const enrichedContributors = contributors.map((contributor) => {
       const user = usersData?.find((user) => user.id === contributor.user_id);
+
       return {
         ...contributor,
         user_made_contribution: contributor.user_made_contribution || false,
@@ -490,11 +448,6 @@ async function getProjectContributors(projectId: string) {
       };
     });
 
-    // Final check - log the enriched contributors with writer status
-    const finalCurrentWriter = enrichedContributors.find(
-      (c) => c.current_writer === true
-    );
-    
     return enrichedContributors;
   } catch (err) {
     console.error("Exception when fetching project contributors:", err);

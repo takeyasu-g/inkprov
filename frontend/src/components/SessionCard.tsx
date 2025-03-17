@@ -10,7 +10,6 @@ import {
   CardTitle,
   Badge,
 } from "@/components/ui";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProjectsData } from "@/types/global";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistanceToNow } from "date-fns";
@@ -64,9 +63,6 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
   const contributors = sessionData.project_contributors || [];
   const currentUser = sessionData.creator;
   const [showTooltip, setShowTooltip] = React.useState(false);
-
-  console.log("Session Data:", sessionData);
-  console.log("Creator Data:", sessionData.creator);
 
   const formattedDate = sessionData.created_at
     ? `Created ${formatDistanceToNow(new Date(sessionData.created_at))} ago`

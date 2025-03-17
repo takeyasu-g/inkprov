@@ -18,9 +18,8 @@ const OpenSessionsPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAuth();
-  const [lastFocusTime, setLastFocusTime] = useState<number>(Date.now());
 
-  // entry handling 
+  // entry handling
   const handleCreateSession = () => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -31,11 +30,11 @@ const OpenSessionsPage: React.FC = () => {
 
   // getAllSessions
   // this gets all sessions (open projects) for display on the main page
-  
+
   const handleFetchAllSessions = async () => {
     try {
       setIsLoading(true);
-      console.log("Fetching all sessions with fresh contributor counts...");
+
       const allSessionsData = await getSessions();
 
       if (!allSessionsData) {
@@ -46,7 +45,7 @@ const OpenSessionsPage: React.FC = () => {
       setAllSessions(allSessionsData);
       setError(null);
     } catch (err) {
-      setError("Failed to fetch sessions");
+      setError(`${err}`);
     } finally {
       setIsLoading(false);
     }
@@ -54,8 +53,6 @@ const OpenSessionsPage: React.FC = () => {
 
   // useEffect to fetch allSessions once on mount
   useEffect(() => {
-    console.log("OpenSessionsPage mounted, fetching initial data");
-
     // Check if we need to refresh due to joining a project
     const shouldRefresh = sessionStorage.getItem("refreshSessions");
     if (shouldRefresh === "true") {
@@ -80,9 +77,6 @@ const OpenSessionsPage: React.FC = () => {
       handleFetchAllSessions();
     }
 
-    // No longer adding the focus event listener
-    setLastFocusTime(Date.now());
-
     // No need for cleanup function since we're not adding event listeners
   }, [location.pathname]);
 
@@ -106,7 +100,7 @@ const OpenSessionsPage: React.FC = () => {
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
 
-  // loading placeholders 
+  // loading placeholders
   const renderSkeletons = () => {
     return Array(6)
       .fill(0)
@@ -114,11 +108,9 @@ const OpenSessionsPage: React.FC = () => {
   };
 
   // Adds a refresh button to manually refresh sessions
-  // TODO: this may be no longer needed 
+  // TODO: this may be no longer needed
   const handleManualRefresh = () => {
-    console.log("Manual refresh requested by user");
     handleFetchAllSessions();
-    setLastFocusTime(Date.now());
   };
 
   return (
