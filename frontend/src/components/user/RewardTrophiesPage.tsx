@@ -64,16 +64,12 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
           targetUserId = currentUser.id;
         }
 
-        console.log("Fetching stats for user ID:", targetUserId);
-
         // Fetch user stats from the database - using the correct table name
         const { data: stats, error } = await supabase
           .from("user_gamification_stats") // Changed from "user_stats" to "user_gamification_stats" to match current supabase titling
           .select("*")
           .eq("user_id", targetUserId)
           .single();
-
-        console.log("Fetched stats:", stats, "Error:", error);
 
         // Create default stats object
         const defaultStats = {
@@ -93,8 +89,6 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
 
         // If no record exists for this user, create one
         if (!stats && !error) {
-          console.log("No stats found for user, creating default stats record");
-
           // Insert default stats for this user
           const { data: insertedStats, error: insertError } = await supabase
             .from("user_gamification_stats")
@@ -106,7 +100,6 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
             console.error("Error creating default stats:", insertError);
             setUserStats(defaultStats);
           } else {
-            console.log("Created default stats:", insertedStats);
             setUserStats(insertedStats);
           }
         } else if (error) {
