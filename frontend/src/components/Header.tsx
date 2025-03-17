@@ -97,7 +97,7 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
 
   const headerLayout = (
     <>
-      <div className="flex ml-4 items-center text-primary-text">
+      <div className="flex-none ml-4 items-center text-primary-text">
         <Feather />
         <Button
           className="text-primary-text text-xl font-bold pl-2 hover:no-underline cursor-pointer"
@@ -121,51 +121,53 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
       {page === "/login" || page === "/register" ? null : loggedIn ? (
         // Navigation menu only appears if the user has logged in
         <>
-          <NavigationMenu>
-            <NavigationMenuList>
-              <NavigationMenuItem className="group/sessions">
-                <NavigationMenuLink
-                  onClick={() => navigate("/sessions")}
-                  className="hover:bg-transparent cursor-pointer"
-                >
-                  <div className="flex gap-1 items-center cursor-pointer">
-                    <House className="text-primary-text group-hover/sessions:text-hover-text" />
-                    <p className="text-base text-primary-text group-hover/sessions:text-hover-text">
-                      Sessions
-                    </p>
-                  </div>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem className="group/stories">
-                <NavigationMenuLink
-                  onClick={() => navigate("/stories")}
-                  className="hover:bg-transparent cursor-pointer"
-                >
-                  <div className="flex gap-1 items-center cursor-pointer">
-                    <BookOpen className="text-primary-text group-hover/stories:text-hover-text" />
-                    <p className="text-base text-primary-text group-hover/stories:text-hover-text">
-                      Stories
-                    </p>
-                  </div>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem className="group/create">
-                <NavigationMenuLink
-                  onClick={() => navigate("/sessions/create")}
-                  className="hover:bg-transparent cursor-pointer"
-                >
-                  <div className="flex gap-1 items-center cursor-pointer">
-                    <PenTool className="text-primary-text group-hover/create:text-hover-text" />
-                    <p className="text-base text-primary-text group-hover/create:text-hover-text">
-                      Create
-                    </p>
-                  </div>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
+          <div className="flex-1 flex justify-center">
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem className="group/sessions">
+                  <NavigationMenuLink
+                    onClick={() => navigate("/sessions")}
+                    className="hover:bg-transparent cursor-pointer"
+                  >
+                    <div className="flex gap-1 items-center cursor-pointer">
+                      <House className="text-primary-text group-hover/sessions:text-hover-text" />
+                      <p className="text-base text-primary-text group-hover/sessions:text-hover-text">
+                        Sessions
+                      </p>
+                    </div>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+                <NavigationMenuItem className="group/stories">
+                  <NavigationMenuLink
+                    onClick={() => navigate("/stories")}
+                    className="hover:bg-transparent cursor-pointer"
+                  >
+                    <div className="flex gap-1 items-center cursor-pointer">
+                      <BookOpen className="text-primary-text group-hover/stories:text-hover-text" />
+                      <p className="text-base text-primary-text group-hover/stories:text-hover-text">
+                        Stories
+                      </p>
+                    </div>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+                <NavigationMenuItem className="group/create">
+                  <NavigationMenuLink
+                    onClick={() => navigate("/sessions/create")}
+                    className="hover:bg-transparent cursor-pointer"
+                  >
+                    <div className="flex gap-1 items-center cursor-pointer">
+                      <PenTool className="text-primary-text group-hover/create:text-hover-text" />
+                      <p className="text-base text-primary-text group-hover/create:text-hover-text">
+                        Create
+                      </p>
+                    </div>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+          </div>
           {/* Profile Picture Account Menu */}
-          <div className="flex gap-4 items-center">
+          <div className="flex-none flex gap-4 items-center mr-4">
             <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
               <PopoverTrigger asChild>
                 <Avatar className="w-9 h-9 cursor-pointer">
@@ -249,7 +251,7 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
   );
 
   return (
-    <header className="fixed top-0 left-0 w-full h-12 flex justify-between items-center bg-[#fef3c7] shadow-md z-50">
+    <header className="fixed top-0 left-0 w-full h-12 flex items-center bg-[#fef3c7] shadow-md z-50">
       {page === "/login" || page === "/register" ? (
         <>
           <div className="row-span-5"></div>
@@ -258,7 +260,7 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
           </div>
         </>
       ) : (
-        <>{headerLayout}</>
+        <div className="w-full flex items-center">{headerLayout}</div>
       )}
     </header>
   );
