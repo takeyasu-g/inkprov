@@ -103,7 +103,7 @@ const LandingPage: React.FC = () => {
               Real-time collaborative writing
             </li>
             <li className="text-secondary-text">
-              Writing prompts when you need inspiration
+              Idea prompts for when you need inspiration
             </li>
             <li className="text-secondary-text">
               Genre-based sessions and filtering

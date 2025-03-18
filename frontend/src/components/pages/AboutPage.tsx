@@ -120,10 +120,10 @@ const AboutPage: React.FC = () => {
                 Have questions or suggestions? We'd love to hear from you. Reach
                 out to our team at{" "}
                 <a
-                  href="mailto:support@inkprov.com"
+                  href="mailto:support@inkprov.net"
                   className="text-indigo-600 hover:text-indigo-500 underline"
                 >
-                  support@inkprov.com
+                  support@inkprov.net
                 </a>
               </p>
             </CardContent>
