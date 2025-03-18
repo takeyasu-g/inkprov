@@ -90,41 +90,62 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
   );
 
   return (
-    <Card className="w-[350px] min-h-[250px] bg-background-card flex flex-col text-justified">
-      <CardHeader className="flex-none space-y-3">
-        <CardHeaderWithMature
-          genre={sessionData.project_genre}
-          isMatureContent={sessionData.is_mature_content}
-          rightContent={snippetsIcon}
-        >
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2">
-              <CardTitle className="text-amber-900 text-left font-bold">
-                {sessionData.title}
-              </CardTitle>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-secondary-text">Started by: </span>
-              <span className="text-sm font-medium">
-                {sessionData.creator?.user_profile_name || "Anonymous"}
-              </span>
-            </div>
+    <Card className="w-[300px] h-[350px] relative bg-background-card grid grid-rows-[100px_1fr_100px] gap-2 text-justified">
+      <CardHeader className="space-y-3">
+        <div className="flex justify-between items-center">
+          <Badge className={`genre-${sessionData.project_genre.toLowerCase()}`}>
+            {sessionData.project_genre}
+          </Badge>
+          <div className="flex items-center gap-1">
+            <Users className="text-secondary-text p-0.5" />
+            <span
+              className={`text-sm ${
+                isUserContributor ? "text-green-500" : "text-secondary-text"
+              }`}
+            >
+              {sessionData.current_contributors_count} /{" "}
+              {sessionData.max_snippets}
+            </span>
           </div>
-        </CardHeaderWithMature>
+        </div>
+        <div className="flex flex-col gap-1">
+          <CardTitle className="text-amber-900 text-left font-bold">
+            {sessionData.title}
+          </CardTitle>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-secondary-text">Started by: </span>
+            <span className="text-sm font-medium">
+              {sessionData.creator?.user_profile_name || "Anonymous"}
+            </span>
+          </div>
+        </div>
       </CardHeader>
-      <div className="bg-white flex-grow">
-        <CardDescription className="m-4 text-secondary-text">
+      <div className="bg-white">
+        <CardDescription className="m-4 text-secondary-text h-[75px] overflow-hidden">
           {sessionData.description}
         </CardDescription>
       </div>
-      <CardFooter className="flex justify-between items-center">
-        <span className="text-sm text-secondary-text">{formattedDate}</span>
-        <Button
-          className="bg-primary-button hover:bg-primary-button-hover"
-          onClick={() => navigate(`/sessions/${sessionData.id}/write`)}
-        >
-          View Session
-        </Button>
+      <CardFooter className="px-8 w-full">
+        <div className="flex flex-col w-full gap-1">
+          <Button
+            className="bg-primary-button hover:bg-primary-button-hover w-full cursor-pointer relative"
+            onClick={() => navigate(`/writing/${sessionData.id}`)}
+            onMouseEnter={() => setShowTooltip(true)}
+            onMouseLeave={() => setShowTooltip(false)}
+          >
+            View Session
+            {/* {showTooltip && (
+              <span className="absolute top-full mt-1 text-xs bg-gray-700 text-white p-1 rounded">
+                Joined
+              </span>
+            )} */}
+          </Button>
+          <div className="mx-4 mt-2">
+            <span className="text-xs text-secondary-text italic">
+              {formattedDate}
+            </span>
+          </div>
+        </div>
       </CardFooter>
     </Card>
   );

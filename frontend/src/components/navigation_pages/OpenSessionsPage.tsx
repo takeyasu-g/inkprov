@@ -104,7 +104,11 @@ const OpenSessionsPage: React.FC = () => {
   const renderSkeletons = () => {
     return Array(6)
       .fill(0)
-      .map((_, index) => <SessionCardSkeleton key={index} />);
+      .map((_, index) => (
+        <div className="flex justify-center">
+          <SessionCardSkeleton key={index} />
+        </div>
+      ));
   };
 
   // Adds a refresh button to manually refresh sessions
@@ -161,13 +165,18 @@ const OpenSessionsPage: React.FC = () => {
 
       {error && <div className="text-red-500 mb-4">Error: {error}</div>}
 
-      <div className="content pb-16">
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* TODO: Add pagination */}
+      {/* Sort by newest added */}
+      <div className="mipb-16">
+        {/* "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 " */}
+        <section className="flex flex-wrap justify-center gap-6">
           {isLoading ? (
             renderSkeletons()
           ) : filteredSessions && filteredSessions.length > 0 ? (
             filteredSessions.map((session) => (
-              <SessionCard key={session.id} sessionData={session} />
+              <div className="flex-1 min-w-[280px] max-w-[350px]">
+                <SessionCard key={session.id} sessionData={session} />
+              </div>
             ))
           ) : (
             <p className="text-center text-gray-500">

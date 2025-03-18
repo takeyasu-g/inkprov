@@ -7,6 +7,7 @@ import {
   User,
   Settings,
   LogOut,
+  PanelRightOpen,
   GitBranchPlus,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -27,8 +28,10 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 // Check if we're in development mode
+// eslint-disable-next-line no-undef
 const isDevelopment = process.env.NODE_ENV === "development";
 
 interface HeaderProps {
@@ -97,80 +100,83 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
 
   const headerLayout = (
     <>
-      <div className="flex-none flex ml-4 items-center text-primary-text">
-        <Feather />
-        <Button
-          className="text-primary-text text-xl font-bold pl-2 hover:no-underline cursor-pointer"
-          variant="link"
-          onClick={handleLoggedInHomepage}
-        >
-          Inkprov
-        </Button>
+      <div className="justify-self-start ">
+        <div className="flex items-center text-primary-text">
+          <Feather
+            className="cursor-pointer"
+            onClick={handleLoggedInHomepage}
+          />
+          <Button
+            className="text-primary-text text-xl font-bold pl-2 hover:no-underline cursor-pointer"
+            variant="link"
+            onClick={handleLoggedInHomepage}
+          >
+            Inkprov
+          </Button>
 
-        {/* Development Mode Indicator */}
-        {isDevelopment && (
+          {/* Development Mode Indicator */}
+          {/* {isDevelopment && (
           <div
-            className="ml-2 px-2 py-1 rounded-md bg-amber-100 border border-amber-300 flex items-center"
+            className="ml-2 relative px-2 py-1 rounded-md bg-amber-100 border border-amber-300 flex items-center"
             title="Development Environment"
           >
             <GitBranchPlus className="h-4 w-4 text-amber-600" />
             <span className="ml-1 text-xs font-medium text-amber-700">DEV</span>
           </div>
-        )}
+        )} */}
+        </div>
       </div>
       {page === "/login" || page === "/register" ? null : loggedIn ? (
         // Navigation menu only appears if the user has logged in
         <>
-          <div className="flex-1 flex justify-center">
-            <NavigationMenu>
-              <NavigationMenuList>
-                <NavigationMenuItem className="group/sessions">
-                  <NavigationMenuLink
-                    onClick={() => navigate("/sessions")}
-                    className="hover:bg-transparent cursor-pointer"
-                  >
-                    <div className="flex gap-1 items-center cursor-pointer">
-                      <House className="text-primary-text group-hover/sessions:text-hover-text" />
-                      <p className="text-base text-primary-text group-hover/sessions:text-hover-text">
-                        Sessions
-                      </p>
-                    </div>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-                <NavigationMenuItem className="group/stories">
-                  <NavigationMenuLink
-                    onClick={() => navigate("/stories")}
-                    className="hover:bg-transparent cursor-pointer"
-                  >
-                    <div className="flex gap-1 items-center cursor-pointer">
-                      <BookOpen className="text-primary-text group-hover/stories:text-hover-text" />
-                      <p className="text-base text-primary-text group-hover/stories:text-hover-text">
-                        Stories
-                      </p>
-                    </div>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-                <NavigationMenuItem className="group/create">
-                  <NavigationMenuLink
-                    onClick={() => navigate("/sessions/create")}
-                    className="hover:bg-transparent cursor-pointer"
-                  >
-                    <div className="flex gap-1 items-center cursor-pointer">
-                      <PenTool className="text-primary-text group-hover/create:text-hover-text" />
-                      <p className="text-base text-primary-text group-hover/create:text-hover-text">
-                        Create
-                      </p>
-                    </div>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
-          </div>
+          <NavigationMenu className="hidden md:grid md:place-self-center">
+            <NavigationMenuList>
+              <NavigationMenuItem className="group/sessions">
+                <NavigationMenuLink
+                  onClick={() => navigate("/sessions")}
+                  className="hover:bg-transparent cursor-pointer "
+                >
+                  <div className="flex gap-1 items-center cursor-pointer ">
+                    <House className="text-primary-text group-hover/sessions:text-hover-text" />
+                    <p className="text-base text-primary-text group-hover/sessions:text-hover-text">
+                      Sessions
+                    </p>
+                  </div>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem className="group/stories">
+                <NavigationMenuLink
+                  onClick={() => navigate("/stories")}
+                  className="hover:bg-transparent cursor-pointer"
+                >
+                  <div className="flex gap-1 items-center cursor-pointer">
+                    <BookOpen className="text-primary-text group-hover/stories:text-hover-text" />
+                    <p className="text-base text-primary-text group-hover/stories:text-hover-text">
+                      Stories
+                    </p>
+                  </div>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem className="group/create">
+                <NavigationMenuLink
+                  onClick={() => navigate("/sessions/create")}
+                  className="hover:bg-transparent cursor-pointer"
+                >
+                  <div className="flex gap-1 items-center cursor-pointer">
+                    <PenTool className="text-primary-text group-hover/create:text-hover-text" />
+                    <p className="text-base text-primary-text group-hover/create:text-hover-text">
+                      Create
+                    </p>
+                  </div>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
           {/* Profile Picture Account Menu */}
-          <div className="flex-none flex gap-4 items-center mr-4">
+          <div className="hidden md:block md:justify-self-end">
             <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
               <PopoverTrigger asChild>
-                <Avatar className="w-9 h-9 cursor-pointer">
+                <Avatar className="w-10 h-10 cursor-pointer">
                   <AvatarImage
                     src={
                       currentProfilePicture || user?.user_metadata?.avatar_url
@@ -226,6 +232,42 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
               </PopoverContent>
             </Popover>
           </div>
+          {/* in mobile will display a panel right open icon */}
+          <nav className="items-center justify-self-end md:hidden">
+            <Sheet>
+              {/* Button to open menu */}
+              <SheetTrigger asChild>
+                <PanelRightOpen className="text-primary-text cursor-pointer w-9 h-9" />
+              </SheetTrigger>
+
+              {/* Side Menu Content */}
+              <SheetContent side="left" className="w-64">
+                <div className="p-4 flex flex-col space-y-4">
+                  <a href="/" className="text-lg font-medium hover:underline">
+                    Home
+                  </a>
+                  <a
+                    href="/about"
+                    className="text-lg font-medium hover:underline"
+                  >
+                    About
+                  </a>
+                  <a
+                    href="/projects"
+                    className="text-lg font-medium hover:underline"
+                  >
+                    Projects
+                  </a>
+                  <a
+                    href="/contact"
+                    className="text-lg font-medium hover:underline"
+                  >
+                    Contact
+                  </a>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </nav>
         </>
       ) : (
         <div className="flex gap-4">
@@ -251,18 +293,25 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
   );
 
   return (
-    <header className="fixed top-0 left-0 w-full h-12 flex items-center bg-[#fef3c7] shadow-md z-50">
-      {page === "/login" || page === "/register" ? (
+    <div className="shadow-md sticky top-0 w-full z-50 ">
+      <header
+        className={
+          page === "/login" || page === "/register"
+            ? "grid grid-cols-2 grid-rows-1 gap-0 relative mt-3"
+            : "container mx-auto grid grid-cols-2 grid-rows-1 px-4 py-3 bg-background md:grid-cols-3"
+        }
+      >
+        {/* {page === "/login" || page === "/register" ? (
         <>
-          <div className="row-span-5"></div>
-          <div className="row-span-5 relative w-screen pb-4 before:absolute before:bottom-0 before:left-0 before:w-full before:h-px before:bg-primary-border">
-            {headerLayout}
-          </div>
+          <div className="row-span-5 relative pb-4 before:absolute before:bottom-0 before:left-0 before:w-full before:h-px before:bg-primary-border"> */}
+        {headerLayout}
+        {/* </div>
         </>
       ) : (
-        <div className="w-full flex items-center">{headerLayout}</div>
-      )}
-    </header>
+        <>{headerLayout}</>
+      )} */}
+      </header>
+    </div>
   );
 };
 

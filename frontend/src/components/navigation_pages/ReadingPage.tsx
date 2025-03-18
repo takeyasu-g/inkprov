@@ -170,7 +170,7 @@ const ReadingPage: React.FC = () => {
   }, [projectId]);
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="max-w-4xl mt-10">
       <Card className="p-8">
         <CardHeader className="mb-2">
           <CardTitle className="text-3xl font-bold text-primary-text mb-2">

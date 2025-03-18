@@ -9,7 +9,7 @@ const App: React.FC = () => {
   return (
     <AuthProvider>
       <Toaster position="top-right" duration={3000} theme="light" richColors />
-      <div className="content pb-16">
+      <div className="min-w-screen">
         <RouterProvider router={router} />
       </div>
     </AuthProvider>
