@@ -19,7 +19,6 @@ const LandingPage: React.FC = () => {
 
   return (
     <>
-      {/* Hero Section */}
       <section className="flex flex-col justify-center items-center w-full">
         <header>
           <h1 className="text-6xl font-bold mt-8 w-2xl text-primary-text">
@@ -50,7 +49,6 @@ const LandingPage: React.FC = () => {
           </Button>
         </section>
       </section>
-      {/* Flow Steps Section */}
       <section
         className="relative flex flex-col items-center bg-accent text-primary-text
   before:absolute before:bottom-0 before:left- before:-translate-x-1/2 before:w-screen before:h-px before:bg-accent 
@@ -58,7 +56,6 @@ const LandingPage: React.FC = () => {
       >
         <h2 className="text-3xl font-bold mt-9 mb-9">How Inkprov Works</h2>
         <section className="flex gap-4 mb-8">
-          {/* Join a Session */}
           <article className="flex flex-col items-center gap-4 mb-8 w-md">
             <div className="rounded-full bg-tertiary-background p-4">
               <Users />
@@ -69,7 +66,6 @@ const LandingPage: React.FC = () => {
               your own.
             </p>
           </article>
-          {/* Write Together */}
           <article className="flex flex-col items-center gap-4 mb-8">
             <div className="rounded-full bg-tertiary-background p-4">
               <Feather />
@@ -80,7 +76,6 @@ const LandingPage: React.FC = () => {
               beautiful.
             </p>
           </article>
-          {/* Share & Discover */}
           <article className="flex flex-col items-center gap-4 mb-8">
             <div className="rounded-full bg-tertiary-background p-4">
               <BookOpen />
@@ -93,9 +88,7 @@ const LandingPage: React.FC = () => {
           </article>
         </section>
       </section>
-      {/* Bottom Hero Section */}
       <section className="flex justify-between text-left mb-10">
-        {/* Feature Description */}
         <article>
           <h2 className="text-3xl font-bold mt-9 mb-9 text-primary-text">
             A Cozy Space for Creative Minds
@@ -120,12 +113,9 @@ const LandingPage: React.FC = () => {
             </li>
           </ul>
         </article>
-        {/* Image */}
         <div className="relative w-96 h-56 mt-10">
-          {/* Styled Borders */}
           <div className="absolute -inset-4 rounded-lg bg-tertiary-background rotate-2"></div>
           <div className="relative w-full h-full overflow-hidden rounded-lg border-8 border-white bg-white shadow-lg flex items-center justify-center">
-            {/* Background image */}
             <div
               className="absolute inset-0 bg-contain bg-center bg-no-repeat"
               style={{ backgroundImage: `url(${groupWritingImg})` }}

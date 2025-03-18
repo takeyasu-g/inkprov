@@ -4,9 +4,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { BookOpen, PenTool } from "lucide-react";
+import { BookOpen, PenTool, Trophy } from "lucide-react";
 import ProfileStoriesCard from "../ProfileStoriesCard";
 import ProfileSkeleton from "../ProfileSkeleton";
+import RewardTrophiesPage from "../user/RewardTrophiesPage";
 import { ProjectsData } from "@/types/global";
 import {
   getUsername,
@@ -223,109 +224,156 @@ const Profile: React.FC = () => {
               </p>
             </section>
           </section>
-          {/* My Stories */}
-          <section className="w-full space-y-8 bg-card p-8 my-5 rounded-lg border border-primary-border">
-            <section className="flex flex-col">
-              <div className="flex items-center text-secondary-text">
-                <BookOpen />
-                <h3 className="text-xl font-bold text-primary-text text-left mb-1 ml-3">
+
+          {/* Profile Content - Main Tabs */}
+          <Tabs defaultValue="stories" className="w-full my-5">
+            <TabsList className="grid grid-cols-2 bg-tab-background mb-5">
+              <TabsTrigger
+                value="stories"
+                className="data-[state=active]:text-white data-[state=active]:bg-tab-active cursor-pointer"
+              >
+                <div className="flex items-center">
+                  <BookOpen className="mr-2" size={18} />
                   Your Stories
-                </h3>
-              </div>
-              <p className="ml-3 text-secondary-text text-left">
-                Stories you've contributed to
-              </p>
-            </section>
-            {/* Completed and In Progress Stories Tabs */}
-            <Tabs defaultValue="completed">
-              <TabsList className="grid grid-cols-2 bg-tab-background">
-                <TabsTrigger
-                  value="completed"
-                  className="data-[state=active]:text-white data-[state=active]:bg-tab-active cursor-pointer"
-                >
-                  Completed
-                </TabsTrigger>
-                <TabsTrigger
-                  value="in-progress"
-                  className="data-[state=active]:text-white data-[state=active]:bg-tab-active cursor-pointer"
-                >
-                  In progress
-                </TabsTrigger>
-              </TabsList>
-              {/* Completed Stories Tab Content*/}
-              <TabsContent value="completed">
-                <section className="flex gap-4 flex-wrap">
-                  {storiesCompleted == undefined ||
-                  storiesCompleted?.length == 0 ? (
-                    <div className="h-auto flex flex-col">
-                      <p className="text-secondary-text font-medium mb-2">
-                        No Completed Stories
-                      </p>
-                      <Button
-                        className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
-                        variant="default"
-                        onClick={() => navigate("/sessions/create")}
-                      >
-                        Start Creating
-                      </Button>
-                    </div>
-                  ) : (
-                    // Completed Stories Cards
-                    storiesCompleted?.map((story) => (
-                      <ProfileStoriesCard
-                        selectedTab="completed"
-                        genre={story.project_genre}
-                        creationDate={story.created_at}
-                        title={story.title}
-                        collaborators={story.current_contributors_count}
-                        wordCount={1051}
-                        lastUpdated={story.updated_at}
-                        publicStory={story.is_public}
-                        storyId={story.id}
-                        key={story.id}
-                      />
-                    ))
-                  )}
+                </div>
+              </TabsTrigger>
+              <TabsTrigger
+                value="gamification"
+                className="data-[state=active]:text-white data-[state=active]:bg-tab-active cursor-pointer"
+              >
+                <div className="flex items-center">
+                  <Trophy className="mr-2" size={18} />
+                  Achievements
+                </div>
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Your Stories Tab Content */}
+            <TabsContent value="stories">
+              <section className="w-full space-y-8 bg-card p-8 rounded-lg border border-primary-border">
+                <section className="flex flex-col">
+                  <div className="flex items-center text-secondary-text">
+                    <BookOpen />
+                    <h3 className="text-xl font-bold text-primary-text text-left mb-1 ml-3">
+                      Your Stories
+                    </h3>
+                  </div>
+                  <p className="ml-3 text-secondary-text text-left">
+                    Stories you've contributed to
+                  </p>
                 </section>
-              </TabsContent>
-              {/* In Progress Stories Tab Content*/}
-              <TabsContent value="in-progress">
-                <section className="flex gap-4 flex-wrap">
-                  {storiesInprogress == undefined ||
-                  storiesInprogress?.length == 0 ? (
-                    <div className="h-auto flex flex-col">
-                      <p className="text-secondary-text font-medium mb-2">
-                        No Stories in progress
-                      </p>
-                      <Button
-                        className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
-                        variant="default"
-                        onClick={() => navigate("/sessions/create")}
-                      >
-                        Start Creating
-                      </Button>
-                    </div>
-                  ) : (
-                    // In Progress Stories Cards
-                    storiesInprogress?.map((story) => (
-                      <ProfileStoriesCard
-                        selectedTab="in-progress"
-                        genre={story.project_genre}
-                        creationDate={story.created_at}
-                        title={story.title}
-                        collaborators={story.current_contributors_count}
-                        wordCount={1051}
-                        lastUpdated={story.updated_at}
-                        publicStory={story.is_public}
-                        storyId={story.id}
-                        key={story.id}
-                      />
-                    ))
-                  )}
+                {/* Completed and In Progress Stories Tabs */}
+                <Tabs defaultValue="completed">
+                  <TabsList className="grid grid-cols-2 bg-tab-background">
+                    <TabsTrigger
+                      value="completed"
+                      className="data-[state=active]:text-white data-[state=active]:bg-tab-active cursor-pointer"
+                    >
+                      Completed
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="in-progress"
+                      className="data-[state=active]:text-white data-[state=active]:bg-tab-active cursor-pointer"
+                    >
+                      In progress
+                    </TabsTrigger>
+                  </TabsList>
+                  {/* Completed Stories Tab Content*/}
+                  <TabsContent value="completed">
+                    <section className="flex gap-4 flex-wrap">
+                      {storiesCompleted == undefined ||
+                      storiesCompleted?.length == 0 ? (
+                        <div className="h-auto flex flex-col">
+                          <p className="text-secondary-text font-medium mb-2">
+                            No Completed Stories
+                          </p>
+                          <Button
+                            className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
+                            variant="default"
+                            onClick={() => navigate("/sessions/create")}
+                          >
+                            Start Creating
+                          </Button>
+                        </div>
+                      ) : (
+                        // Completed Stories Cards
+                        storiesCompleted?.map((story) => (
+                          <ProfileStoriesCard
+                            selectedTab="completed"
+                            genre={story.project_genre}
+                            creationDate={story.created_at}
+                            title={story.title}
+                            collaborators={story.current_contributors_count}
+                            wordCount={1051}
+                            lastUpdated={story.updated_at}
+                            publicStory={story.is_public}
+                            storyId={story.id}
+                            key={story.id}
+                          />
+                        ))
+                      )}
+                    </section>
+                  </TabsContent>
+                  {/* In Progress Stories Tab Content*/}
+                  <TabsContent value="in-progress">
+                    <section className="flex gap-4 flex-wrap">
+                      {storiesInprogress == undefined ||
+                      storiesInprogress?.length == 0 ? (
+                        <div className="h-auto flex flex-col">
+                          <p className="text-secondary-text font-medium mb-2">
+                            No Stories in progress
+                          </p>
+                          <Button
+                            className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
+                            variant="default"
+                            onClick={() => navigate("/sessions/create")}
+                          >
+                            Start Creating
+                          </Button>
+                        </div>
+                      ) : (
+                        // In Progress Stories Cards
+                        storiesInprogress?.map((story) => (
+                          <ProfileStoriesCard
+                            selectedTab="in-progress"
+                            genre={story.project_genre}
+                            creationDate={story.created_at}
+                            title={story.title}
+                            collaborators={story.current_contributors_count}
+                            wordCount={1051}
+                            lastUpdated={story.updated_at}
+                            publicStory={story.is_public}
+                            storyId={story.id}
+                            key={story.id}
+                          />
+                        ))
+                      )}
+                    </section>
+                  </TabsContent>
+                </Tabs>
+              </section>
+            </TabsContent>
+
+            {/* Gamification Tab Content */}
+            <TabsContent value="gamification">
+              <section className="w-full space-y-8 bg-card p-8 rounded-lg border border-primary-border">
+                <section className="flex flex-col">
+                  <div className="flex items-center text-secondary-text">
+                    <Trophy />
+                    <h3 className="text-xl font-bold text-primary-text text-left mb-1 ml-3">
+                      Gamification
+                    </h3>
+                  </div>
+                  <p className="ml-3 text-secondary-text text-left mb-4">
+                    Your achievements and progress
+                  </p>
                 </section>
-              </TabsContent>
-            </Tabs>
-          </section>
+
+                {/* Integrated RewardTrophiesPage component */}
+                <RewardTrophiesPage />
+              </section>
+            </TabsContent>
+          </Tabs>
         </div>
       )}
     </>

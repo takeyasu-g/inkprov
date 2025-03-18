@@ -249,13 +249,7 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
   );
 
   return (
-    <header
-      className={
-        page === "/login" || page === "/register"
-          ? "grid grid-cols-2 grid-rows-1 gap-0 relative mt-3"
-          : "flex justify-between relative pb-4 before:absolute before:bottom-0 before:left-1/2 before:-translate-x-1/2 before:w-screen before:h-px before:bg-primary-border mt-3"
-      }
-    >
+    <header className="fixed top-0 left-0 w-full h-12 flex justify-between items-center bg-[#fef3c7] shadow-md z-50">
       {page === "/login" || page === "/register" ? (
         <>
           <div className="row-span-5"></div>

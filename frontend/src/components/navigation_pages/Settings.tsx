@@ -31,10 +31,21 @@ import { UserCircle } from "lucide-react";
 const Settings: React.FC = () => {
   // Setting states
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [username, setUsername] = useState<string>("");
-  const [bio, setBio] = useState<string>("");
+
+  // const [username, setUsername] = useState<string>("");
+  // const [bio, setBio] = useState<string>("");
   const [bioCharCount, setBioCharCount] = useState<number>(0);
   const [matureContent, setMatureContent] = useState<boolean>(false);
+
+  // Form Validation
+  const form = useForm<z.infer<typeof settingsSchema>>({
+    resolver: zodResolver(settingsSchema),
+    defaultValues: {
+      username: "",
+      bio: "",
+      matureContent: false,
+    },
+  });
 
   useEffect(() => {
     // Fetch user data
@@ -50,18 +61,15 @@ const Settings: React.FC = () => {
       setBio(bioText);
       setBioCharCount(bioText ? bioText.length : 0);
       setMatureContent(res[2][0].user_profile_mature_enabled);
-    });
-  }, []);
 
-  // Form Validation
-  const form = useForm<z.infer<typeof settingsSchema>>({
-    resolver: zodResolver(settingsSchema),
-    defaultValues: {
-      username: username,
-      bio: bio,
-      matureContent: matureContent,
-    },
-  });
+      // set form values after data is fetched
+      form.reset({
+        username: username,
+        bio: bioText,
+        matureContent: res[2][0].user_profile_mature_enabled,
+      });
+    });
+  }, [form]);
 
   // Form Submission
   async function onSubmit(values: z.infer<typeof settingsSchema>) {
@@ -129,9 +137,7 @@ const Settings: React.FC = () => {
                       <FormControl>
                         <Input
                           className="mt-1 block w-full rounded-md border border-primary-border bg-white px-4 py-2 text-primary-text shadow-sm focus:outline-none focus-visible:ring-1 focus-visible:ring-input-focus focus-visible:border-input-focus sm:text-sm"
-                          placeholder={
-                            username.length > 0 ? username : "Username"
-                          }
+                          placeholder="Username"
                           type="text"
                           {...field}
                         />
@@ -156,11 +162,7 @@ const Settings: React.FC = () => {
                       <div className="flex flex-col">
                         <FormControl>
                           <Textarea
-                            placeholder={
-                              bio.length > 0
-                                ? bio
-                                : "Share a glimpse of your story with others."
-                            }
+                            placeholder="Share a glimpse of your story with others."
                             className="mt-1 block w-full rounded-md border border-primary-border bg-white px-4 py-2 text-primary-text shadow-sm focus:outline-none focus-visible:ring-1 focus-visible:ring-input-focus focus-visible:border-input-focus sm:text-sm"
                             onChange={(e) => handleBioChange(e, field.onChange)}
                             value={field.value}
