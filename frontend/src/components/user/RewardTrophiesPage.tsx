@@ -8,7 +8,6 @@ import {
   faCrown,
   faBookOpen,
   faFeather,
-  faComments,
   faAward,
   faGem,
   faFire,
