@@ -74,10 +74,11 @@ export default function RegisterPage() {
 
   const handleGoogleSignUp = async () => {
     try {
+      setIsLoading(true);
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/sessions`,
+          redirectTo: `${window.location.origin}/auth/callback`,
           queryParams: {
             access_type: "offline",
             prompt: "consent",
@@ -90,6 +91,8 @@ export default function RegisterPage() {
       }
     } catch (error: any) {
       toast.error(error.message || "An error occurred during Google sign up");
+    } finally {
+      setIsLoading(false);
     }
   };
 

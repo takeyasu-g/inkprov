@@ -77,19 +77,25 @@ export default function LoginPage() {
 
   const handleGoogleSignIn = async () => {
     try {
-      // Get the current domain (works in both development and production)
-      const currentOrigin = window.location.origin;
-
+      setIsLoading(true);
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${currentOrigin}/auth/callback`,
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
         },
       });
 
-      if (error) throw error;
-    } catch (error) {
-      console.error("Google sign-in error:", error);
+      if (error) {
+        throw error;
+      }
+    } catch (error: any) {
+      toast.error(error.message || "An error occurred during Google sign in");
+    } finally {
+      setIsLoading(false);
     }
   };
 
