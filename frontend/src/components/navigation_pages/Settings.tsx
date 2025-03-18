@@ -56,9 +56,7 @@ const Settings: React.FC = () => {
         username = username.substring(0, username.indexOf("@"));
       }
 
-      setUsername(username);
       const bioText = res[1][0].user_profile_bio;
-      setBio(bioText);
       setBioCharCount(bioText ? bioText.length : 0);
       setMatureContent(res[2][0].user_profile_mature_enabled);
 
