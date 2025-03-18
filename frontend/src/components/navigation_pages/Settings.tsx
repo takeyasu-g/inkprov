@@ -33,6 +33,7 @@ const Settings: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [username, setUsername] = useState<string>("");
   const [bio, setBio] = useState<string>("");
+  const [bioCharCount, setBioCharCount] = useState<number>(0);
   const [matureContent, setMatureContent] = useState<boolean>(false);
 
   useEffect(() => {
@@ -45,7 +46,9 @@ const Settings: React.FC = () => {
       }
 
       setUsername(username);
-      setBio(res[1][0].user_profile_bio);
+      const bioText = res[1][0].user_profile_bio;
+      setBio(bioText);
+      setBioCharCount(bioText ? bioText.length : 0);
       setMatureContent(res[2][0].user_profile_mature_enabled);
     });
   }, []);
@@ -80,6 +83,19 @@ const Settings: React.FC = () => {
       setIsLoading(false);
     }
   }
+
+  // Handle bio text change
+  const handleBioChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>,
+    onChange: (value: string) => void
+  ) => {
+    const value = e.target.value;
+    // Limit to 180 characters
+    if (value.length <= 180) {
+      onChange(value);
+      setBioCharCount(value.length);
+    }
+  };
 
   return (
     <Form {...form}>
@@ -137,17 +153,24 @@ const Settings: React.FC = () => {
                       <FormLabel className="text-sm font-medium text-primary-text text-left">
                         Bio
                       </FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder={
-                            bio.length > 0
-                              ? bio
-                              : "Share a glimpse of your story with others."
-                          }
-                          className="mt-1 block w-full rounded-md border border-primary-border bg-white px-4 py-2 text-primary-text shadow-sm focus:outline-none focus-visible:ring-1 focus-visible:ring-input-focus focus-visible:border-input-focus sm:text-sm"
-                          {...field}
-                        />
-                      </FormControl>
+                      <div className="flex flex-col">
+                        <FormControl>
+                          <Textarea
+                            placeholder={
+                              bio.length > 0
+                                ? bio
+                                : "Share a glimpse of your story with others."
+                            }
+                            className="mt-1 block w-full rounded-md border border-primary-border bg-white px-4 py-2 text-primary-text shadow-sm focus:outline-none focus-visible:ring-1 focus-visible:ring-input-focus focus-visible:border-input-focus sm:text-sm"
+                            onChange={(e) => handleBioChange(e, field.onChange)}
+                            value={field.value}
+                            maxLength={180}
+                          />
+                        </FormControl>
+                        <div className="text-xs text-tertiary-text text-right mt-1">
+                          {bioCharCount}/180 characters
+                        </div>
+                      </div>
                       {/* Form Error Message */}
                       <FormMessage />
                     </FormItem>
