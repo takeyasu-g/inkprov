@@ -31,11 +31,6 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       window.location.pathname === "/register" ? null : (
         <Footer />
       )}
-
-      {window.location.pathname === "/login" ||
-      window.location.pathname === "/register" ? null : (
-        <Footer />
-      )}
     </div>
   );
 };
