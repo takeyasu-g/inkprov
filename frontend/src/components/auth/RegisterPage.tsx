@@ -97,12 +97,10 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-background grid grid-cols-2 grid-rows-1 gap-0">
+    <>
       {/* Left Column */}
-      <div
-        className="row-span-5 bg-accent relative pb-4 -mt-[4rem] 
-  before:absolute before:inset-0 before:left-[-100vw] before:w-[100vw] before:-z-10 before:bg-accent"
-      >
+      {/* row-span-5 bg-accent relative pb-4 -mt-[4rem] before:absolute before:inset-0 before:left-[-100vw] before:w-[100vw] before:-z-10 before:bg-accent */}
+      <div className="h-dvh bg-accent w-full lg:flex justify-center order-2 lg:order-1 hidden">
         <div className="relative w-100 h-87 mt-10 top-35">
           {/* Styled Borders */}
           <div className="absolute -inset-4 rounded-lg bg-tertiary-background rotate-2"></div>
@@ -133,7 +131,7 @@ export default function RegisterPage() {
       </div>
 
       {/* Right Column */}
-      <div className="row-span-5 mt-3">
+      <div className="w-full flex justify-center pt-6 order-1 lg:order-2">
         <div className="w-full float-right max-w-md space-y-8 bg-background p-8 rounded-lg">
           <div>
             <h2 className="text-3xl font-bold text-primary-text text-center">
@@ -309,6 +307,6 @@ export default function RegisterPage() {
           </p>
         </div>
       </div>
-    </div>
+    </>
   );
 }

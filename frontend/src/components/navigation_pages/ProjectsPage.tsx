@@ -41,7 +41,7 @@ const ProjectsPage: React.FC = () => {
   });
 
   return (
-    <main className="container mx-auto px-4 py-8">
+    <main className="container mx-auto px-4 py-8 h-screen">
       <header className="flex justify-between">
         <div className="mb-8 text-left">
           <h1 className="text-3xl font-bold text-primary-text">

@@ -22,9 +22,23 @@ import AuthCallback from "../auth/AuthCallback";
 // Wrapper component for the layout and protected routes
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
+  let bgColor;
+  if (
+    window.location.pathname.startsWith("/project") ||
+    window.location.pathname.startsWith("/writing")
+  ) {
+    bgColor = "bg-white";
+  }
 
   return (
-    <div className="relative w-full">
+    <div
+      className={
+        window.location.pathname === "/login" ||
+        window.location.pathname === "/register"
+          ? "mt-[68px] overflow-hidden grid grid-cols-1 lg:grid-cols-2 "
+          : `mt-[68px] min-h-screen w-full overflow-x-hidden ${bgColor} sm:bg-background`
+      }
+    >
       <Header loggedIn={isAuthenticated} page={window.location.pathname} />
       {children}
       {window.location.pathname === "/login" ||

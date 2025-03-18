@@ -611,7 +611,7 @@ const WritingEditor: React.FC = () => {
   };
 
   return (
-    <div className="md:flex md:flex-col md:gap-5 py-6 md:px-4 md:pb-16 md:mx-auto md:max-w-[800px] bg-white md:bg-background">
+    <div className="min-h-screen  md:flex md:flex-col md:gap-5 py-6 md:px-4 md:mx-auto md:max-w-[800px] bg-white md:bg-background">
       <div className="bg-white md:bg-background px-5">
         <Button
           variant="outline"
@@ -621,7 +621,7 @@ const WritingEditor: React.FC = () => {
           Back to Sessions
         </Button>
       </div>
-      <Card className="border-none shadow-none sm:shadow-lg">
+      <Card className="border-none shadow-none md:shadow-lg">
         <CardHeader>
           <CardTitle className="flex justify-between items-center">
             <span className="text-lg">{project?.title || "Loading..."}</span>

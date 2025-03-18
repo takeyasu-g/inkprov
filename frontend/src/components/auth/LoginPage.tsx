@@ -100,13 +100,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-52px)] bg-background grid grid-cols-2 grid-rows-1 gap-0">
+    <>
       {/* Left Column */}
-      <div
-        className="row-span-5 bg-accent relative pb-4 -mt-[4rem] 
-  before:absolute before:inset-0 before:left-[-100vw] before:w-[100vw] before:-z-10 before:bg-accent"
-      >
-        <div className="relative w-100 h-87 mt-10 top-35">
+      {/* "h-dvh row-span-5 bg-accent relative -mt-[4rem] before:absolute before:inset-0 before:left-[-100vw] before:w-[100vw] before:-z-10 before:bg-accent" */}
+      <div className="h-dvh bg-accent w-full lg:flex justify-center order-2 lg:order-1 hidden">
+        <div className="relative w-100 h-87 mt-10 top-35 ">
           {/* Styled Borders */}
           <div className="absolute -inset-4 rounded-lg bg-tertiary-background rotate-2"></div>
           <div className="relative w-full h-full rounded-lg border-8 border-white bg-white shadow-lg flex items-center justify-center text-tertiary-text">
@@ -136,7 +134,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right Column */}
-      <div className="row-span-5 mt-3">
+      <div className="w-full flex justify-center pt-6 order-1 lg:order-2">
         <div className="w-full float-right max-w-md space-y-8 bg-background p-8 rounded-lg">
           <div>
             <h2 className="text-3xl font-bold text-primary-text text-center">
@@ -332,6 +330,6 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
-    </div>
+    </>
   );
 }

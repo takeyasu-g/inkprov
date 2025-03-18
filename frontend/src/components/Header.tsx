@@ -100,7 +100,13 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
 
   const headerLayout = (
     <>
-      <div className="justify-self-start ">
+      <div
+        className={
+          page === "/login" || page === "/register"
+            ? " lg:col-start-2 border-b border-primary-border p-4 bg-background"
+            : "justify-self-start"
+        }
+      >
         <div className="flex items-center text-primary-text">
           <Feather
             className="cursor-pointer"
@@ -270,7 +276,7 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
           </nav>
         </>
       ) : (
-        <div className="flex gap-4">
+        <div className="col-start-3 justify-self-end flex gap-4">
           {/* Auth Buttons */}
           <Button
             className="text-primary-text text-md hover:no-underline hover:text-hover-text cursor-pointer"
@@ -293,23 +299,15 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
   );
 
   return (
-    <div className="shadow-md sticky top-0 w-full z-50 ">
+    <div className="fixed w-full top-0 z-50">
       <header
         className={
           page === "/login" || page === "/register"
-            ? "grid grid-cols-2 grid-rows-1 gap-0 relative mt-3"
-            : "container mx-auto grid grid-cols-2 grid-rows-1 px-4 py-3 bg-background md:grid-cols-3"
+            ? "grid grid-cols-1 lg:grid-cols-2 bg-accent"
+            : "py-4 px-6 border-b border-primary-border grid grid-cols-2 bg-background md:grid-cols-3"
         }
       >
-        {/* {page === "/login" || page === "/register" ? (
-        <>
-          <div className="row-span-5 relative pb-4 before:absolute before:bottom-0 before:left-0 before:w-full before:h-px before:bg-primary-border"> */}
         {headerLayout}
-        {/* </div>
-        </>
-      ) : (
-        <>{headerLayout}</>
-      )} */}
       </header>
     </div>
   );
