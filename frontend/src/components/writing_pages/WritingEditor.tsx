@@ -4,6 +4,8 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+const API_BASE_URL = import.meta.env.BACKEND_URL || "http://localhost:8080";
 
 // Sonner component for toast notifications
 import { toast } from "sonner";
@@ -12,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { Crown, Loader2 } from "lucide-react";
+import { Crown, Loader2, Lightbulb } from "lucide-react";
 import {
   supabase,
   getCurrentUser,
@@ -85,8 +87,11 @@ const WritingEditor: React.FC = () => {
   const [isProjectCreator, setIsProjectCreator] = useState(false);
   const [projectLocked, setProjectLocked] = useState(false);
   const [lockedBy, setLockedBy] = useState<string | null>(null);
-
-  console.log(isContributor);
+  const [showWritersBlockIdeas, setShowWritersBlockIdeas] =
+    useState<boolean>(false);
+  const [writingIdeas, setWritingIdeas] = useState<string>("");
+  // State to track if writing ideas have been viewed (Avoids Spamming API Calls
+  const [writingIdeasViewed, setWritingIdeasViewed] = useState<boolean>(false);
 
   // Function to fetch contributors - simplified version
   const fetchContributors = async () => {
@@ -285,6 +290,18 @@ const WritingEditor: React.FC = () => {
       toast.error(
         `Failed to start contribution: ${error.message || "Unknown error"}`
       );
+    }
+  };
+
+  // Get ideas from AI API
+  const getWritingIdeas = async () => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/ideas`, {
+        prompt: previousSnippets[previousSnippets.length - 1].content,
+      });
+      setWritingIdeas(response.data);
+    } catch (error) {
+      console.error("Error fetching writing ideas:", error);
     }
   };
 
@@ -742,7 +759,7 @@ const WritingEditor: React.FC = () => {
           </div>
 
           {/* Writing Area */}
-          {isCurrentlyWriting ? (
+          {!isCurrentlyWriting ? (
             <>
               <div className="mb-4">
                 <Textarea
@@ -752,6 +769,38 @@ const WritingEditor: React.FC = () => {
                   className="min-h-[200px] mb-2"
                   disabled={isSubmitting}
                 />
+                <div className="flex flex-col">
+                  <div
+                    onClick={() => {
+                      setShowWritersBlockIdeas(!showWritersBlockIdeas);
+                      if (!showWritersBlockIdeas) {
+                        if (!writingIdeasViewed) {
+                          getWritingIdeas();
+                        }
+                        setWritingIdeasViewed(true);
+                      }
+                    }}
+                    className="flex justify-end text-secondary-text cursor-pointer my-3"
+                  >
+                    <Lightbulb />
+                    <p className="text-sm font-medium mt-1">Writer's Block?</p>
+                  </div>
+                  {showWritersBlockIdeas ? (
+                    <div className="mb-3 rounded-lg">
+                      <h3 className="text-lg font-semibold text-left mb-3 text-primary-text">
+                        Writing Ideas
+                      </h3>
+                      <div className="flex justify-start">
+                        <Lightbulb className="text-primary-button-hover" />
+                        <p className="text-left text-secondary-text">
+                          {writingIdeas.length > 0
+                            ? writingIdeas
+                            : "No writing ideas available"}
+                        </p>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
                 <div className="flex justify-between items-center">
                   <span
                     className={
