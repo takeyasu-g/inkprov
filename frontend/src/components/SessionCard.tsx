@@ -1,5 +1,5 @@
 import React from "react";
-import { NotebookPen, Users } from "lucide-react";
+import { NotebookPen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   Button,
@@ -63,7 +63,6 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
   const contributors = sessionData.project_contributors || [];
   const maxSnippets = sessionData.max_snippets;
   const currentUser = sessionData.creator;
-  const [showTooltip, setShowTooltip] = React.useState(false);
 
   const formattedDate = sessionData.created_at
     ? `Created ${formatDistanceToNow(new Date(sessionData.created_at))} ago`

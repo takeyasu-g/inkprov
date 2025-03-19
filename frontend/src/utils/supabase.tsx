@@ -266,15 +266,15 @@ export const getTags = async () => {
 
 const getProfilePictureOptions = async () => {
   // Get the public URLs of the images
-  const bookShelfImageData = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("BookShelf.png");
-  const bookStackImageData = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("BookStack.png");
-  const lanturnBookImageData = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("LanturnBook.png");
+  // const bookShelfImageData = supabase.storage
+  //   .from("user-profile-pictures")
+  //   .getPublicUrl("BookShelf.png");
+  // const bookStackImageData = supabase.storage
+  //   .from("user-profile-pictures")
+  //   .getPublicUrl("BookStack.png");
+  // const lanturnBookImageData = supabase.storage
+  //   .from("user-profile-pictures")
+  //   .getPublicUrl("LanturnBook.png");
   const user_avatar_01 = supabase.storage
     .from("user-profile-pictures")
     .getPublicUrl("user_avatar_01.png");

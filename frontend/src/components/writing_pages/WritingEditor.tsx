@@ -93,6 +93,8 @@ const WritingEditor: React.FC = () => {
   // State to track if writing ideas have been viewed (Avoids Spamming API Calls
   const [writingIdeasViewed, setWritingIdeasViewed] = useState<boolean>(false);
 
+  console.log(isContributor);
+
   // Function to fetch contributors - simplified version
   const fetchContributors = async () => {
     if (!projectId) return;
@@ -314,12 +316,18 @@ const WritingEditor: React.FC = () => {
       }
       setIsSubmitting(true);
 
-      const moderationResponse = await axios.post(`${API_BASE_URL}/moderation`, {
-        content: content});
+      const moderationResponse = await axios.post(
+        `${API_BASE_URL}/moderation`,
+        {
+          content: content,
+        }
+      );
 
       // If content is flagged, display reason
       if (moderationResponse.data.flagged) {
-        toast.error(`Content flagged for ${moderationResponse.data.reason}. Please try again.`);
+        toast.error(
+          `Content flagged for ${moderationResponse.data.reason}. Please try again.`
+        );
         setIsSubmitting(false);
         return;
       }
