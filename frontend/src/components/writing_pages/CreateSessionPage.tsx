@@ -263,17 +263,17 @@ const CreateSession: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto py-8 max-w-2xl pb-16">
-      <div className="mb-4 flex justify-start">
+    <div className="h-full md:flex md:flex-col md:gap-5 py-6 md:px-4 md:mx-auto md:max-w-[800px] bg-white md:bg-background">
+      <div className="px-5 bg-white md:bg-background">
         <Button
           variant="outline"
           onClick={() => navigate("/sessions")}
-          className="text-sm"
+          className="text-sm bg-white md:bg-background"
         >
           Back to Sessions
         </Button>
       </div>
-      <Card>
+      <Card className="border-none shadow-none md:shadow-lg">
         <CardHeader>
           <CardTitle>Create New Writing Session</CardTitle>
           <CardDescription>

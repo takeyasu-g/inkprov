@@ -28,8 +28,12 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       className={
         window.location.pathname === "/login" ||
         window.location.pathname === "/register"
-          ? "h-screen overflow-hidden"
-          : `min-h-screen overflow-x-hidden `
+          ? "h-screen overflow-hidden "
+          : window.location.pathname.startsWith("/writing") ||
+            window.location.pathname.startsWith("/projects") ||
+            window.location.pathname.startsWith("/sessions/create")
+          ? "bg-white md:bg-background min-h-screen overflow-x-hidden"
+          : `min-h-screen overflow-x-hidden`
       }
     >
       <Header loggedIn={isAuthenticated} page={window.location.pathname} />
