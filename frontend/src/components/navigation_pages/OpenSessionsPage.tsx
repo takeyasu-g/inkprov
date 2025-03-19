@@ -156,13 +156,11 @@ const OpenSessionsPage: React.FC = () => {
       </header>
 
       <nav className="my-6">
-        <GenreFilter onSelect={handleGenreFilter}></GenreFilter>
+        <GenreFilter onSelect={handleGenreFilter} />
       </nav>
 
       {error && <div className="text-red-500 mb-4">Error: {error}</div>}
 
-      {/* TODO: Add pagination */}
-      {/* Sort by newest added */}
       <div className="content pb-16">
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {isLoading ? (

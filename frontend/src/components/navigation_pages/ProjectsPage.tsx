@@ -58,7 +58,7 @@ const ProjectsPage: React.FC = () => {
       </header>
 
       <nav className="my-6">
-        <GenreFilter onSelect={handleGenreFilter}></GenreFilter>
+        <GenreFilter onSelect={handleGenreFilter} />
       </nav>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
