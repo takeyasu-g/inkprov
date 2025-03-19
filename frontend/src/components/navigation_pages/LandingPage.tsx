@@ -18,14 +18,14 @@ const LandingPage: React.FC = () => {
   };
 
   return (
-    <main className="overflow-x-hidden">
+    <main className="flex flex-col pb-10">
       {/* Hero Section */}
-      <section className="flex flex-col justify-center items-center w-full">
-        <header>
-          <h1 className="text-6xl font-bold mt-8 w-2xl text-primary-text">
+      <section className="flex flex-col">
+        <header className="text-center">
+          <h1 className="text-6xl font-bold mt-8 text-primary-text">
             Write Together
           </h1>
-          <h1 className="text-6xl font-bold mb-8 w-2xl text-primary-text">
+          <h1 className="text-6xl font-bold mb-8 text-primary-text">
             Create Together
           </h1>
           <p className="text-lg mb-8 text-secondary-text">
@@ -33,7 +33,7 @@ const LandingPage: React.FC = () => {
             more in real-time.
           </p>
         </header>
-        <section className="flex gap-4 mb-8">
+        <section className="flex gap-4 mb-8 justify-center">
           <Button
             className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
             variant="default"
@@ -57,12 +57,13 @@ const LandingPage: React.FC = () => {
       >
         <h2 className="text-3xl font-bold mt-9 mb-9">How Inkprov Works</h2>
         <section className="flex gap-4 mb-8">
-          <article className="flex flex-col items-center gap-4 mb-8 w-md">
+          {/* Join a Session */}
+          <article className="flex flex-col items-center gap-4 mb-8 ">
             <div className="rounded-full bg-tertiary-background p-4">
               <Users />
             </div>
             <p className="text-lg font-bold">Join a Session</p>
-            <p className="text-md">
+            <p className="text-md text-center w-70">
               Find an open writing session that matches your interests or create
               your own.
             </p>
@@ -72,7 +73,7 @@ const LandingPage: React.FC = () => {
               <Feather />
             </div>
             <p className="text-lg font-bold">Write Together</p>
-            <p className="text-md">
+            <p className="text-md text-center w-70">
               Collaborate in real-time with other writers to create something
               beautiful.
             </p>
@@ -82,14 +83,16 @@ const LandingPage: React.FC = () => {
               <BookOpen />
             </div>
             <p className="text-lg font-bold">Share & Discover</p>
-            <p className="text-md">
+            <p className="text-md text-center w-70">
               Publish your collaborative works and explore creations from other
               writers.
             </p>
           </article>
         </section>
       </section>
-      <section className="flex justify-between text-left mb-10">
+      {/* Bottom Hero Section */}
+      <section className="flex justify-between text-left mb-10 pl-25">
+        {/* Feature Description */}
         <article>
           <h2 className="text-3xl font-bold mt-9 mb-9 text-primary-text">
             A Cozy Space for Creative Minds
@@ -114,7 +117,9 @@ const LandingPage: React.FC = () => {
             </li>
           </ul>
         </article>
-        <div className="relative w-96 h-56 mt-10">
+        {/* Image */}
+        <div className="relative w-96 h-56 mt-20 mr-25">
+          {/* Styled Borders */}
           <div className="absolute -inset-4 rounded-lg bg-tertiary-background rotate-2"></div>
           <div className="relative w-full h-full overflow-hidden rounded-lg border-8 border-white bg-white shadow-lg flex items-center justify-center">
             <div
