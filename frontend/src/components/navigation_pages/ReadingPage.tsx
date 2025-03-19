@@ -19,6 +19,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
+  Button,
 } from "@/components/ui";
 import ContributorPopup from "@/components/ContributorPopup";
 import { toast } from "sonner";
@@ -61,6 +62,7 @@ const ReadingPage: React.FC = () => {
   // this gets the passed state from the projectCard => projectData
   const location = useLocation();
   const project = location.state?.project;
+  const navigate = useNavigate();
 
   // useStates
   const [projectSnippets, setProjectSnippets] = useState<
@@ -170,8 +172,17 @@ const ReadingPage: React.FC = () => {
   }, [projectId]);
 
   return (
-    <div className="max-w-4xl mt-10">
-      <Card className="p-8">
+    <main className="h-full md:flex md:flex-col md:gap-5 py-6 md:px-4 md:mx-auto md:max-w-[800px] bg-white md:bg-background">
+      <div className="bg-white md:bg-background px-5">
+        <Button
+          variant="outline"
+          onClick={() => navigate("/stories")}
+          className="text-sm bg-white md:bg-background"
+        >
+          Back to Stories
+        </Button>
+      </div>
+      <Card className="border-none shadow-none md:shadow-lg">
         <CardHeader className="mb-2">
           <CardTitle className="text-3xl font-bold text-primary-text mb-2">
             {project?.title}
@@ -274,7 +285,7 @@ const ReadingPage: React.FC = () => {
           )}
         </CardContent>
       </Card>
-    </div>
+    </main>
   );
 };
 

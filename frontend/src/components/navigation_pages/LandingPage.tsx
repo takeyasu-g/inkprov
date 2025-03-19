@@ -18,7 +18,8 @@ const LandingPage: React.FC = () => {
   };
 
   return (
-    <>
+    <main className="overflow-x-hidden">
+      {/* Hero Section */}
       <section className="flex flex-col justify-center items-center w-full">
         <header>
           <h1 className="text-6xl font-bold mt-8 w-2xl text-primary-text">
@@ -123,7 +124,7 @@ const LandingPage: React.FC = () => {
           </div>
         </div>
       </section>
-    </>
+    </main>
   );
 };
 

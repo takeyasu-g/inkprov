@@ -103,7 +103,7 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
       <div
         className={
           page === "/login" || page === "/register"
-            ? " lg:col-start-2 border-b border-primary-border p-4 bg-background"
+            ? "lg:col-start-2 border-b border-primary-border p-4 bg-background"
             : "justify-self-start"
         }
       >
@@ -299,17 +299,15 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
   );
 
   return (
-    <div className="fixed w-full top-0 z-50">
-      <header
-        className={
-          page === "/login" || page === "/register"
-            ? "grid grid-cols-1 lg:grid-cols-2 bg-accent"
-            : "py-4 px-6 border-b border-primary-border grid grid-cols-2 bg-background md:grid-cols-3"
-        }
-      >
-        {headerLayout}
-      </header>
-    </div>
+    <header
+      className={
+        page === "/login" || page === "/register"
+          ? "grid grid-cols-1 lg:grid-cols-2 bg-accent"
+          : "sticky w-full top-0 z-50 py-4 px-6 border-b border-primary-border grid grid-cols-2 bg-background md:grid-cols-3"
+      }
+    >
+      {headerLayout}
+    </header>
   );
 };
 
