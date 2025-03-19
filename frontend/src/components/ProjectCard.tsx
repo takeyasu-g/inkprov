@@ -8,6 +8,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
+  Badge,
 } from "@/components/ui";
 import CardHeaderWithMature from "@/components/ui/CardHeaderWithMature";
 import { CompletedStoriesData } from "@/types/global";

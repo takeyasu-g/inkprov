@@ -8,7 +8,7 @@ import {
   Settings,
   LogOut,
   PanelRightOpen,
-  GitBranchPlus,
+  // GitBranchPlus,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -32,7 +32,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 // Check if we're in development mode
 // eslint-disable-next-line no-undef
-const isDevelopment = process.env.NODE_ENV === "development";
+// const isDevelopment = process.env.NODE_ENV === "development";
 
 interface HeaderProps {
   loggedIn: boolean;

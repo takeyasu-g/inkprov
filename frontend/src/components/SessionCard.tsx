@@ -1,5 +1,5 @@
 import React from "react";
-import { NotebookPen } from "lucide-react";
+import { NotebookPen, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   Button,
@@ -8,6 +8,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
+  Badge,
 } from "@/components/ui";
 import CardHeaderWithMature from "@/components/ui/CardHeaderWithMature";
 import { ProjectsData } from "@/types/global";
