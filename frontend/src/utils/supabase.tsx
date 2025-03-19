@@ -326,11 +326,30 @@ const getProfilePictureOptions = async () => {
   const user_avatar_17 = supabase.storage
     .from("user-profile-pictures")
     .getPublicUrl("user_avatar_17.png");
+  const user_avatar_2_1 = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("user_avatar_2_1.jpg");
+  const user_avatar_2_2 = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("user_avatar_2_2.jpg");
+  const user_avatar_2_3 = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("user_avatar_2_3.jpg");
+  const user_avatar_2_4 = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("user_avatar_2_4.jpg");
+  const user_avatar_2_5 = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("user_avatar_2_5.jpg");
+  const user_avatar_2_6 = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("user_avatar_2_6.jpg");
 
   return [
-    bookShelfImageData.data.publicUrl,
-    bookStackImageData.data.publicUrl,
-    lanturnBookImageData.data.publicUrl,
+    // temporarily removed bookshelf, bookstack, and lanturnbook for icon uniformity
+    // bookShelfImageData.data.publicUrl,
+    // bookStackImageData.data.publicUrl,
+    // lanturnBookImageData.data.publicUrl,
     user_avatar_01.data.publicUrl,
     user_avatar_02.data.publicUrl,
     user_avatar_03.data.publicUrl,
@@ -348,6 +367,12 @@ const getProfilePictureOptions = async () => {
     user_avatar_15.data.publicUrl,
     user_avatar_16.data.publicUrl,
     user_avatar_17.data.publicUrl,
+    user_avatar_2_1.data.publicUrl,
+    user_avatar_2_2.data.publicUrl,
+    user_avatar_2_3.data.publicUrl,
+    user_avatar_2_4.data.publicUrl,
+    user_avatar_2_5.data.publicUrl,
+    user_avatar_2_6.data.publicUrl,
   ];
 };
 
