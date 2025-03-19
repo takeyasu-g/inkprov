@@ -119,8 +119,8 @@ const OpenSessionsPage: React.FC = () => {
 
   return (
     <main className="container mx-auto px-4 py-8">
-      <header className="flex justify-between">
-        <div className="mb-8 text-left">
+      <header className="flex flex-col md:flex-row md:justify-between">
+        <div className=" mb-8 text-center md:text-left">
           <h1 className="text-3xl font-bold text-primary-text">
             Open Writing Sessions
           </h1>

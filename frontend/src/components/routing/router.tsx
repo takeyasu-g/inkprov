@@ -38,10 +38,6 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     >
       <Header loggedIn={isAuthenticated} page={window.location.pathname} />
       {children}
-      {/* {window.location.pathname === "/login" ||
-      window.location.pathname === "/register" ? null : (
-        <Footer />
-      )} */}
     </div>
   );
 };

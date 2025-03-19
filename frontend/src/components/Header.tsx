@@ -247,28 +247,63 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
               </SheetTrigger>
 
               {/* Side Menu Content */}
-              <SheetContent side="left" className="w-64">
+              <SheetContent side="right" className="w-35 ">
                 <div className="p-4 flex flex-col space-y-4">
-                  <a href="/" className="text-lg font-medium hover:underline">
-                    Home
+                  <div className="pb-3 border-b border-primary-border">
+                    <Avatar className="w-10 h-10 ">
+                      <AvatarImage
+                        src={
+                          currentProfilePicture ||
+                          user?.user_metadata?.avatar_url
+                        }
+                      />
+                      <AvatarFallback className="bg-white">
+                        {getInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                  <a
+                    href="/profile"
+                    className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover "
+                  >
+                    <User />
+                    <p>Profile</p>
                   </a>
                   <a
-                    href="/about"
-                    className="text-lg font-medium hover:underline"
+                    href="/sessions"
+                    className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover "
                   >
-                    About
+                    <House />
+                    <p>Sessions</p>
                   </a>
                   <a
-                    href="/projects"
-                    className="text-lg font-medium hover:underline"
+                    href="/stories"
+                    className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover "
                   >
-                    Projects
+                    <BookOpen />
+                    <p>Stories</p>
                   </a>
                   <a
-                    href="/contact"
-                    className="text-lg font-medium hover:underline"
+                    href="/sessions/create"
+                    className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover "
                   >
-                    Contact
+                    <PenTool />
+                    <p>Create</p>
+                  </a>
+
+                  <a
+                    href="/settings"
+                    className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover"
+                  >
+                    <Settings />
+                    <p>Settings</p>
+                  </a>
+                  <a
+                    onClick={handleLogout}
+                    className=" w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover"
+                  >
+                    <LogOut />
+                    <p>Logout</p>
                   </a>
                 </div>
               </SheetContent>
