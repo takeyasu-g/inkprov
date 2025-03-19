@@ -1,3 +1,6 @@
+-- Attempt to replicate "seeds and migrations" on Supabase to populate the database with reactions
+-- currently not working as expected
+
 -- Create the reactions table if it doesn't exist
 CREATE TABLE IF NOT EXISTS public.reactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

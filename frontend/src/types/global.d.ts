@@ -36,6 +36,7 @@ export interface ProjectsData {
   project_contributors?: ProjectContributor[];
   updated_at: Date;
   is_public: boolean;
+  is_mature_content: boolean;
 }
 
 // interface for just ProjectStoriesCompletedCards
@@ -51,7 +52,9 @@ export interface CompletedStoriesData {
   updated_at: string; // used for the completed Date, as this will be the last Date when lasted touched
   created_at: string;
   current_contributors_count: number; // provides the number of total project contributors (cumulative)
+  is_mature_content: boolean;
 }
+
 export interface ProjectSnippet {
   id: string;
   project_id: string;

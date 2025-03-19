@@ -8,8 +8,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-  Badge,
 } from "@/components/ui";
+import CardHeaderWithMature from "@/components/ui/CardHeaderWithMature";
 import { CompletedStoriesData } from "@/types/global";
 import { supabase } from "@/utils/supabase";
 import { useAuth } from "@/contexts/AuthContext";
@@ -54,42 +54,41 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
     checkContributorStatus();
   }, [projectData, user]);
 
+  const contributorsIcon = (
+    <>
+      <Users
+        className={`p-0.5 ${
+          isContributor || isCreator ? "text-green-600" : "text-secondary-text"
+        }`}
+      />
+      <span className="text-secondary-text text-sm">
+        {projectData.current_contributors_count}
+      </span>
+    </>
+  );
+
   return (
     <Card className="w-[350px] h-[290px] bg-background-card">
-      {/* header of card => Genre, Title, Contributors */}
       <CardHeader>
-        <div className="flex justify-between items-center">
-          {/* TO DO change badge color based on genre, e.g. Horror = black background white text */}
-          <Badge className={`genre-${projectData.project_genre.toLowerCase()}`}>
-            {projectData.project_genre}
-          </Badge>
-
-          <div className="flex items-center gap-1">
-            <Users
-              className={`p-0.5 ${
-                isContributor || isCreator
-                  ? "text-green-600"
-                  : "text-secondary-text"
-              }`}
-            />
-            <span className="text-secondary-text text-sm">
-              {projectData.current_contributors_count}
-            </span>
+        <CardHeaderWithMature
+          genre={projectData.project_genre}
+          isMatureContent={projectData.is_mature_content}
+          rightContent={contributorsIcon}
+        >
+          <div className="flex flex-col gap-1">
+            <CardTitle className="text-amber-900 text-left font-bold">
+              {projectData.title}
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-secondary-text">started by:</span>
+              <span className="text-sm font-medium">
+                {isCreator
+                  ? "you"
+                  : projectData.users_ext.user_profile_name || "Anonymous"}
+              </span>
+            </div>
           </div>
-        </div>
-        <div className="flex flex-col gap-1">
-          <CardTitle className="text-amber-900 text-left font-bold">
-            {projectData.title}
-          </CardTitle>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-secondary-text">started by:</span>
-            <span className="text-sm font-medium">
-              {isCreator
-                ? "you"
-                : projectData.users_ext.user_profile_name || "Anonymous"}
-            </span>
-          </div>
-        </div>
+        </CardHeaderWithMature>
       </CardHeader>
       <div className="bg-white">
         <CardDescription className="m-4 text-secondary-text">
@@ -104,7 +103,7 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
           className="bg-primary-button hover:bg-primary-button-hover"
           onClick={() =>
             navigate(`/projects/${projectData.id}/read`, {
-              state: { project: projectData }, // passing in projectData so we don't have to fetch it again in ReadingPage
+              state: { project: projectData },
             })
           }
         >
