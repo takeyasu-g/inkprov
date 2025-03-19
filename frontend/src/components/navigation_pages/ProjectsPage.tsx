@@ -64,7 +64,7 @@ const ProjectsPage: React.FC = () => {
         </div>
       </nav>
 
-      <div className="grid grid-cols-1 place-items-center sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 place-items-center sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-10">
         {filteredProjects.length > 0 ? (
           filteredProjects.map((project) => (
             <div className="flex space-x-4">
