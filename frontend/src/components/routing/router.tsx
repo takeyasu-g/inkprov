@@ -166,9 +166,12 @@ const router = createBrowserRouter([
   {
     path: "/privacy",
     element: (
-      <Layout>
-        <PrivacyPage />
-      </Layout>
+      <>
+        <Layout>
+          <PrivacyPage />
+        </Layout>
+        <Footer />
+      </>
     ),
   },
   {
