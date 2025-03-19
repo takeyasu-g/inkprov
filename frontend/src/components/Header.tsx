@@ -182,7 +182,7 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
                 </Avatar>
               </PopoverTrigger>
               <PopoverContent
-                className="w-full p-0 bg-background"
+                className="w-full p-0 bg-background max-h-[calc(100vh-4rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
                 side="top"
                 align="end"
               >

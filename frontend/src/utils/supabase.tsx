@@ -299,6 +299,33 @@ const getProfilePictureOptions = async () => {
   const user_avatar_08 = supabase.storage
     .from("user-profile-pictures")
     .getPublicUrl("user_avatar_08.png");
+  const user_avatar_09 = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("user_avatar_09.png");
+  const user_avatar_10 = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("user_avatar_10.png");
+  const user_avatar_11 = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("user_avatar_11.png");
+  const user_avatar_12 = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("user_avatar_12.png");
+  const user_avatar_13 = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("user_avatar_13.png");
+  const user_avatar_14 = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("user_avatar_14.png");
+  const user_avatar_15 = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("user_avatar_15.png");
+  const user_avatar_16 = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("user_avatar_16.png");
+  const user_avatar_17 = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("user_avatar_17.png");
 
   return [
     bookShelfImageData.data.publicUrl,
@@ -312,6 +339,15 @@ const getProfilePictureOptions = async () => {
     user_avatar_06.data.publicUrl,
     user_avatar_07.data.publicUrl,
     user_avatar_08.data.publicUrl,
+    user_avatar_09.data.publicUrl,
+    user_avatar_10.data.publicUrl,
+    user_avatar_11.data.publicUrl,
+    user_avatar_12.data.publicUrl,
+    user_avatar_13.data.publicUrl,
+    user_avatar_14.data.publicUrl,
+    user_avatar_15.data.publicUrl,
+    user_avatar_16.data.publicUrl,
+    user_avatar_17.data.publicUrl,
   ];
 };
 
