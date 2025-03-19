@@ -23,6 +23,8 @@ import { User } from "@supabase/supabase-js";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
+import axios from "axios";
+const API_BASE_URL = import.meta.env.BACKEND_URL || "http://localhost:8080";
 
 // Initializes supabase client
 import { supabase, getTags, getCurrentUser } from "../../utils/supabase";
@@ -190,6 +192,23 @@ const CreateSession: React.FC = () => {
         throw new Error("User ID not found");
       }
 
+      // Check if content is flagged for moderation
+      const moderationResponse = await axios.post(
+        `${API_BASE_URL}/moderation`,
+        {
+          content: content,
+        }
+      );
+
+      // If content is flagged, display reason
+      if (moderationResponse.data.flagged) {
+        toast.error(
+          `Content flagged for ${moderationResponse.data.reason}. Please try again.`
+        );
+        setIsSubmitting(false);
+        return;
+      }
+
       const newProject: Project = {
         title,
         description,
@@ -276,7 +295,7 @@ const CreateSession: React.FC = () => {
       <Card>
         <CardHeader>
           <CardTitle>Create New Writing Session</CardTitle>
-          <CardDescription>
+          <CardDescription className="text-left">
             Start a new collaborative writing session. Each contributor adds
             50-100 words per snippet. Set how many total contributions you want
             for your story.

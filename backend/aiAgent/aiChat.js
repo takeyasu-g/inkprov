@@ -1,9 +1,5 @@
-import OpenAI from "openai";
+import client from "../utils/openAIClient.js";
 import persona from "./agentPersona.js";
-
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 async function getWritingSuggestions(prompt) {
   const response = await client.chat.completions.create({

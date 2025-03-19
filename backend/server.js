@@ -3,6 +3,7 @@ import path from "path";
 import "@dotenvx/dotenvx/config";
 import cors from "cors";
 import getWritingSuggestions from "./aiAgent/aiChat.js";
+import ModeratePromptInput from "./utils/contentModeration.js";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -47,6 +48,16 @@ app.post("/ideas", cors(corsOptions), async (req, res) => {
     } else {
       res.status(200).send("Feature Coming Soon");
     }
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+// AI Content Moderation API Endpoint
+app.post("/moderation", cors(corsOptions), async (req, res) => {
+  try {
+    const moderationResult = await ModeratePromptInput(req.body.content);
+    res.status(200).send(moderationResult);
   } catch (error) {
     res.status(500).send(error.message);
   }

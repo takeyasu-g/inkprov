@@ -27,6 +27,8 @@ import {
 } from "@/components/ui/form";
 import { Link } from "react-router-dom";
 import { UserCircle } from "lucide-react";
+import axios from "axios";
+const API_BASE_URL = import.meta.env.BACKEND_URL || "http://localhost:8080";
 
 const Settings: React.FC = () => {
   // Setting states
@@ -74,6 +76,20 @@ const Settings: React.FC = () => {
     // Update user data in database
     try {
       setIsLoading(true);
+
+      // Check if any of the fields have data
+      if(values.username.length > 0 || values.bio.length > 0 || values.matureContent !== matureContent) {
+        const moderationResponse = await axios.post(`${API_BASE_URL}/moderation`, {
+          content: values.username + " " + values.bio});
+
+        // If content is flagged, display reason
+        if (moderationResponse.data.flagged) {
+          toast.error(`Content flagged for ${moderationResponse.data.reason}. Please try again.`);
+          setIsLoading(false);
+          return;
+        }
+      };
+
       if (values.username.length > 0) {
         await updateUsername(values.username);
         sessionStorage.setItem("username", values.username);
@@ -84,8 +100,8 @@ const Settings: React.FC = () => {
         : null;
       toast.success("Successfully Saved Changes");
       setIsLoading(false);
-    } catch (error) {
-      toast.error(`${error}`);
+    } catch (error: any) {
+      toast.error(`${error.message}`);
       setIsLoading(false);
     }
   }
