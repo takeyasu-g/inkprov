@@ -303,7 +303,7 @@ const WritingEditor: React.FC = () => {
   // Modify handleSubmit to focus on snippets over contributors
   const handleSubmit = async () => {
     if (wordCount < 50 || wordCount > 100) {
-      toast.error("Please write between 50 and 100 words");
+      toast.error("Please write between 50 and 100 words.");
       return;
     }
 
@@ -314,6 +314,15 @@ const WritingEditor: React.FC = () => {
       }
       setIsSubmitting(true);
 
+      const moderationResponse = await axios.post(`${API_BASE_URL}/moderation`, {
+        content: content});
+
+      // If content is flagged, display reason
+      if (moderationResponse.data.flagged) {
+        toast.error(`Content flagged for ${moderationResponse.data.reason}. Please try again.`);
+        setIsSubmitting(false);
+        return;
+      }
       const { error: snippetError } = await supabase
         .from("project_snippets")
         .insert({
