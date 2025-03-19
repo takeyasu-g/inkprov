@@ -263,7 +263,7 @@ const CreateSession: React.FC = () => {
   };
 
   return (
-    <div className="h-full md:flex md:flex-col md:gap-5 py-6 md:px-4 md:mx-auto md:max-w-[800px] bg-white md:bg-background">
+    <div className="h-full md:flex md:flex-col md:gap-5 py-6 mb-15 md:px-4 md:mx-auto md:max-w-[800px] bg-white md:bg-background">
       <div className="px-5 bg-white md:bg-background">
         <Button
           variant="outline"
