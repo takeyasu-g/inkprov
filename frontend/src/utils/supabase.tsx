@@ -232,7 +232,8 @@ export const getAllStoriesWithProfileName = async (): Promise<
         ),
         updated_at,
         created_at,
-        current_contributors_count
+        current_contributors_count,
+        is_mature_content
       `
       )
       .eq("is_completed", true);
@@ -274,11 +275,43 @@ const getProfilePictureOptions = async () => {
   const lanturnBookImageData = supabase.storage
     .from("user-profile-pictures")
     .getPublicUrl("LanturnBook.png");
+  const user_avatar_01 = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("user_avatar_01.png");
+  const user_avatar_02 = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("user_avatar_02.png");
+  const user_avatar_03 = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("user_avatar_03.png");
+  const user_avatar_04 = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("user_avatar_04.png");
+  const user_avatar_05 = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("user_avatar_05.png");
+  const user_avatar_06 = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("user_avatar_06.png");
+  const user_avatar_07 = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("user_avatar_07.png");
+  const user_avatar_08 = supabase.storage
+    .from("user-profile-pictures")
+    .getPublicUrl("user_avatar_08.png");
 
   return [
     bookShelfImageData.data.publicUrl,
     bookStackImageData.data.publicUrl,
     lanturnBookImageData.data.publicUrl,
+    user_avatar_01.data.publicUrl,
+    user_avatar_02.data.publicUrl,
+    user_avatar_03.data.publicUrl,
+    user_avatar_04.data.publicUrl,
+    user_avatar_05.data.publicUrl,
+    user_avatar_06.data.publicUrl,
+    user_avatar_07.data.publicUrl,
+    user_avatar_08.data.publicUrl,
   ];
 };
 
