@@ -12,6 +12,7 @@ import ProjectsPage from "../navigation_pages/ProjectsPage";
 import ReadingPage from "../navigation_pages/ReadingPage";
 import CreateSessionPage from "../writing_pages/CreateSessionPage";
 import AboutPage from "../pages/AboutPage";
+import PrivacyPage from "../pages/PrivacyPage";
 import Header from "../Header";
 import Footer from "../Footer";
 import { useAuth } from "@/contexts/AuthContext";
@@ -131,6 +132,14 @@ const router = createBrowserRouter([
     element: (
       <Layout>
         <AboutPage />
+      </Layout>
+    ),
+  },
+  {
+    path: "/privacy",
+    element: (
+      <Layout>
+        <PrivacyPage />
       </Layout>
     ),
   },
