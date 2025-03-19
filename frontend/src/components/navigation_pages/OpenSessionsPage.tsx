@@ -129,7 +129,7 @@ const OpenSessionsPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex gap-3">
+        <div className="hidden xl:flex xl:gap-3">
           <Button
             variant="outline"
             onClick={handleManualRefresh}
@@ -159,8 +159,36 @@ const OpenSessionsPage: React.FC = () => {
         </div>
       </header>
 
-      <nav className="my-6">
-        <GenreFilter onSelect={handleGenreFilter} />
+      <nav className=" my-6 flex justify-between">
+        <GenreFilter onSelect={handleGenreFilter}></GenreFilter>
+        <div className="xl:hidden flex gap-3">
+          <Button
+            variant="outline"
+            onClick={handleManualRefresh}
+            disabled={isLoading}
+            className="md:flex hidden items-center gap-1"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Refreshing...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="h-4 w-4" />
+                Refresh
+              </>
+            )}
+          </Button>
+          <SearchBar onSearch={handleSearch} />
+          <Button
+            className="bg-amber-800 hover:bg-amber-700 cursor-pointer"
+            onClick={handleCreateSession}
+          >
+            <BookPlus />
+            <span className="hidden md:block">Create Session</span>
+          </Button>
+        </div>
       </nav>
 
       {error && <div className="text-red-500 mb-4">Error: {error}</div>}
@@ -169,12 +197,12 @@ const OpenSessionsPage: React.FC = () => {
       {/* Sort by newest added */}
       <div className="mipb-16">
         {/* "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 " */}
-        <section className="flex flex-wrap justify-center gap-6">
+        <section className="grid grid-cols-1 place-items-center sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {isLoading ? (
             renderSkeletons()
           ) : filteredSessions && filteredSessions.length > 0 ? (
             filteredSessions.map((session) => (
-              <div className="flex-1 min-w-[280px] max-w-[350px]">
+              <div className="flex space-x-4">
                 <SessionCard key={session.id} sessionData={session} />
               </div>
             ))

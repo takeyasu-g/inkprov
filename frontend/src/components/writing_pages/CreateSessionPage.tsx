@@ -318,7 +318,7 @@ const CreateSession: React.FC = () => {
                 value={description}
                 onChange={handleDescriptionChange}
                 placeholder="Describe what this writing session is about..."
-                className="min-h-[100px]"
+                className="min-h-[100px] text-justify lg:text-left"
                 maxLength={MAX_DESCRIPTION_LENGTH}
                 required
               />
@@ -405,7 +405,7 @@ const CreateSession: React.FC = () => {
                 value={content}
                 onChange={handleContentChange}
                 placeholder="Start the story here..."
-                className="min-h-[200px]"
+                className="min-h-[200px] text-justify lg:text-left"
                 required
               />
               <div className="text-sm text-right">

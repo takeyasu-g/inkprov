@@ -693,7 +693,9 @@ const WritingEditor: React.FC = () => {
                     key={snippet.sequence_number}
                     className="p-4 bg-secondary rounded-lg opacity-50 transition-opacity"
                   >
-                    <p>{snippet.content}</p>
+                    <p className="text-justify lg:text-left">
+                      {snippet.content}
+                    </p>
                     <p className="text-sm text-secondary-text mt-2">
                       Contribution #{snippet.sequence_number} by{" "}
                       {snippet.creator?.user_profile_name || "Unknown"}
@@ -708,7 +710,7 @@ const WritingEditor: React.FC = () => {
                   key={snippet.sequence_number}
                   className="p-4 bg-secondary rounded-lg"
                 >
-                  <p>{snippet.content}</p>
+                  <p className="text-justify lg:text-left">{snippet.content}</p>
                   <p className="text-sm text-secondary-text mt-2">
                     Contribution #{snippet.sequence_number} by{" "}
                     {snippet.creator?.user_profile_name || "Unknown"}

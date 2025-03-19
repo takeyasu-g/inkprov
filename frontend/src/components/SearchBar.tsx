@@ -24,14 +24,18 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
   }, [searchTerm, onSearch]);
 
   return (
-    <div className="h-fit group flex items-center border border-primary-border rounded-md bg-white overflow-hidden transition-all duration-200 focus-within:border-amber-500 focus-within:shadow-md w-60">
+    <div className="h-fit w-45 md:w-60 flex items-center border border-primary-border rounded-md bg-white overflow-hidden transition-all duration-200 focus-within:border-amber-500 focus-within:shadow-md ">
       <span>
         <Search className="ml-2 h-5 w-5 text-amber-600" />
       </span>
       <Input
         className="border-none focus-visible:ring-0 w-full"
         type="text"
-        placeholder={window.location.pathname === "/sessions" ? "Search Sessions" : "Search Stories"}
+        placeholder={
+          window.location.pathname === "/sessions"
+            ? "Search Sessions"
+            : "Search Stories"
+        }
         value={searchTerm}
         onChange={handleSearchOnChange}
       ></Input>

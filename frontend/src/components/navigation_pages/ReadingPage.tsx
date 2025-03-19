@@ -206,7 +206,7 @@ const ReadingPage: React.FC = () => {
             );
 
             return (
-              <div key={snippet.id} className="flex items-start gap-5">
+              <div key={snippet.id} className="flex items-start gap-2 ">
                 {/* Reusable Contributor Popup */}
                 <ContributorPopup
                   profile={
@@ -221,7 +221,7 @@ const ReadingPage: React.FC = () => {
                 />
 
                 {/* Snippet Text */}
-                <p className="text-primary-text text-left leading-relaxed indent-6 break-words whitespace-normal">
+                <p className="pr-3 text-primary-text text-justify lg:text-left leading-relaxed indent-6 break-words whitespace-normal">
                   {snippet.content}
                 </p>
               </div>

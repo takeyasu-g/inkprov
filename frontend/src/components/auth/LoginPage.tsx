@@ -149,7 +149,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right Column */}
-      <div className="w-full flex justify-center order-1 lg:order-2 py-15">
+      <div className="w-full px-8 flex justify-center order-1 lg:order-2 py-15">
         <div className="w-full float-right max-w-md space-y-8 bg-background rounded-lg">
           <div>
             <h2 className="text-3xl font-bold text-primary-text text-center">

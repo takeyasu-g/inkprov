@@ -52,19 +52,24 @@ const ProjectsPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex gap-3">
+        <div className="hidden xl:flex gap-3">
           <SearchBar onSearch={handleSearch} />
         </div>
       </header>
 
-      <nav className="my-6">
-        <GenreFilter onSelect={handleGenreFilter} />
+      <nav className="my-6 flex justify-between">
+        <GenreFilter onSelect={handleGenreFilter}></GenreFilter>
+        <div className="xl:hidden xl:gap-3">
+          <SearchBar onSearch={handleSearch} />
+        </div>
       </nav>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 place-items-center sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredProjects.length > 0 ? (
           filteredProjects.map((project) => (
-            <ProjectCard key={project.id} projectData={project} />
+            <div className="flex space-x-4">
+              <ProjectCard key={project.id} projectData={project} />
+            </div>
           ))
         ) : (
           <p className="text-center text-gray-500">No Stories Found.</p>

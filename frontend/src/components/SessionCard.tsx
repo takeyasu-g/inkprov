@@ -90,7 +90,7 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
   );
 
   return (
-    <Card className="w-[300px] h-[350px] relative bg-background-card grid grid-rows-[100px_1fr_100px] gap-2 text-justified">
+    <Card className=" w-[300px] bg-background-card grid-rows-[100px_1fr_100px] gap-2 text-justified">
       <CardHeader className="space-y-3">
         <div className="flex justify-between items-center">
           <Badge className={`genre-${sessionData.project_genre.toLowerCase()}`}>
