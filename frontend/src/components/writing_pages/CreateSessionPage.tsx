@@ -196,7 +196,7 @@ const CreateSession: React.FC = () => {
       const moderationResponse = await axios.post(
         `${API_BASE_URL}/moderation`,
         {
-          content: content,
+          content: title + " " + description + " " + content,
         }
       );
 

@@ -11,7 +11,6 @@ async function ModeratePromptInput(content) {
 
     // If content is flagged, display reason
     if (moderation.results[0].flagged) {
-        console.log(moderation.results[0].categories);
         flagged = true;
         for (let key in moderation.results[0].categories) {
           if (moderation.results[0].categories[key]) {
