@@ -1,5 +1,13 @@
 import React, { useState } from "react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // hard coded some genres here
 const genres: string[] = [
@@ -38,23 +46,51 @@ const GenreFilter: React.FC<GenreFilterProps> = ({ onSelect }) => {
 
   return (
     // ToggleGroup is like a bunch of Buttons together, when selected a button it will go to handleSelect
-    <ToggleGroup
-      className="bg-secondary-background text-[var(--filter-btn-text)]"
-      type="single"
-      value={selectedGenre}
-      onValueChange={handleSelectFilter}
-    >
-      {/* map through hard coded genres */}
-      {genres.map((genre) => (
-        <ToggleGroupItem
-          className="px-4 min-w-auto  hover:bg-amber-600 rounded-lg not-data-[state=on]:hover:text-white data-[state=on]:text-white data-[state=on]:bg-amber-700 data-[state=on]:rounded-lg cursor-pointer"
-          key={genre}
-          value={genre}
-        >
-          {genre}
-        </ToggleGroupItem>
-      ))}
-    </ToggleGroup>
+    <nav className="pb-2">
+      {/* Dropdown for mobile devices */}
+      <div className="block xl:hidden">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className={`px-4 py-2 text-white ${`genre-${selectedGenre.toLowerCase()}`} cursor-pointer rounded-lg w-auto text-left`}
+            >
+              {selectedGenre} <span className="ml-2">▼</span>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-fit bg-white">
+            <DropdownMenuLabel>Genres</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {genres.map((genre) => (
+              <DropdownMenuItem
+                key={genre}
+                onClick={() => handleSelectFilter(genre)}
+                className="cursor-pointer px-4 py-2 text-sm hover:bg-amber-600 rounded-lg"
+              >
+                {genre}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      <ToggleGroup
+        className="hidden xl:flex gap-1 bg-secondary-background text-[var(--filter-btn-text)]"
+        type="single"
+        value={selectedGenre}
+        onValueChange={handleSelectFilter}
+      >
+        {/* map through hard coded genres */}
+        {genres.map((genre) => (
+          <ToggleGroupItem
+            className="px-4 min-w-auto  hover:bg-amber-600 rounded-lg not-data-[state=on]:hover:text-white data-[state=on]:text-white data-[state=on]:bg-amber-700 data-[state=on]:rounded-lg cursor-pointer"
+            key={genre}
+            value={genre}
+          >
+            {genre}
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
+    </nav>
   );
 };
 

@@ -620,20 +620,20 @@ const WritingEditor: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4 pb-16 max-w-xl">
-      <div className="mb-4">
+    <div className="h-full md:flex md:flex-col md:gap-5 py-6 mb-15 md:px-4 md:mx-auto md:max-w-[800px] bg-white md:bg-background">
+      <div className="bg-white md:bg-background px-5">
         <Button
           variant="outline"
           onClick={() => navigate("/sessions")}
-          className="text-sm"
+          className="text-sm bg-white md:bg-background"
         >
           Back to Sessions
         </Button>
       </div>
-      <Card>
+      <Card className="border-none shadow-none md:shadow-lg">
         <CardHeader>
           <CardTitle className="flex justify-between items-center">
-            <span>{project?.title || "Loading..."}</span>
+            <span className="text-lg">{project?.title || "Loading..."}</span>
             <Button
               variant="outline"
               size="sm"
@@ -702,7 +702,9 @@ const WritingEditor: React.FC = () => {
                     key={snippet.sequence_number}
                     className="p-4 bg-secondary rounded-lg opacity-50 transition-opacity"
                   >
-                    <p>{snippet.content}</p>
+                    <p className="text-justify lg:text-left">
+                      {snippet.content}
+                    </p>
                     <p className="text-sm text-secondary-text mt-2">
                       Contribution #{snippet.sequence_number} by{" "}
                       {snippet.creator?.user_profile_name || "Unknown"}
@@ -717,7 +719,7 @@ const WritingEditor: React.FC = () => {
                   key={snippet.sequence_number}
                   className="p-4 bg-secondary rounded-lg"
                 >
-                  <p>{snippet.content}</p>
+                  <p className="text-justify lg:text-left">{snippet.content}</p>
                   <p className="text-sm text-secondary-text mt-2">
                     Contribution #{snippet.sequence_number} by{" "}
                     {snippet.creator?.user_profile_name || "Unknown"}

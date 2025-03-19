@@ -282,17 +282,17 @@ const CreateSession: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto py-8 max-w-2xl pb-16">
-      <div className="mb-4 flex justify-start">
+    <div className="h-full md:flex md:flex-col md:gap-5 py-6 mb-15 md:px-4 md:mx-auto md:max-w-[800px] bg-white md:bg-background">
+      <div className="px-5 bg-white md:bg-background">
         <Button
           variant="outline"
           onClick={() => navigate("/sessions")}
-          className="text-sm"
+          className="text-sm bg-white md:bg-background"
         >
           Back to Sessions
         </Button>
       </div>
-      <Card>
+      <Card className="border-none shadow-none md:shadow-lg">
         <CardHeader>
           <CardTitle>Create New Writing Session</CardTitle>
           <CardDescription className="text-left">
@@ -337,7 +337,7 @@ const CreateSession: React.FC = () => {
                 value={description}
                 onChange={handleDescriptionChange}
                 placeholder="Describe what this writing session is about..."
-                className="min-h-[100px]"
+                className="min-h-[100px] text-justify lg:text-left"
                 maxLength={MAX_DESCRIPTION_LENGTH}
                 required
               />
@@ -424,7 +424,7 @@ const CreateSession: React.FC = () => {
                 value={content}
                 onChange={handleContentChange}
                 placeholder="Start the story here..."
-                className="min-h-[200px]"
+                className="min-h-[200px] text-justify lg:text-left"
                 required
               />
               <div className="text-sm text-right">

@@ -104,7 +104,11 @@ const OpenSessionsPage: React.FC = () => {
   const renderSkeletons = () => {
     return Array(6)
       .fill(0)
-      .map((_, index) => <SessionCardSkeleton key={index} />);
+      .map((_, index) => (
+        <div className="flex justify-center">
+          <SessionCardSkeleton key={index} />
+        </div>
+      ));
   };
 
   // Adds a refresh button to manually refresh sessions
@@ -115,8 +119,8 @@ const OpenSessionsPage: React.FC = () => {
 
   return (
     <main className="container mx-auto px-4 py-8">
-      <header className="flex justify-between">
-        <div className="mb-8 text-left">
+      <header className="flex flex-col md:flex-row md:justify-between">
+        <div className=" mb-8 text-center md:text-left">
           <h1 className="text-3xl font-bold text-primary-text">
             Open Writing Sessions
           </h1>
@@ -125,7 +129,7 @@ const OpenSessionsPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex gap-3">
+        <div className="hidden xl:flex xl:gap-3">
           <Button
             variant="outline"
             onClick={handleManualRefresh}
@@ -155,19 +159,52 @@ const OpenSessionsPage: React.FC = () => {
         </div>
       </header>
 
-      <nav className="my-6">
-        <GenreFilter onSelect={handleGenreFilter} />
+      <nav className=" my-6 flex justify-between">
+        <GenreFilter onSelect={handleGenreFilter}></GenreFilter>
+        <div className="xl:hidden flex gap-3">
+          <Button
+            variant="outline"
+            onClick={handleManualRefresh}
+            disabled={isLoading}
+            className="md:flex hidden items-center gap-1"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Refreshing...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="h-4 w-4" />
+                Refresh
+              </>
+            )}
+          </Button>
+          <SearchBar onSearch={handleSearch} />
+          <Button
+            className="bg-amber-800 hover:bg-amber-700 cursor-pointer"
+            onClick={handleCreateSession}
+          >
+            <BookPlus />
+            <span className="hidden md:block">Create Session</span>
+          </Button>
+        </div>
       </nav>
 
       {error && <div className="text-red-500 mb-4">Error: {error}</div>}
 
-      <div className="content pb-16">
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* TODO: Add pagination */}
+      {/* Sort by newest added */}
+      <div className="mipb-16">
+        {/* "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 " */}
+        <section className="grid grid-cols-1 place-items-center sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {isLoading ? (
             renderSkeletons()
           ) : filteredSessions && filteredSessions.length > 0 ? (
             filteredSessions.map((session) => (
-              <SessionCard key={session.id} sessionData={session} />
+              <div className="flex space-x-4">
+                <SessionCard key={session.id} sessionData={session} />
+              </div>
             ))
           ) : (
             <p className="text-center text-gray-500">

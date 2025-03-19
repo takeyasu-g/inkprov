@@ -24,13 +24,20 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
 
   return (
-    <div className="container mx-auto h-screen pt-12">
+    <div
+      className={
+        window.location.pathname === "/login" ||
+        window.location.pathname === "/register"
+          ? "h-screen overflow-hidden "
+          : window.location.pathname.startsWith("/writing") ||
+            window.location.pathname.startsWith("/projects") ||
+            window.location.pathname.startsWith("/sessions/create")
+          ? "bg-white md:bg-background min-h-screen overflow-x-hidden"
+          : `min-h-screen overflow-x-hidden`
+      }
+    >
       <Header loggedIn={isAuthenticated} page={window.location.pathname} />
       {children}
-      {window.location.pathname === "/login" ||
-      window.location.pathname === "/register" ? null : (
-        <Footer />
-      )}
     </div>
   );
 };
@@ -65,9 +72,12 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: (
-      <Layout>
-        <LandingPage />
-      </Layout>
+      <>
+        <Layout>
+          <LandingPage />
+        </Layout>
+        <Footer />
+      </>
     ),
   },
   {
@@ -89,65 +99,89 @@ const router = createBrowserRouter([
   {
     path: "/sessions",
     element: (
-      <Layout>
-        <ProtectedRoute element={<OpenSessionsPage />} />
-      </Layout>
+      <>
+        <Layout>
+          <ProtectedRoute element={<OpenSessionsPage />} />
+        </Layout>
+        <Footer />
+      </>
     ),
   },
   {
     path: "/sessions/create",
     element: (
-      <Layout>
-        <ProtectedRoute element={<CreateSessionPage />} />
-      </Layout>
+      <>
+        <Layout>
+          <ProtectedRoute element={<CreateSessionPage />} />
+        </Layout>
+        <Footer />
+      </>
     ),
   },
   {
     path: "/stories",
     element: (
-      <Layout>
-        <ProjectsPage />
-      </Layout>
+      <>
+        <Layout>
+          <ProjectsPage />
+        </Layout>
+        <Footer />
+      </>
     ),
   },
   {
     path: "/projects/:projectId/read",
     element: (
-      <Layout>
-        <ProtectedRoute element={<ReadingPage />} />
-      </Layout>
+      <>
+        <Layout>
+          <ProtectedRoute element={<ReadingPage />} />
+        </Layout>
+        <Footer />
+      </>
     ),
   },
   {
     path: "/writing/:projectId",
     element: (
-      <Layout>
-        <ProtectedRoute element={<WritingEditor />} />
-      </Layout>
+      <>
+        <Layout>
+          <ProtectedRoute element={<WritingEditor />} />
+        </Layout>
+        <Footer />
+      </>
     ),
   },
   {
     path: "/about",
     element: (
-      <Layout>
-        <AboutPage />
-      </Layout>
+      <>
+        <Layout>
+          <AboutPage />
+        </Layout>
+        <Footer />
+      </>
     ),
   },
   {
     path: "/settings",
     element: (
-      <Layout>
-        <ProtectedRoute element={<Settings />} />
-      </Layout>
+      <>
+        <Layout>
+          <ProtectedRoute element={<Settings />} />
+        </Layout>
+        <Footer />
+      </>
     ),
   },
   {
     path: "/profile",
     element: (
-      <Layout>
-        <ProtectedRoute element={<Profile />} />
-      </Layout>
+      <>
+        <Layout>
+          <ProtectedRoute element={<Profile />} />
+        </Layout>
+        <Footer />
+      </>
     ),
   },
   {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { ProjectSnippet, ProjectsData, UserProfilePopUp } from "@/types/global";
 import {
   getProjectOfId,
@@ -19,6 +19,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
+  Button,
 } from "@/components/ui";
 import ContributorPopup from "@/components/ContributorPopup";
 import { toast } from "sonner";
@@ -61,6 +62,7 @@ const ReadingPage: React.FC = () => {
   // this gets the passed state from the projectCard => projectData
   const location = useLocation();
   const project = location.state?.project;
+  const navigate = useNavigate();
 
   // useStates
   const [projectSnippets, setProjectSnippets] = useState<
@@ -170,8 +172,17 @@ const ReadingPage: React.FC = () => {
   }, [projectId]);
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <Card className="p-8">
+    <main className="h-full md:flex md:flex-col md:gap-5 py-6 mb-15 md:px-4 md:mx-auto md:max-w-[800px] bg-white md:bg-background">
+      <div className="bg-white md:bg-background px-5">
+        <Button
+          variant="outline"
+          onClick={() => navigate("/stories")}
+          className="text-sm bg-white md:bg-background"
+        >
+          Back to Stories
+        </Button>
+      </div>
+      <Card className="border-none shadow-none md:shadow-lg">
         <CardHeader className="mb-2">
           <CardTitle className="text-3xl font-bold text-primary-text mb-2">
             {project?.title}
@@ -195,7 +206,7 @@ const ReadingPage: React.FC = () => {
             );
 
             return (
-              <div key={snippet.id} className="flex items-start gap-5">
+              <div key={snippet.id} className="flex items-start gap-2 ">
                 {/* Reusable Contributor Popup */}
                 <ContributorPopup
                   profile={
@@ -210,7 +221,7 @@ const ReadingPage: React.FC = () => {
                 />
 
                 {/* Snippet Text */}
-                <p className="text-primary-text text-left leading-relaxed indent-6 break-words whitespace-normal">
+                <p className="pr-3 text-primary-text text-justify lg:text-left leading-relaxed indent-6 break-words whitespace-normal">
                   {snippet.content}
                 </p>
               </div>
@@ -274,7 +285,7 @@ const ReadingPage: React.FC = () => {
           )}
         </CardContent>
       </Card>
-    </div>
+    </main>
   );
 };
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { NotebookPen } from "lucide-react";
+import { NotebookPen, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   Button,
@@ -90,8 +90,8 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
   );
 
   return (
-    <Card className="w-[350px] min-h-[250px] bg-background-card flex flex-col text-justified">
-      <CardHeader className="flex-none space-y-3">
+    <Card className="w-[300px] h-[327px] bg-background-card">
+      <CardHeader className="flex-none space-y-3 h-[76px]">
         <CardHeaderWithMature
           genre={sessionData.project_genre}
           isMatureContent={sessionData.is_mature_content}
@@ -112,8 +112,8 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
           </div>
         </CardHeaderWithMature>
       </CardHeader>
-      <div className="bg-white flex-grow">
-        <CardDescription className="m-4 text-secondary-text">
+      <div className="bg-white h-[112px] overflow-hidden ">
+        <CardDescription className="m-4 text-secondary-text text-center line-clamp-3">
           {sessionData.description}
         </CardDescription>
       </div>
@@ -121,7 +121,7 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
         <span className="text-sm text-secondary-text">{formattedDate}</span>
         <Button
           className="bg-primary-button hover:bg-primary-button-hover"
-          onClick={() => navigate(`/sessions/${sessionData.id}/write`)}
+          onClick={() => navigate(`/writing/${sessionData.id}`)}
         >
           View Session
         </Button>

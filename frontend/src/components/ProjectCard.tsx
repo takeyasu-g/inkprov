@@ -68,8 +68,9 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
   );
 
   return (
-    <Card className="w-[350px] h-[290px] bg-background-card">
-      <CardHeader>
+    <Card className="w-[300px] h-[327px] bg-background-card ">
+      {/* header of card => Genre, Title, Contributors */}
+      <CardHeader className="flex-none space-y-3 h-[76px]">
         <CardHeaderWithMature
           genre={projectData.project_genre}
           isMatureContent={projectData.is_mature_content}
@@ -83,15 +84,15 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
               <span className="text-sm text-secondary-text">started by:</span>
               <span className="text-sm font-medium">
                 {isCreator
-                  ? "you"
+                  ? "You"
                   : projectData.users_ext.user_profile_name || "Anonymous"}
               </span>
             </div>
           </div>
         </CardHeaderWithMature>
       </CardHeader>
-      <div className="bg-white">
-        <CardDescription className="m-4 text-secondary-text">
+      <div className="bg-white h-[112px]">
+        <CardDescription className="m-4 text-secondary-text text-center">
           {projectData.description}
         </CardDescription>
       </div>
