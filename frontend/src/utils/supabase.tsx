@@ -64,15 +64,27 @@ For clarity in the backend, only the terms "session", "sessions", "project",and 
 export const getProjectSnippets = async (
   projectId: string | undefined
 ): Promise<ProjectSnippet[] | null> => {
+  // Skip execution if projectId is undefined
+  if (!projectId) return null;
+
   const { data: projectSnippets, error } = await supabase
     .from("project_snippets")
-    .select("*")
+    .select(
+      `
+      *,
+      creator:users_ext!creator_id(
+        user_profile_name
+      )
+    `
+    )
     .eq("project_id", projectId)
-    .order("sequence_number", { ascending: true }); // order snippets by sequence_number
+    .order("sequence_number", { ascending: true });
 
   if (error) {
+    console.error("Error fetching project snippets:", error);
     return null;
   }
+
   return projectSnippets;
 };
 
@@ -98,18 +110,8 @@ export const getProjectOfId = async (
 
 export const getSessions = async () => {
   try {
-    // only get projects that have not been flagged as completed
-    const { data: project, error } = await supabase
-      .from("projects")
-      .select("*")
-      .eq("is_completed", false);
-
-    if (error) {
-      throw error;
-    }
-
-    // if the basic query succeeds, then get the data we need
-    const { data: fullProject, error: fullError } = await supabase
+    // Get projects that are not completed (i.e., active sessions)
+    const { data: projects, error } = await supabase
       .from("projects")
       .select(
         `
@@ -122,53 +124,71 @@ export const getSessions = async () => {
       )
       .eq("is_completed", false);
 
-    if (fullError) {
-      console.error("Error fetching full session data:", fullError);
-      console.error("Full error details:", fullError.details);
-      return project; // Return basic project data if full query fails
+    if (error) {
+      console.error("Error fetching sessions:", error);
+      return null;
     }
 
-    // Update the contributor counts with real-time data
-    if (fullProject && fullProject.length > 0) {
-      try {
-        // For each project, get the actual count of contributors
-        for (const project of fullProject) {
-          const { data: contributors, error: countError } = await supabase
-            .from("project_contributors")
-            .select("id")
-            .eq("project_id", project.id);
+    if (!projects || projects.length === 0) {
+      return [];
+    }
 
-          if (countError) {
-            console.error(
-              `Error fetching contributors for project ${project.id}:`,
-              countError
-            );
-          } else if (contributors) {
-            const realCount = contributors.length;
-            if (realCount !== project.current_contributors_count) {
-              project.current_contributors_count = realCount;
+    // Get all project IDs
+    const projectIds = projects.map((project) => project.id);
 
-              // Also update the project table to keep it in sync
-              const { error: updateError } = await supabase
-                .from("projects")
-                .update({ current_contributors_count: realCount })
-                .eq("id", project.id);
+    // Fetch all contributors for all projects in a single query
+    const { data: allContributors, error: contributorsError } = await supabase
+      .from("project_contributors")
+      .select("project_id, id")
+      .in("project_id", projectIds);
 
-              if (updateError) {
-                console.error(
-                  `Error updating project count in database:`,
-                  updateError
-                );
-              }
-            }
-          }
+    if (contributorsError) {
+      console.error("Error fetching contributors:", contributorsError);
+      // Return projects without contributor data rather than failing completely
+      return projects;
+    }
+
+    // Group contributors by project_id
+    const contributorsByProject = allContributors.reduce<Record<string, any[]>>(
+      (acc, contributor) => {
+        if (!acc[contributor.project_id]) {
+          acc[contributor.project_id] = [];
         }
-      } catch (countErr) {
-        console.error("Error updating contributor counts:", countErr);
-      }
-    }
+        acc[contributor.project_id].push(contributor);
+        return acc;
+      },
+      {}
+    );
 
-    return fullProject || project;
+    // Update projects with contributor counts
+    const updatedProjects = projects.map((project) => {
+      const projectContributors = contributorsByProject[project.id] || [];
+      const realCount = projectContributors.length;
+
+      // If count in DB is wrong, queue an update
+      if (realCount !== project.current_contributors_count) {
+        // Update the count in our local copy
+        project.current_contributors_count = realCount;
+
+        // Update the database asynchronously (fire and forget)
+        supabase
+          .from("projects")
+          .update({ current_contributors_count: realCount })
+          .eq("id", project.id)
+          .then(({ error }) => {
+            if (error) {
+              console.error(
+                `Error updating project count for ${project.id}:`,
+                error
+              );
+            }
+          });
+      }
+
+      return project;
+    });
+
+    return updatedProjects;
   } catch (err) {
     console.error("Error in getSessions:", err);
     return null;
@@ -479,52 +499,50 @@ export interface Contributor {
 }
 
 // handles getting the user information for all contributors on a project
-// something on the supabase side warrants this level of overengineering, so please do not attempt to refactor
+// Optimized version that fetches all data in a single query with joins
 
-async function getProjectContributors(projectId: string | undefined) {
+
+export async function getProjectContributors(projectId: string | undefined) {
   try {
-    const { data: contributors, error: contributorsError } = await supabase
+    // Use a single query with joins to get all data at once
+    const { data: enrichedContributors, error } = await supabase
       .from("project_contributors")
-      .select("*")
+      .select(
+        `
+        *,
+        user:users_ext!user_id(
+          id, 
+          user_profile_name
+        )
+      `
+      )
       .eq("project_id", projectId);
 
-    if (contributorsError) {
-      console.error("Error fetching project contributors:", contributorsError);
+    if (error) {
+      console.error("Error fetching project contributors:", error);
       return [];
     }
-    if (!contributors || contributors.length === 0) {
+
+    if (!enrichedContributors || enrichedContributors.length === 0) {
       return [];
     }
-    const userIds = contributors.map((contributor) => contributor.user_id);
-    const { data: usersData, error: usersError } = await supabase
-      .from("users_ext")
-      .select("id, user_profile_name")
-      .in("id", userIds);
 
-    if (usersError) {
-      console.error("Error fetching user data:", usersError);
-      return contributors.map((contributor) => ({
-        ...contributor,
-        user: { id: contributor.user_id, user_profile_name: "Unknown" },
-      }));
-    }
-    const enrichedContributors = contributors.map((contributor) => {
-      const user = usersData?.find((user) => user.id === contributor.user_id);
-
-      return {
-        ...contributor,
-        user_made_contribution: contributor.user_made_contribution || false,
-        current_writer: contributor.current_writer || false,
-        user_is_project_creator: contributor.user_is_project_creator || false,
-        last_contribution_at:
-          contributor.last_contribution_at ||
-          contributor.joined_at ||
-          new Date().toISOString(),
-        user: user || { id: contributor.user_id, user_profile_name: "Unknown" },
-      };
-    });
-
-    return enrichedContributors;
+    // Process the data to ensure all fields have default values
+    return enrichedContributors.map((contributor) => ({
+      ...contributor,
+      user_made_contribution: contributor.user_made_contribution || false,
+      current_writer: contributor.current_writer || false,
+      user_is_project_creator: contributor.user_is_project_creator || false,
+      last_contribution_at:
+        contributor.last_contribution_at ||
+        contributor.joined_at ||
+        new Date().toISOString(),
+      // Extract user from the joined data
+      user: contributor.user || {
+        id: contributor.user_id,
+        user_profile_name: "Unknown",
+      },
+    }));
   } catch (err) {
     console.error("Exception when fetching project contributors:", err);
     return [];
@@ -849,7 +867,6 @@ export {
   getUsername,
   getBio,
   getMatureContent,
-  getProjectContributors,
   getSession,
   insertUsername,
   updateProfilePicture,

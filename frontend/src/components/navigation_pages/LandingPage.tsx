@@ -18,17 +18,17 @@ const LandingPage: React.FC = () => {
   };
 
   return (
-    <main className="flex flex-col pb-10">
+    <main className="flex flex-col justify-center items-center pb-10">
       {/* Hero Section */}
       <section className="flex flex-col">
-        <header className="text-center">
-          <h1 className="text-6xl font-bold mt-8 text-primary-text">
+        <header className="text-center flex flex-col items-center ">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mt-8 text-primary-text">
             Write Together
           </h1>
-          <h1 className="text-6xl font-bold mb-8 text-primary-text">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 text-primary-text ">
             Create Together
           </h1>
-          <p className="text-lg mb-8 text-secondary-text">
+          <p className=" md:text-lg mb-8 text-secondary-text w-[60%]">
             Join a community of writers and collaborate on stories, poems, and
             more in real-time.
           </p>
@@ -56,14 +56,14 @@ const LandingPage: React.FC = () => {
   after:absolute after:inset-y-0 after:left-1/2 after:-translate-x-1/2 after:w-screen after:-z-10 after:bg-accent"
       >
         <h2 className="text-3xl font-bold mt-9 mb-9">How Inkprov Works</h2>
-        <section className="flex gap-4 mb-8">
+        <section className="w-full flex flex-col md:flex-row md:justify-around md:max-w-screen-xl mb-8">
           {/* Join a Session */}
           <article className="flex flex-col items-center gap-4 mb-8 ">
             <div className="rounded-full bg-tertiary-background p-4">
               <Users />
             </div>
             <p className="text-lg font-bold">Join a Session</p>
-            <p className="text-md text-center w-70">
+            <p className="text-md text-center w-[80%]">
               Find an open writing session that matches your interests or create
               your own.
             </p>
@@ -73,7 +73,7 @@ const LandingPage: React.FC = () => {
               <Feather />
             </div>
             <p className="text-lg font-bold">Write Together</p>
-            <p className="text-md text-center w-70">
+            <p className="text-md text-center w-[80%]">
               Collaborate in real-time with other writers to create something
               beautiful.
             </p>
@@ -83,7 +83,7 @@ const LandingPage: React.FC = () => {
               <BookOpen />
             </div>
             <p className="text-lg font-bold">Share & Discover</p>
-            <p className="text-md text-center w-70">
+            <p className="text-md text-center w-[80%]">
               Publish your collaborative works and explore creations from other
               writers.
             </p>
@@ -91,13 +91,13 @@ const LandingPage: React.FC = () => {
         </section>
       </section>
       {/* Bottom Hero Section */}
-      <section className="flex justify-between text-left mb-10 pl-25">
+      <section className="flex flex-col items-center lg:flex-row justify-around w-[90%] text-left mb-20">
         {/* Feature Description */}
-        <article>
+        <article className="w-[80%] md:w-[70%] lg:w-[30vw] text-center">
           <h2 className="text-3xl font-bold mt-9 mb-9 text-primary-text">
             A Cozy Space for Creative Minds
           </h2>
-          <p className="text-lg mb-8 text-secondary-text w-lg">
+          <p className="text-lg mb-8 text-secondary-text ">
             Inkprov provides a warm, inviting environment that feels like
             writing in your favorite reading nook. Our platform is designed to
             inspire creativity and foster collaboration.
@@ -118,13 +118,17 @@ const LandingPage: React.FC = () => {
           </ul>
         </article>
         {/* Image */}
-        <div className="relative w-96 h-56 mt-20 mr-25">
+        <div className="relative w-[80%] md:w-[60%] lg:w-120 mt-20 ">
           {/* Styled Borders */}
           <div className="absolute -inset-4 rounded-lg bg-tertiary-background rotate-2"></div>
-          <div className="relative w-full h-full overflow-hidden rounded-lg border-8 border-white bg-white shadow-lg flex items-center justify-center">
+          <div className="relative w-full h-64 md:h-84 lg:h-84 rounded-lg border-8 border-white bg-white shadow-lg overflow-hidden">
             <div
-              className="absolute inset-0 bg-contain bg-center bg-no-repeat"
-              style={{ backgroundImage: `url(${groupWritingImg})` }}
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              style={{
+                backgroundImage: `url(${groupWritingImg})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
             ></div>
           </div>
         </div>
