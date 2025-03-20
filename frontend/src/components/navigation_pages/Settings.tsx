@@ -24,19 +24,22 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Link } from "react-router-dom";
-import { UserCircle } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { UserCircle, AlertTriangle } from "lucide-react";
 import axios from "axios";
 const API_BASE_URL = import.meta.env.BACKEND_URL || "http://localhost:8080";
 
 const Settings: React.FC = () => {
   // Setting states
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState<boolean>(false);
 
   // const [username, setUsername] = useState<string>("");
   // const [bio, setBio] = useState<string>("");
   const [bioCharCount, setBioCharCount] = useState<number>(0);
   const [matureContent, setMatureContent] = useState<boolean>(false);
+
+  const navigate = useNavigate();
 
   // Form Validation
   const form = useForm<z.infer<typeof settingsSchema>>({
@@ -133,6 +136,26 @@ const Settings: React.FC = () => {
     if (value.length <= 180) {
       onChange(value);
       setBioCharCount(value.length);
+    }
+  };
+
+  // Account Deletion Handler
+  const handleDeleteAccount = async () => {
+    try {
+      setIsDeletingAccount(true);
+      const result = await deleteUserAccount();
+
+      if (result.success) {
+        toast.success(result.message);
+        // Navigate to landing page after successful deletion
+        navigate("/");
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error: any) {
+      toast.error("Failed to delete account. Please try again.");
+    } finally {
+      setIsDeletingAccount(false);
     }
   };
 
@@ -279,17 +302,22 @@ const Settings: React.FC = () => {
                   Delete user account and information from Inkprov
                 </p>
                 <Button
-                  asChild
                   variant="destructive"
-                  className="w-full flex items-center justify-center gap-2 cursor-pointer"
-                  onClick={() => {
-                    deleteUserAccount();
-                  }}
+                  className="w-full flex items-center justify-center gap-2"
+                  onClick={handleDeleteAccount}
+                  disabled={isDeletingAccount}
                 >
-                  <Link to="/profile">
-                    <UserCircle className="h-5 w-5" />
-                    Delete Account
-                  </Link>
+                  {isDeletingAccount ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      Deleting Account...
+                    </>
+                  ) : (
+                    <>
+                      <AlertTriangle className="h-5 w-5" />
+                      Delete Account
+                    </>
+                  )}
                 </Button>
               </div>
             </div>

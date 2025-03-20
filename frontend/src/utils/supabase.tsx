@@ -133,101 +133,7 @@ export const getSessions = async () => {
       return [];
     }
 
-    // Get all project IDs
-    const projectIds = projects.map((project) => project.id);
-
-    // Fetch all contributors for all projects in a single query
-    const { data: allContributors, error: contributorsError } = await supabase
-      .from("project_contributors")
-      .select("project_id, id")
-      .in("project_id", projectIds);
-
-    if (contributorsError) {
-      console.error("Error fetching contributors:", contributorsError);
-      // Return projects without contributor data rather than failing completely
-      return projects;
-    }
-
-    // Group contributors by project_id
-    const contributorsByProject = allContributors.reduce<Record<string, any[]>>(
-      (acc, contributor) => {
-        if (!acc[contributor.project_id]) {
-          acc[contributor.project_id] = [];
-        }
-        acc[contributor.project_id].push(contributor);
-        return acc;
-      },
-      {}
-    );
-
-    // Update projects with contributor counts
-    const updatedProjects = projects.map((project) => {
-      const projectContributors = contributorsByProject[project.id] || [];
-      const realCount = projectContributors.length;
-
-      // If count in DB is wrong, queue an update
-      if (realCount !== project.current_contributors_count) {
-        // Update the count in our local copy
-        project.current_contributors_count = realCount;
-
-        // Update the database asynchronously (fire and forget)
-        supabase
-          .from("projects")
-          .update({ current_contributors_count: realCount })
-          .eq("id", project.id)
-          .then(({ error }) => {
-            if (error) {
-              console.error(
-                `Error updating project count for ${project.id}:`,
-                error
-              );
-            }
-          });
-      }
-
-      return project;
-    });
-
-    return updatedProjects;
-  } catch (err) {
-    console.error("Error in getSessions:", err);
-    return null;
-  }
-};
-
-const getProjectsInprogress = async () => {
-  const currentUser: User | null = await getCurrentUser();
-
-  const { data: projects, error } = await supabase
-    .from("projects")
-    .select("*")
-    .eq("creator_id", currentUser?.id)
-    .eq("is_completed", false);
-
-  if (error) {
-    throw new Error(`Failed to fetch projects: ${error.message}`);
-  }
-
-  return projects;
-};
-// get all projects + genre where is_completed = true
-export const getProjects = async (): Promise<ProjectsData[] | null> => {
-  try {
-    const currentUser: User | null = await getCurrentUser();
-
-    const { data, error } = await supabase
-      .from("projects")
-      .select("*")
-      .eq("creator_id", currentUser?.id)
-      .eq("is_completed", true);
-
-    if (error) {
-      console.error("Error fetching projects:", error.message);
-      console.error("Error details:", error.details);
-      return null;
-    }
-
-    return data as ProjectsData[];
+    return projects;
   } catch (err) {
     console.error("Exception in getProjects:", err);
     return null;
@@ -500,7 +406,6 @@ export interface Contributor {
 
 // handles getting the user information for all contributors on a project
 // Optimized version that fetches all data in a single query with joins
-
 
 export async function getProjectContributors(projectId: string | undefined) {
   try {
@@ -792,30 +697,81 @@ export const getUserProfileData = async (): Promise<any> => {
   }
 };
 
-async function deleteUserAccount() {
-  const response = await fetch(`${supabaseUrl}/functions/v1/delete-account`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${
-        (
-          await supabase.auth.getSession()
-        ).data.session?.access_token
-      }`,
-      "Content-Type": "application/json",
-    },
-  });
+/**
+ * Deletes the current user's account after confirmation and handles navigation
+ * @returns {Promise<{success: boolean, message: string}>} Result of the deletion attempt
+ */
+const deleteUserAccount = async (): Promise<{
+  success: boolean;
+  message: string;
+}> => {
+  try {
+    // First confirmation
+    if (!window.confirm("Are you sure you want to delete your account?")) {
+      return { success: false, message: "Account deletion cancelled" };
+    }
 
-  if (response.ok) {
-    const data = await response.json();
+    // Second confirmation with warning about data loss
+    if (
+      !window.confirm(
+        "WARNING: This action CANNOT be undone. All your data will be permanently deleted. Are you absolutely sure?"
+      )
+    ) {
+      return { success: false, message: "Account deletion cancelled" };
+    }
 
-    console.log(data.message);
-    // Account deleted successfully
-  } else {
-    const errorData = await response.json();
+    // Get the user's session token for authentication (this has been fixed in in the RLS policy)
+    // previously required a service level session token which is dangerous
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData.session?.access_token;
 
-    console.error("Error deleting account:", errorData.error);
+    if (!token) {
+      return {
+        success: false,
+        message: "No valid session found. Please log in again.",
+      };
+    }
+
+    // Base URL retrievef from .env file to prevent exposure
+    const API_BASE_URL =
+      import.meta.env.VITE_SUPABASE_URL || "http://localhost:8080";
+
+    // Make the API call to the backend delete-account endpoint
+    // (located in edge functions to prevent direct access)
+    const response = await fetch(
+      `${API_BASE_URL}/functions/v1/delete-account`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to delete account");
+    }
+
+    // Force sign out the user after successful deletion
+    await supabase.auth.signOut();
+
+    // We've successfully deleted account
+    return {
+      success: true,
+      message: "Your account has been successfully deleted",
+    };
+  } catch (error: any) {
+    console.error("Error deleting account:", error);
+    return {
+      success: false,
+      message:
+        error.message ||
+        "An unexpected error occurred while deleting your account",
+    };
   }
-}
+};
 
 // Non-async version of getProfilePictureOptions to avoid unnecessary API calls in getUserProfileData
 const getProfilePictureOptionsSync = () => {
@@ -861,7 +817,7 @@ export {
   signOut,
   getCurrentUser,
   deleteUserAccount,
-  getProjectsInprogress,
+  // getProjectsInprogress,
   getProfilePictureOptions,
   getProfilePicture,
   getUsername,
