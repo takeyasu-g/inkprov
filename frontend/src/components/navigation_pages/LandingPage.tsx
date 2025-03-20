@@ -44,9 +44,9 @@ const LandingPage: React.FC = () => {
           <Button
             className="bg-secondary-button text-secondary-text hover:bg-secondary-button-hover border border-primary-border cursor-pointer"
             variant="default"
-            onClick={() => navigate("/stories")}
+            onClick={() => navigate("/sessions")}
           >
-            Explore Stories
+            Explore Open Sessions
           </Button>
         </section>
       </section>
