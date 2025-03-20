@@ -250,7 +250,7 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
               </SheetTrigger>
 
               {/* Side Menu Content */}
-              <SheetContent side="right" className="w-35 ">
+              <SheetContent side="right" className="w-40 overflow-y-auto">
                 <div className="p-4 flex flex-col space-y-4">
                   <div className="pb-3 border-b border-primary-border">
                     <Avatar className="w-10 h-10 ">
