@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
+import { deleteUserAccount } from "@/utils/supabase";
 import {
   getUserProfileData,
   updateUsername,
@@ -273,18 +274,21 @@ const Settings: React.FC = () => {
 
               {/* Profile Preview Button (Temporary) */}
               <div className="border-t pt-6">
-                <h4 className="text-lg font-medium mb-3">Development</h4>
+                <h4 className="text-lg font-medium mb-3">Danger Zone</h4>
                 <p className="text-sm text-tertiary-text mb-4">
-                  Preview pages in development
+                  Delete user account and information from Inkprov
                 </p>
                 <Button
                   asChild
-                  variant="outline"
-                  className="w-full flex items-center justify-center gap-2"
+                  variant="destructive"
+                  className="w-full flex items-center justify-center gap-2 cursor-pointer"
+                  onClick={() => {
+                    deleteUserAccount();
+                  }}
                 >
                   <Link to="/profile">
                     <UserCircle className="h-5 w-5" />
-                    Preview Profile Page
+                    Delete Account
                   </Link>
                 </Button>
               </div>

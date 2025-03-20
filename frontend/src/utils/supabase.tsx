@@ -483,8 +483,6 @@ const getMatureContent = async (): Promise<any> => {
 // explicit function to get all contributors to a given project (type definitions are here temporarily for debugging)
 // update: seems to be working in production, leaving as is
 
-// update: seems to be working in production, leaving as is
-
 // Typing
 export interface Contributor {
   id: string;
@@ -503,7 +501,8 @@ export interface Contributor {
 // handles getting the user information for all contributors on a project
 // Optimized version that fetches all data in a single query with joins
 
-export async function getProjectContributors(projectId: string) {
+
+export async function getProjectContributors(projectId: string | undefined) {
   try {
     // Use a single query with joins to get all data at once
     const { data: enrichedContributors, error } = await supabase
@@ -793,6 +792,31 @@ export const getUserProfileData = async (): Promise<any> => {
   }
 };
 
+async function deleteUserAccount() {
+  const response = await fetch(`${supabaseUrl}/functions/v1/delete-account`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${
+        (
+          await supabase.auth.getSession()
+        ).data.session?.access_token
+      }`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+
+    console.log(data.message);
+    // Account deleted successfully
+  } else {
+    const errorData = await response.json();
+
+    console.error("Error deleting account:", errorData.error);
+  }
+}
+
 // Non-async version of getProfilePictureOptions to avoid unnecessary API calls in getUserProfileData
 const getProfilePictureOptionsSync = () => {
   // Define all avatar filenames
@@ -836,6 +860,7 @@ export {
   signIn,
   signOut,
   getCurrentUser,
+  deleteUserAccount,
   getProjectsInprogress,
   getProfilePictureOptions,
   getProfilePicture,
