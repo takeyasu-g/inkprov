@@ -13,7 +13,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { supabase, getUsername, getProfilePicture } from "@/utils/supabase";
+import { supabase, getUserProfileData } from "@/utils/supabase";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -47,23 +47,26 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
   const [username, setUsername] = useState<string>("");
 
   useEffect(() => {
-    // Get username
-    const fetchUsername = async () => {
-      const usernameData = await getUsername();
-      const user = usernameData[0].user_profile_name.split("@")[0];
-      const username = user[0].toUpperCase() + user.substring(1);
-      setUsername(username);
+    const fetchUserData = async () => {
+      if (!isAuthenticated) return;
+
+      try {
+        // Use the consolidated API call
+        const userData = await getUserProfileData();
+
+        // Process username
+        const user = userData.username.split("@")[0];
+        const formattedUsername = user[0].toUpperCase() + user.substring(1);
+
+        setUsername(formattedUsername);
+        setCurrentProfilePicture(userData.profilePicture);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
     };
 
-    // Get Profile Picture
-    const fetchProfilePicture = async () => {
-      const profilePicture = await getProfilePicture();
-      setCurrentProfilePicture(profilePicture);
-    };
-
-    fetchUsername();
-    fetchProfilePicture();
-  });
+    fetchUserData();
+  }, [isAuthenticated]); // Only run when authentication status changes
 
   const handleLoggedInHomepage = () => {
     if (isAuthenticated) {

@@ -1,7 +1,6 @@
 {
   "name": "inkprov",
   "version": "1.0.0",
-  "description": "",
   "license": "ISC",
   "author": "",
   "type": "module",
@@ -14,6 +13,7 @@
   },
   "dependencies": {
     "@dotenvx/dotenvx": "^1.39.0",
+    "@supabase/supabase-js": "^2.49.1",
     "accepts": "^1.3.8",
     "array-flatten": "^1.1.1",
     "body-parser": "^1.20.3",
@@ -28,6 +28,7 @@
     "debug": "^2.6.9",
     "depd": "^2.0.0",
     "destroy": "^1.2.0",
+    "dotenv": "^16.4.7",
     "dunder-proto": "^1.0.1",
     "ee-first": "^1.1.1",
     "encodeurl": "^2.0.0",
@@ -83,5 +84,8 @@
     "unpipe": "^1.0.0",
     "utils-merge": "^1.0.1",
     "vary": "^1.1.2"
-  }
+  },
+  "keywords": [],
+  "devDependencies": {},
+  "description": ""
 }

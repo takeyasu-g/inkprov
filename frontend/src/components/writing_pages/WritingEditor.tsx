@@ -134,7 +134,7 @@ const WritingEditor: React.FC = () => {
   const fetchSnippets = async () => {
     setIsRefreshing(true);
     try {
-      const snippets = await getProjectSnippets(projectId);
+      const snippets = await getProjectSnippets(projectId || "");
       if (snippets) {
         // redundancy
         setPreviousSnippets(snippets);
@@ -166,12 +166,24 @@ const WritingEditor: React.FC = () => {
         // Set user data directly from auth
         setUserData({ auth_id: user.id });
 
-        // Fetch project details
-        const { data: projectData, error: projectError } = await supabase
-          .from("projects")
-          .select("*")
-          .eq("id", projectId)
-          .single();
+        // Fetch all data in parallel for better performance
+        const [projectResult, contributorData, snippets] = await Promise.all([
+          // Fetch project details
+          supabase.from("projects").select("*").eq("id", projectId).single(),
+
+          // Check if user is a contributor
+          supabase
+            .from("project_contributors")
+            .select("*, user:user_id(*)")
+            .eq("project_id", projectId)
+            .eq("user_id", user.id)
+            .single(),
+
+          // Fetch project snippets in parallel
+          getProjectSnippets(projectId || ""),
+        ]);
+
+        const { data: projectData, error: projectError } = projectResult;
 
         if (projectError) throw projectError;
 
@@ -185,33 +197,40 @@ const WritingEditor: React.FC = () => {
 
         setProject(cappedProjectData);
 
-        // Check if project is locked and by whom
+        // Set project lock status
         setProjectLocked(cappedProjectData.is_locked || false);
         setLockedBy(cappedProjectData.locked_by || null);
-
-        // Check if user is currently writing
         setIsCurrentlyWriting(cappedProjectData.locked_by === user.id);
 
-        // Check if user is a contributor
-        const { data: contributorData } = await supabase
-          .from("project_contributors")
-          .select("*, user:user_id(*)")
-          .eq("project_id", projectId)
-          .eq("user_id", user.id)
-          .single();
+        // Set contributor status
+        setIsContributor(!!contributorData.data);
+        setIsProjectCreator(
+          contributorData.data?.user_is_project_creator || false
+        );
 
-        setIsContributor(!!contributorData);
-        setIsProjectCreator(contributorData?.user_is_project_creator || false);
+        // Fetch project contributors (optimized in supabase.tsx)
+        const contributorsData = await getProjectContributors(projectId);
 
-        // Fetch project contributors
-        await fetchContributors();
+        // Sort contributors by joined_at to ensure consistent display order
+        const sortedContributors = [...contributorsData].sort(
+          (a, b) =>
+            new Date(a.joined_at || "").getTime() -
+            new Date(b.joined_at || "").getTime()
+        );
 
-        // Fetch previous snippets
-        await fetchSnippets();
+        setContributors(sortedContributors);
+
+        // Process snippets
+        if (snippets) {
+          setPreviousSnippets(snippets);
+        } else {
+          setPreviousSnippets([]);
+        }
 
         // Check if project has reached max snippets (using capped value)
         if (
-          previousSnippets.length >= (cappedProjectData.max_snippets || 0) &&
+          snippets &&
+          snippets.length >= (cappedProjectData.max_snippets || 0) &&
           cappedProjectData.max_snippets > 0
         ) {
           // Mark project as completed if it's reached max snippets

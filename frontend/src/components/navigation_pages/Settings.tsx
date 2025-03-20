@@ -10,9 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 import {
-  getUsername,
-  getBio,
-  getMatureContent,
+  getUserProfileData,
   updateUsername,
   updateBio,
   updateMatureContent,
@@ -50,25 +48,33 @@ const Settings: React.FC = () => {
   });
 
   useEffect(() => {
-    // Fetch user data
-    const userData = Promise.all([getUsername(), getBio(), getMatureContent()]);
-    userData.then((res) => {
-      let username = res[0][0].user_profile_name;
-      if (username.includes("@")) {
-        username = username.substring(0, username.indexOf("@"));
+    const fetchSettingsData = async () => {
+      try {
+        // Use the consolidated API call
+        const userData = await getUserProfileData();
+
+        let username = userData.username;
+        if (username.includes("@")) {
+          username = username.substring(0, username.indexOf("@"));
+        }
+
+        const bioText = userData.bio || "";
+        setBioCharCount(bioText ? bioText.length : 0);
+        setMatureContent(userData.matureContentEnabled || false);
+
+        // set form values after data is fetched
+        form.reset({
+          username: username,
+          bio: bioText,
+          matureContent: userData.matureContentEnabled || false,
+        });
+      } catch (error) {
+        console.error("Error fetching settings data:", error);
+        toast.error("Failed to load settings");
       }
+    };
 
-      const bioText = res[1][0].user_profile_bio;
-      setBioCharCount(bioText ? bioText.length : 0);
-      setMatureContent(res[2][0].user_profile_mature_enabled);
-
-      // set form values after data is fetched
-      form.reset({
-        username: username,
-        bio: bioText,
-        matureContent: res[2][0].user_profile_mature_enabled,
-      });
-    });
+    fetchSettingsData();
   }, [form]);
 
   // Form Submission
@@ -78,17 +84,27 @@ const Settings: React.FC = () => {
       setIsLoading(true);
 
       // Check if any of the fields have data
-      if(values.username.length > 0 || values.bio.length > 0 || values.matureContent !== matureContent) {
-        const moderationResponse = await axios.post(`${API_BASE_URL}/moderation`, {
-          content: values.username + " " + values.bio});
+      if (
+        values.username.length > 0 ||
+        values.bio.length > 0 ||
+        values.matureContent !== matureContent
+      ) {
+        const moderationResponse = await axios.post(
+          `${API_BASE_URL}/moderation`,
+          {
+            content: values.username + " " + values.bio,
+          }
+        );
 
         // If content is flagged, display reason
         if (moderationResponse.data.flagged) {
-          toast.error(`Content flagged for ${moderationResponse.data.reason}. Please try again.`);
+          toast.error(
+            `Content flagged for ${moderationResponse.data.reason}. Please try again.`
+          );
           setIsLoading(false);
           return;
         }
-      };
+      }
 
       if (values.username.length > 0) {
         await updateUsername(values.username);

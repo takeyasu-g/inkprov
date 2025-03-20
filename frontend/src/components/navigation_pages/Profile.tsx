@@ -9,15 +9,7 @@ import ProfileStoriesCard from "../ProfileStoriesCard";
 import ProfileSkeleton from "../ProfileSkeleton";
 import RewardTrophiesPage from "../user/RewardTrophiesPage";
 import { ProjectsData } from "@/types/global";
-import {
-  getUsername,
-  getBio,
-  getProjects,
-  getProjectsInprogress,
-  getProfilePictureOptions,
-  getProfilePicture,
-  updateProfilePicture,
-} from "@/utils/supabase";
+import { getUserProfileData, updateProfilePicture } from "@/utils/supabase";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -57,53 +49,31 @@ const Profile: React.FC = () => {
   const ITEMS_PER_PAGE = 6;
 
   useEffect(() => {
-    setIsLoading(true);
-    // Get username
-    const fetchUsername = async () => {
-      const usernameData = await getUsername();
-      const user = usernameData[0].user_profile_name.split("@")[0];
-      const username = user[0].toUpperCase() + user.substring(1);
-      setUsername(username);
+    const fetchProfileData = async () => {
+      setIsLoading(true);
+      try {
+        // Single API call to get all user data
+        const userData = await getUserProfileData();
+
+        // Process username
+        const user = userData.username.split("@")[0];
+        const username = user[0].toUpperCase() + user.substring(1);
+
+        // Update all state
+        setUsername(username);
+        setBio(userData.bio || "");
+        setCurrentProfilePicture(userData.profilePicture);
+        setProfilePictureOptions(userData.profilePictureOptions);
+        setStoriesCompleted(userData.completedProjects);
+        setStoriesInprogress(userData.inProgressProjects);
+      } catch (error) {
+        console.error("Error fetching profile data:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    // Get user bio
-    const fetchBio = async () => {
-      const bio = await getBio();
-      setBio(bio[0].user_profile_bio);
-    };
-
-    // Get Completed stories
-    const fetchStoriesCompleted = async () => {
-      const stories = await getProjects();
-      setStoriesCompleted(stories);
-    };
-
-    // Get Inprogress stories
-    const fetchInProgressStories = async () => {
-      const inprogressStories = await getProjectsInprogress();
-      setStoriesInprogress(inprogressStories);
-    };
-
-    // Get array of URLs of Profile Pictures for users to select from
-    const fetchProfilePictureOptions = async () => {
-      const profilePictures = await getProfilePictureOptions();
-      setProfilePictureOptions(profilePictures);
-    };
-
-    // Get Profile Picture for logged in user
-    const fetchProfilePicture = async () => {
-      const profilePicture = await getProfilePicture();
-      setCurrentProfilePicture(profilePicture);
-    };
-
-    fetchUsername();
-    fetchBio();
-    fetchProfilePicture();
-    fetchProfilePictureOptions();
-    fetchStoriesCompleted();
-    fetchInProgressStories();
-
-    setIsLoading(false);
+    fetchProfileData();
   }, []);
 
   const getInitials = () => {

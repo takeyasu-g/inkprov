@@ -64,15 +64,27 @@ For clarity in the backend, only the terms "session", "sessions", "project",and 
 export const getProjectSnippets = async (
   projectId: string | undefined
 ): Promise<ProjectSnippet[] | null> => {
+  // Skip execution if projectId is undefined
+  if (!projectId) return null;
+
   const { data: projectSnippets, error } = await supabase
     .from("project_snippets")
-    .select("*")
+    .select(
+      `
+      *,
+      creator:users_ext!creator_id(
+        user_profile_name
+      )
+    `
+    )
     .eq("project_id", projectId)
-    .order("sequence_number", { ascending: true }); // order snippets by sequence_number
+    .order("sequence_number", { ascending: true });
 
   if (error) {
+    console.error("Error fetching project snippets:", error);
     return null;
   }
+
   return projectSnippets;
 };
 
@@ -98,18 +110,8 @@ export const getProjectOfId = async (
 
 export const getSessions = async () => {
   try {
-    // only get projects that have not been flagged as completed
-    const { data: project, error } = await supabase
-      .from("projects")
-      .select("*")
-      .eq("is_completed", false);
-
-    if (error) {
-      throw error;
-    }
-
-    // if the basic query succeeds, then get the data we need
-    const { data: fullProject, error: fullError } = await supabase
+    // Get projects that are not completed (i.e., active sessions)
+    const { data: projects, error } = await supabase
       .from("projects")
       .select(
         `
@@ -122,53 +124,71 @@ export const getSessions = async () => {
       )
       .eq("is_completed", false);
 
-    if (fullError) {
-      console.error("Error fetching full session data:", fullError);
-      console.error("Full error details:", fullError.details);
-      return project; // Return basic project data if full query fails
+    if (error) {
+      console.error("Error fetching sessions:", error);
+      return null;
     }
 
-    // Update the contributor counts with real-time data
-    if (fullProject && fullProject.length > 0) {
-      try {
-        // For each project, get the actual count of contributors
-        for (const project of fullProject) {
-          const { data: contributors, error: countError } = await supabase
-            .from("project_contributors")
-            .select("id")
-            .eq("project_id", project.id);
+    if (!projects || projects.length === 0) {
+      return [];
+    }
 
-          if (countError) {
-            console.error(
-              `Error fetching contributors for project ${project.id}:`,
-              countError
-            );
-          } else if (contributors) {
-            const realCount = contributors.length;
-            if (realCount !== project.current_contributors_count) {
-              project.current_contributors_count = realCount;
+    // Get all project IDs
+    const projectIds = projects.map((project) => project.id);
 
-              // Also update the project table to keep it in sync
-              const { error: updateError } = await supabase
-                .from("projects")
-                .update({ current_contributors_count: realCount })
-                .eq("id", project.id);
+    // Fetch all contributors for all projects in a single query
+    const { data: allContributors, error: contributorsError } = await supabase
+      .from("project_contributors")
+      .select("project_id, id")
+      .in("project_id", projectIds);
 
-              if (updateError) {
-                console.error(
-                  `Error updating project count in database:`,
-                  updateError
-                );
-              }
-            }
-          }
+    if (contributorsError) {
+      console.error("Error fetching contributors:", contributorsError);
+      // Return projects without contributor data rather than failing completely
+      return projects;
+    }
+
+    // Group contributors by project_id
+    const contributorsByProject = allContributors.reduce<Record<string, any[]>>(
+      (acc, contributor) => {
+        if (!acc[contributor.project_id]) {
+          acc[contributor.project_id] = [];
         }
-      } catch (countErr) {
-        console.error("Error updating contributor counts:", countErr);
-      }
-    }
+        acc[contributor.project_id].push(contributor);
+        return acc;
+      },
+      {}
+    );
 
-    return fullProject || project;
+    // Update projects with contributor counts
+    const updatedProjects = projects.map((project) => {
+      const projectContributors = contributorsByProject[project.id] || [];
+      const realCount = projectContributors.length;
+
+      // If count in DB is wrong, queue an update
+      if (realCount !== project.current_contributors_count) {
+        // Update the count in our local copy
+        project.current_contributors_count = realCount;
+
+        // Update the database asynchronously (fire and forget)
+        supabase
+          .from("projects")
+          .update({ current_contributors_count: realCount })
+          .eq("id", project.id)
+          .then(({ error }) => {
+            if (error) {
+              console.error(
+                `Error updating project count for ${project.id}:`,
+                error
+              );
+            }
+          });
+      }
+
+      return project;
+    });
+
+    return updatedProjects;
   } catch (err) {
     console.error("Error in getSessions:", err);
     return null;
@@ -265,115 +285,41 @@ export const getTags = async () => {
 };
 
 const getProfilePictureOptions = async () => {
-  // Get the public URLs of the images
-  // const bookShelfImageData = supabase.storage
-  //   .from("user-profile-pictures")
-  //   .getPublicUrl("BookShelf.png");
-  // const bookStackImageData = supabase.storage
-  //   .from("user-profile-pictures")
-  //   .getPublicUrl("BookStack.png");
-  // const lanturnBookImageData = supabase.storage
-  //   .from("user-profile-pictures")
-  //   .getPublicUrl("LanturnBook.png");
-  const user_avatar_01 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_01.png");
-  const user_avatar_02 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_02.png");
-  const user_avatar_03 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_03.png");
-  const user_avatar_04 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_04.png");
-  const user_avatar_05 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_05.png");
-  const user_avatar_06 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_06.png");
-  const user_avatar_07 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_07.png");
-  const user_avatar_08 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_08.png");
-  const user_avatar_09 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_09.png");
-  const user_avatar_10 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_10.png");
-  const user_avatar_11 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_11.png");
-  const user_avatar_12 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_12.png");
-  const user_avatar_13 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_13.png");
-  const user_avatar_14 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_14.png");
-  const user_avatar_15 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_15.png");
-  const user_avatar_16 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_16.png");
-  const user_avatar_17 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_17.png");
-  const user_avatar_2_1 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_2_1.jpg");
-  const user_avatar_2_2 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_2_2.jpg");
-  const user_avatar_2_3 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_2_3.jpg");
-  const user_avatar_2_4 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_2_4.jpg");
-  const user_avatar_2_5 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_2_5.jpg");
-  const user_avatar_2_6 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_2_6.jpg");
-
-  return [
-    // temporarily removed bookshelf, bookstack, and lanturnbook for icon uniformity
-    // bookShelfImageData.data.publicUrl,
-    // bookStackImageData.data.publicUrl,
-    // lanturnBookImageData.data.publicUrl,
-    user_avatar_01.data.publicUrl,
-    user_avatar_02.data.publicUrl,
-    user_avatar_03.data.publicUrl,
-    user_avatar_04.data.publicUrl,
-    user_avatar_05.data.publicUrl,
-    user_avatar_06.data.publicUrl,
-    user_avatar_07.data.publicUrl,
-    user_avatar_08.data.publicUrl,
-    user_avatar_09.data.publicUrl,
-    user_avatar_10.data.publicUrl,
-    user_avatar_11.data.publicUrl,
-    user_avatar_12.data.publicUrl,
-    user_avatar_13.data.publicUrl,
-    user_avatar_14.data.publicUrl,
-    user_avatar_15.data.publicUrl,
-    user_avatar_16.data.publicUrl,
-    user_avatar_17.data.publicUrl,
-    user_avatar_2_1.data.publicUrl,
-    user_avatar_2_2.data.publicUrl,
-    user_avatar_2_3.data.publicUrl,
-    user_avatar_2_4.data.publicUrl,
-    user_avatar_2_5.data.publicUrl,
-    user_avatar_2_6.data.publicUrl,
+  // Define all avatar filenames
+  const avatarFilenames = [
+    "user_avatar_01.png",
+    "user_avatar_02.png",
+    "user_avatar_03.png",
+    "user_avatar_04.png",
+    "user_avatar_05.png",
+    "user_avatar_06.png",
+    "user_avatar_07.png",
+    "user_avatar_08.png",
+    "user_avatar_09.png",
+    "user_avatar_10.png",
+    "user_avatar_11.png",
+    "user_avatar_12.png",
+    "user_avatar_13.png",
+    "user_avatar_14.png",
+    "user_avatar_15.png",
+    "user_avatar_16.png",
+    "user_avatar_17.png",
+    "user_avatar_2_1.jpg",
+    "user_avatar_2_2.jpg",
+    "user_avatar_2_3.jpg",
+    "user_avatar_2_4.jpg",
+    "user_avatar_2_5.jpg",
+    "user_avatar_2_6.jpg",
   ];
+
+  // Generate all public URLs using map
+  const avatarUrls = avatarFilenames.map(
+    (filename) =>
+      supabase.storage.from("user-profile-pictures").getPublicUrl(filename).data
+        .publicUrl
+  );
+
+  return avatarUrls;
 };
 
 const getProfilePicture = async () => {
@@ -555,52 +501,49 @@ export interface Contributor {
 }
 
 // handles getting the user information for all contributors on a project
-// something on the supabase side warrants this level of overengineering, so please do not attempt to refactor
+// Optimized version that fetches all data in a single query with joins
 
-async function getProjectContributors(projectId: string) {
+export async function getProjectContributors(projectId: string) {
   try {
-    const { data: contributors, error: contributorsError } = await supabase
+    // Use a single query with joins to get all data at once
+    const { data: enrichedContributors, error } = await supabase
       .from("project_contributors")
-      .select("*")
+      .select(
+        `
+        *,
+        user:users_ext!user_id(
+          id, 
+          user_profile_name
+        )
+      `
+      )
       .eq("project_id", projectId);
 
-    if (contributorsError) {
-      console.error("Error fetching project contributors:", contributorsError);
+    if (error) {
+      console.error("Error fetching project contributors:", error);
       return [];
     }
-    if (!contributors || contributors.length === 0) {
+
+    if (!enrichedContributors || enrichedContributors.length === 0) {
       return [];
     }
-    const userIds = contributors.map((contributor) => contributor.user_id);
-    const { data: usersData, error: usersError } = await supabase
-      .from("users_ext")
-      .select("id, user_profile_name")
-      .in("id", userIds);
 
-    if (usersError) {
-      console.error("Error fetching user data:", usersError);
-      return contributors.map((contributor) => ({
-        ...contributor,
-        user: { id: contributor.user_id, user_profile_name: "Unknown" },
-      }));
-    }
-    const enrichedContributors = contributors.map((contributor) => {
-      const user = usersData?.find((user) => user.id === contributor.user_id);
-
-      return {
-        ...contributor,
-        user_made_contribution: contributor.user_made_contribution || false,
-        current_writer: contributor.current_writer || false,
-        user_is_project_creator: contributor.user_is_project_creator || false,
-        last_contribution_at:
-          contributor.last_contribution_at ||
-          contributor.joined_at ||
-          new Date().toISOString(),
-        user: user || { id: contributor.user_id, user_profile_name: "Unknown" },
-      };
-    });
-
-    return enrichedContributors;
+    // Process the data to ensure all fields have default values
+    return enrichedContributors.map((contributor) => ({
+      ...contributor,
+      user_made_contribution: contributor.user_made_contribution || false,
+      current_writer: contributor.current_writer || false,
+      user_is_project_creator: contributor.user_is_project_creator || false,
+      last_contribution_at:
+        contributor.last_contribution_at ||
+        contributor.joined_at ||
+        new Date().toISOString(),
+      // Extract user from the joined data
+      user: contributor.user || {
+        id: contributor.user_id,
+        user_profile_name: "Unknown",
+      },
+    }));
   } catch (err) {
     console.error("Exception when fetching project contributors:", err);
     return [];
@@ -790,6 +733,103 @@ export const getProjectReactionCounts = async (
   return counts;
 };
 
+// Get all user profile data in a single function to reduce API calls
+export const getUserProfileData = async (): Promise<any> => {
+  try {
+    const currentUser: User | null = await getCurrentUser();
+
+    if (!currentUser) {
+      throw new Error("User not authenticated");
+    }
+
+    // Make parallel API calls for all user data
+    const [userExtData, completedProjects, inProgressProjects] =
+      await Promise.all([
+        // Get user_ext data (contains username, bio, profile pic, mature content settings)
+        supabase
+          .from("users_ext")
+          .select(
+            "user_profile_name, user_profile_bio, profile_pic_url, user_profile_mature_enabled"
+          )
+          .eq("auth_id", currentUser.id)
+          .single(),
+
+        // Get completed projects
+        supabase
+          .from("projects")
+          .select("*")
+          .eq("creator_id", currentUser.id)
+          .eq("is_completed", true),
+
+        // Get in-progress projects
+        supabase
+          .from("projects")
+          .select("*")
+          .eq("creator_id", currentUser.id)
+          .eq("is_completed", false),
+      ]);
+
+    // Get profile picture options using our optimized function
+    const profilePictureOptions = getProfilePictureOptionsSync();
+
+    if (userExtData.error) {
+      throw userExtData.error;
+    }
+
+    // Format the data for consistent response
+    return {
+      userData: userExtData.data,
+      username: userExtData.data?.user_profile_name,
+      bio: userExtData.data?.user_profile_bio,
+      profilePicture: userExtData.data?.profile_pic_url,
+      matureContentEnabled: userExtData.data?.user_profile_mature_enabled,
+      profilePictureOptions: profilePictureOptions,
+      completedProjects: completedProjects.data || [],
+      inProgressProjects: inProgressProjects.data || [],
+    };
+  } catch (error) {
+    console.error("Error fetching user profile data:", error);
+    throw error;
+  }
+};
+
+// Non-async version of getProfilePictureOptions to avoid unnecessary API calls in getUserProfileData
+const getProfilePictureOptionsSync = () => {
+  // Define all avatar filenames
+  const avatarFilenames = [
+    "user_avatar_01.png",
+    "user_avatar_02.png",
+    "user_avatar_03.png",
+    "user_avatar_04.png",
+    "user_avatar_05.png",
+    "user_avatar_06.png",
+    "user_avatar_07.png",
+    "user_avatar_08.png",
+    "user_avatar_09.png",
+    "user_avatar_10.png",
+    "user_avatar_11.png",
+    "user_avatar_12.png",
+    "user_avatar_13.png",
+    "user_avatar_14.png",
+    "user_avatar_15.png",
+    "user_avatar_16.png",
+    "user_avatar_17.png",
+    "user_avatar_2_1.jpg",
+    "user_avatar_2_2.jpg",
+    "user_avatar_2_3.jpg",
+    "user_avatar_2_4.jpg",
+    "user_avatar_2_5.jpg",
+    "user_avatar_2_6.jpg",
+  ];
+
+  // Generate all public URLs using map
+  return avatarFilenames.map(
+    (filename) =>
+      supabase.storage.from("user-profile-pictures").getPublicUrl(filename).data
+        .publicUrl
+  );
+};
+
 export {
   supabase,
   signUp,
@@ -802,7 +842,6 @@ export {
   getUsername,
   getBio,
   getMatureContent,
-  getProjectContributors,
   getSession,
   insertUsername,
   updateProfilePicture,
