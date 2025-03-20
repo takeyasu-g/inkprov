@@ -13,7 +13,6 @@ import ReadingPage from "../navigation_pages/ReadingPage";
 import CreateSessionPage from "../writing_pages/CreateSessionPage";
 import AboutPage from "../pages/AboutPage";
 import PrivacyPage from "../pages/PrivacyPage";
-import ProfileApiTest from "../pages/ProfileApiTest";
 import Header from "../Header";
 import Footer from "../Footer";
 import { useAuth } from "@/contexts/AuthContext";
