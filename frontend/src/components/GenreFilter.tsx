@@ -57,7 +57,7 @@ const GenreFilter: React.FC<GenreFilterProps> = ({ onSelect }) => {
               {selectedGenre} <span className="ml-2">▼</span>
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-fit bg-white">
+          <DropdownMenuContent align="start" className="w-fit bg-white">
             <DropdownMenuLabel>Genres</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {genres.map((genre) => (
