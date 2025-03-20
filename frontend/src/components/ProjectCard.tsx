@@ -98,10 +98,10 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
       </div>
       <CardFooter className="flex justify-between items-center">
         <span className="text-sm text-secondary-text">
-          Completed: {new Date(projectData.updated_at).toDateString()}
+          Completed: {new Date(projectData.updated_at).toLocaleDateString()}
         </span>
         <Button
-          className="bg-primary-button hover:bg-primary-button-hover"
+          className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
           onClick={() =>
             navigate(`/projects/${projectData.id}/read`, {
               state: { project: projectData },

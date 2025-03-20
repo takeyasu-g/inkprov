@@ -119,7 +119,7 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
       <CardFooter className="flex justify-between items-center">
         <span className="text-sm text-secondary-text">{formattedDate}</span>
         <Button
-          className="bg-primary-button hover:bg-primary-button-hover"
+          className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
           onClick={() => navigate(`/writing/${sessionData.id}`)}
         >
           View Session
