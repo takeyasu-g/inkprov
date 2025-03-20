@@ -265,115 +265,41 @@ export const getTags = async () => {
 };
 
 const getProfilePictureOptions = async () => {
-  // Get the public URLs of the images
-  // const bookShelfImageData = supabase.storage
-  //   .from("user-profile-pictures")
-  //   .getPublicUrl("BookShelf.png");
-  // const bookStackImageData = supabase.storage
-  //   .from("user-profile-pictures")
-  //   .getPublicUrl("BookStack.png");
-  // const lanturnBookImageData = supabase.storage
-  //   .from("user-profile-pictures")
-  //   .getPublicUrl("LanturnBook.png");
-  const user_avatar_01 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_01.png");
-  const user_avatar_02 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_02.png");
-  const user_avatar_03 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_03.png");
-  const user_avatar_04 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_04.png");
-  const user_avatar_05 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_05.png");
-  const user_avatar_06 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_06.png");
-  const user_avatar_07 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_07.png");
-  const user_avatar_08 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_08.png");
-  const user_avatar_09 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_09.png");
-  const user_avatar_10 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_10.png");
-  const user_avatar_11 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_11.png");
-  const user_avatar_12 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_12.png");
-  const user_avatar_13 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_13.png");
-  const user_avatar_14 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_14.png");
-  const user_avatar_15 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_15.png");
-  const user_avatar_16 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_16.png");
-  const user_avatar_17 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_17.png");
-  const user_avatar_2_1 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_2_1.jpg");
-  const user_avatar_2_2 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_2_2.jpg");
-  const user_avatar_2_3 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_2_3.jpg");
-  const user_avatar_2_4 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_2_4.jpg");
-  const user_avatar_2_5 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_2_5.jpg");
-  const user_avatar_2_6 = supabase.storage
-    .from("user-profile-pictures")
-    .getPublicUrl("user_avatar_2_6.jpg");
-
-  return [
-    // temporarily removed bookshelf, bookstack, and lanturnbook for icon uniformity
-    // bookShelfImageData.data.publicUrl,
-    // bookStackImageData.data.publicUrl,
-    // lanturnBookImageData.data.publicUrl,
-    user_avatar_01.data.publicUrl,
-    user_avatar_02.data.publicUrl,
-    user_avatar_03.data.publicUrl,
-    user_avatar_04.data.publicUrl,
-    user_avatar_05.data.publicUrl,
-    user_avatar_06.data.publicUrl,
-    user_avatar_07.data.publicUrl,
-    user_avatar_08.data.publicUrl,
-    user_avatar_09.data.publicUrl,
-    user_avatar_10.data.publicUrl,
-    user_avatar_11.data.publicUrl,
-    user_avatar_12.data.publicUrl,
-    user_avatar_13.data.publicUrl,
-    user_avatar_14.data.publicUrl,
-    user_avatar_15.data.publicUrl,
-    user_avatar_16.data.publicUrl,
-    user_avatar_17.data.publicUrl,
-    user_avatar_2_1.data.publicUrl,
-    user_avatar_2_2.data.publicUrl,
-    user_avatar_2_3.data.publicUrl,
-    user_avatar_2_4.data.publicUrl,
-    user_avatar_2_5.data.publicUrl,
-    user_avatar_2_6.data.publicUrl,
+  // Define all avatar filenames
+  const avatarFilenames = [
+    "user_avatar_01.png",
+    "user_avatar_02.png",
+    "user_avatar_03.png",
+    "user_avatar_04.png",
+    "user_avatar_05.png",
+    "user_avatar_06.png",
+    "user_avatar_07.png",
+    "user_avatar_08.png",
+    "user_avatar_09.png",
+    "user_avatar_10.png",
+    "user_avatar_11.png",
+    "user_avatar_12.png",
+    "user_avatar_13.png",
+    "user_avatar_14.png",
+    "user_avatar_15.png",
+    "user_avatar_16.png",
+    "user_avatar_17.png",
+    "user_avatar_2_1.jpg",
+    "user_avatar_2_2.jpg",
+    "user_avatar_2_3.jpg",
+    "user_avatar_2_4.jpg",
+    "user_avatar_2_5.jpg",
+    "user_avatar_2_6.jpg",
   ];
+
+  // Generate all public URLs using map
+  const avatarUrls = avatarFilenames.map(
+    (filename) =>
+      supabase.storage.from("user-profile-pictures").getPublicUrl(filename).data
+        .publicUrl
+  );
+
+  return avatarUrls;
 };
 
 const getProfilePicture = async () => {
@@ -788,6 +714,103 @@ export const getProjectReactionCounts = async (
   });
 
   return counts;
+};
+
+// Get all user profile data in a single function to reduce API calls
+export const getUserProfileData = async (): Promise<any> => {
+  try {
+    const currentUser: User | null = await getCurrentUser();
+
+    if (!currentUser) {
+      throw new Error("User not authenticated");
+    }
+
+    // Make parallel API calls for all user data
+    const [userExtData, completedProjects, inProgressProjects] =
+      await Promise.all([
+        // Get user_ext data (contains username, bio, profile pic, mature content settings)
+        supabase
+          .from("users_ext")
+          .select(
+            "user_profile_name, user_profile_bio, profile_pic_url, user_profile_mature_enabled"
+          )
+          .eq("auth_id", currentUser.id)
+          .single(),
+
+        // Get completed projects
+        supabase
+          .from("projects")
+          .select("*")
+          .eq("creator_id", currentUser.id)
+          .eq("is_completed", true),
+
+        // Get in-progress projects
+        supabase
+          .from("projects")
+          .select("*")
+          .eq("creator_id", currentUser.id)
+          .eq("is_completed", false),
+      ]);
+
+    // Get profile picture options using our optimized function
+    const profilePictureOptions = getProfilePictureOptionsSync();
+
+    if (userExtData.error) {
+      throw userExtData.error;
+    }
+
+    // Format the data for consistent response
+    return {
+      userData: userExtData.data,
+      username: userExtData.data?.user_profile_name,
+      bio: userExtData.data?.user_profile_bio,
+      profilePicture: userExtData.data?.profile_pic_url,
+      matureContentEnabled: userExtData.data?.user_profile_mature_enabled,
+      profilePictureOptions: profilePictureOptions,
+      completedProjects: completedProjects.data || [],
+      inProgressProjects: inProgressProjects.data || [],
+    };
+  } catch (error) {
+    console.error("Error fetching user profile data:", error);
+    throw error;
+  }
+};
+
+// Non-async version of getProfilePictureOptions to avoid unnecessary API calls in getUserProfileData
+const getProfilePictureOptionsSync = () => {
+  // Define all avatar filenames
+  const avatarFilenames = [
+    "user_avatar_01.png",
+    "user_avatar_02.png",
+    "user_avatar_03.png",
+    "user_avatar_04.png",
+    "user_avatar_05.png",
+    "user_avatar_06.png",
+    "user_avatar_07.png",
+    "user_avatar_08.png",
+    "user_avatar_09.png",
+    "user_avatar_10.png",
+    "user_avatar_11.png",
+    "user_avatar_12.png",
+    "user_avatar_13.png",
+    "user_avatar_14.png",
+    "user_avatar_15.png",
+    "user_avatar_16.png",
+    "user_avatar_17.png",
+    "user_avatar_2_1.jpg",
+    "user_avatar_2_2.jpg",
+    "user_avatar_2_3.jpg",
+    "user_avatar_2_4.jpg",
+    "user_avatar_2_5.jpg",
+    "user_avatar_2_6.jpg",
+  ];
+
+  // Generate all public URLs using map
+  return avatarFilenames.map(
+    (filename) =>
+      supabase.storage.from("user-profile-pictures").getPublicUrl(filename).data
+        .publicUrl
+  );
 };
 
 export {

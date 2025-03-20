@@ -112,7 +112,6 @@ const OpenSessionsPage: React.FC = () => {
   };
 
   // Adds a refresh button to manually refresh sessions
-  // TODO: this may be no longer needed
   const handleManualRefresh = () => {
     handleFetchAllSessions();
   };
