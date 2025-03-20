@@ -253,11 +253,12 @@ const Profile: React.FC = () => {
           </section>
 
           {/* Profile Content - Main Tabs */}
-          <Tabs defaultValue="stories" className="w-full my-5">
-            <TabsList className="grid grid-cols-2 bg-tab-background mb-5">
+          <Tabs defaultValue="stories" className="relative w-full mt-5 gap-0">
+            <TabsList className="p-0 absolute rounded-none rounded-t-lg grid grid-cols-2 bg-gray-300 z-10 h-10 shadow-none text-primary-text border border-b-0 border-primary-border">
               <TabsTrigger
                 value="stories"
-                className="data-[state=active]:text-white data-[state=active]:bg-tab-active cursor-pointer"
+                className="data-[state=active]:shadow-none border-b data-[state=active]:border-r border-primary-border
+ data-[state=active]:text-primary-text data-[state=active]:bg-white cursor-pointer rounded-none rounded-t-lg h-full w-full data-[state=active]:border-b-0"
               >
                 <div className="flex items-center">
                   <BookOpen className="mr-2" size={18} />
@@ -266,7 +267,8 @@ const Profile: React.FC = () => {
               </TabsTrigger>
               <TabsTrigger
                 value="gamification"
-                className="data-[state=active]:text-white data-[state=active]:bg-tab-active cursor-pointer"
+                className="data-[state=active]:shadow-none border-b data-[state=active]:border-l border-primary-border
+ data-[state=active]:text-primary-text data-[state=active]:bg-white cursor-pointer rounded-none rounded-t-lg h-full w-full data-[state=active]:border-b-0"
               >
                 <div className="flex items-center">
                   <Trophy className="mr-2" size={18} />
@@ -277,7 +279,7 @@ const Profile: React.FC = () => {
 
             {/* Your Stories Tab Content */}
             <TabsContent value="stories">
-              <section className="w-full space-y-8 bg-card p-8 rounded-lg border border-primary-border">
+              <section className="w-full space-y-8 bg-card p-8 mt-[39px] rounded-lg rounded-tl-none border border-primary-border">
                 <section className="flex flex-col">
                   <div className="flex items-center text-secondary-text">
                     <BookOpen />
@@ -383,7 +385,7 @@ const Profile: React.FC = () => {
 
             {/* Gamification Tab Content */}
             <TabsContent value="gamification">
-              <section className="w-full space-y-8 bg-card p-8 rounded-lg border border-primary-border">
+              <section className="w-full space-y-8 bg-card p-8 mt-[39px] rounded-lg rounded-tl-none border border-primary-border">
                 <section className="flex flex-col">
                   <div className="flex items-center text-secondary-text">
                     <Trophy />
