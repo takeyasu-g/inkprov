@@ -91,7 +91,7 @@ const Profile: React.FC = () => {
         <ProfileSkeleton />
       ) : (
         <div className="h-full mb-5">
-          <section className="w-full space-y-8 bg-card p-8 mt-5 rounded-lg border border-primary-border pb-4">
+          <section className="w-[95%] md:w-[90%] xl:w-[85%] mx-auto space-y-8 bg-card p-8 mt-5 rounded-lg border border-primary-border pb-4">
             <section className="flex">
               <div>
                 <AlertDialog>
@@ -253,7 +253,10 @@ const Profile: React.FC = () => {
           </section>
 
           {/* Profile Content - Main Tabs */}
-          <Tabs defaultValue="stories" className="relative w-full mt-5 gap-0">
+          <Tabs
+            defaultValue="stories"
+            className="relative w-[95%] md:w-[90%] xl:w-[85%] mx-auto mt-5 gap-0"
+          >
             <TabsList className="p-0 absolute rounded-none rounded-t-lg grid grid-cols-2 bg-gray-300 z-10 h-10 shadow-none text-primary-text border border-b-0 border-primary-border">
               <TabsTrigger
                 value="stories"
