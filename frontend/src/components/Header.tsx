@@ -139,7 +139,7 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
         // Navigation menu only appears if the user has logged in
         <>
           <NavigationMenu className="hidden md:grid md:place-self-center">
-            <NavigationMenuList>
+            <NavigationMenuList className="gap-8">
               <NavigationMenuItem className="group/sessions">
                 <NavigationMenuLink
                   onClick={() => navigate("/sessions")}
