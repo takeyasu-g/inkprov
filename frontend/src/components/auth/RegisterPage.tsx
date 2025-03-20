@@ -146,8 +146,8 @@ export default function RegisterPage() {
       </div>
 
       {/* Right Column */}
-      <div className="w-full flex justify-center pt-6 order-1 lg:order-2 py-15">
-        <div className="w-full float-right max-w-md space-y-8 bg-background p-8 rounded-lg">
+      <div className="w-full px-8 flex justify-center order-1 lg:order-2 py-15">
+        <div className="w-full max-w-md space-y-8 bg-background rounded-lg">
           <div>
             <h2 className="text-3xl font-bold text-primary-text text-center">
               Create an account
@@ -161,9 +161,9 @@ export default function RegisterPage() {
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="mt-8 space-y-3"
+              className=" space-y-3 flex flex-col items-center"
             >
-              <div className="space-y-4">
+              <div className="space-y-4 w-[90%]">
                 <div>
                   {/* Email Input */}
                   <FormField
@@ -247,7 +247,7 @@ export default function RegisterPage() {
               </div>
 
               {/* Submit Button */}
-              <div className="space-y-4">
+              <div className="space-y-4 w-[80%]">
                 <Button
                   type="submit"
                   disabled={isLoading}
@@ -268,13 +268,13 @@ export default function RegisterPage() {
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="px-2 my-2 bg-background text-secondary-text">
-                    Or continue with
+                    Or
                   </span>
                 </div>
               </div>
 
               <Button
-                className="bg-secondary-button text-secondary-text hover:bg-secondary-button-hover border border-primary-border cursor-pointer w-full"
+                className="bg-secondary-button w-[80%] text-secondary-text hover:bg-secondary-button-hover border border-primary-border cursor-pointer"
                 variant="default"
                 disabled={isLoading}
                 onClick={handleGoogleSignUp}
