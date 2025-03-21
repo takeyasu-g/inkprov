@@ -29,7 +29,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       className={
         window.location.pathname === "/login" ||
         window.location.pathname === "/register"
-          ? "h-screen overflow-hidden "
+          ? "lg:overflow-hidden portrait:h-dvh landscape:h-full lg:landscape:h-dvh "
           : window.location.pathname.startsWith("/writing") ||
             window.location.pathname.startsWith("/projects") ||
             window.location.pathname.startsWith("/sessions/create")

@@ -99,25 +99,9 @@ export default function LoginPage() {
     }
   };
 
-  let bgColor;
-  if (
-    window.location.pathname.startsWith("/project") ||
-    window.location.pathname.startsWith("/writing")
-  ) {
-    bgColor = "bg-white";
-  }
-
   return (
-    <main
-      className={
-        window.location.pathname === "/login" ||
-        window.location.pathname === "/register"
-          ? "h-full overflow-hidden grid grid-cols-1 lg:grid-cols-2 "
-          : `min-h-screen w-full ${bgColor} sm:bg-background`
-      }
-    >
+    <main className="h-full grid grid-cols-1 lg:grid-cols-2 ">
       {/* Left Column */}
-      {/* "h-dvh row-span-5 bg-accent relative -mt-[4rem] before:absolute before:inset-0 before:left-[-100vw] before:w-[100vw] before:-z-10 before:bg-accent" */}
       <div className="bg-accent w-full lg:flex justify-center order-2 lg:order-1 hidden">
         <div className="relative w-100 h-87 mt-10 top-35 ">
           {/* Styled Borders */}
@@ -150,7 +134,7 @@ export default function LoginPage() {
 
       {/* Right Column */}
       <div className="w-full px-8 flex justify-center order-1 lg:order-2 py-15">
-        <div className="w-full float-right max-w-md space-y-8 bg-background rounded-lg">
+        <div className="w-full max-w-md space-y-8 bg-background rounded-lg">
           <div>
             <h2 className="text-3xl font-bold text-primary-text text-center">
               Welcome back
@@ -163,10 +147,10 @@ export default function LoginPage() {
           {/* Form */}
           <Form {...form}>
             <form
-              className="mt-8 space-y-3"
+              className="mt-8 space-y-3 flex flex-col items-center"
               onSubmit={form.handleSubmit(onSubmit)}
             >
-              <div className="space-y-4">
+              <div className="space-y-4 w-[90%]">
                 <div>
                   {/* Email Input */}
                   <FormField
@@ -269,11 +253,11 @@ export default function LoginPage() {
               </div>
 
               {/* Submit Button */}
-              <div className="space-y-4">
+              <div className="space-y-4 w-[80%] ">
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-primary-button mt-4 hover:bg-primary-button-hover cursor-pointer"
+                  className="w-full bg-primary-button mt-4 mb-5 hover:bg-primary-button-hover cursor-pointer"
                 >
                   {isLoading ? (
                     <>
@@ -289,14 +273,14 @@ export default function LoginPage() {
                     <div className="w-full border-t border-primary-border"></div>
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-2 my-2 bg-background text-secondary-text">
-                      Or continue with
+                    <span className="px-2 bg-background text-secondary-text">
+                      Or
                     </span>
                   </div>
                 </div>
 
                 <Button
-                  className="bg-secondary-button text-secondary-text hover:bg-secondary-button-hover border border-primary-border cursor-pointer w-full"
+                  className="mt-1 bg-secondary-button text-secondary-text hover:bg-secondary-button-hover border border-primary-border cursor-pointer w-full"
                   variant="default"
                   disabled={isLoading}
                   onClick={handleGoogleSignIn}

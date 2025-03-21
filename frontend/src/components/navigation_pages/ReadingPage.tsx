@@ -172,7 +172,7 @@ const ReadingPage: React.FC = () => {
   }, [projectId]);
 
   return (
-    <main className="h-full md:flex md:flex-col md:gap-5 py-6 mb-15 md:px-4 md:mx-auto md:max-w-[800px] bg-white md:bg-background">
+    <main className="h-full md:flex md:flex-col md:gap-5 py-6 lg:mb-15 md:px-4 md:mx-auto md:max-w-[800px] bg-white md:bg-background">
       <div className="bg-white md:bg-background px-5">
         <Button
           variant="outline"
@@ -229,8 +229,8 @@ const ReadingPage: React.FC = () => {
           })}
 
           {projectData?.is_completed && (
-            <div className="mt-6 border-t pt-4">
-              <h3 className="text-primary-text font-medium mb-3">
+            <div className="mt-8 border-t pt-4">
+              <h3 className="text-primary-text text-center font-medium my-3">
                 How did this story make you feel?
               </h3>
               <div className="flex flex-wrap gap-4 justify-center">

@@ -25,6 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase, getCurrentUser } from "@/utils/supabase";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface Achievement {
   id: string;
@@ -430,43 +431,51 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
           </div>
 
           <Tabs
-            defaultValue="all"
-            className="w-full"
+            value={activeTab}
             onValueChange={setActiveTab}
+            className="w-full"
           >
-            <TabsList className="mb-4">
-              <TabsTrigger value="all">
-                All ({unlockedCounts.all}/{achievements.length})
-              </TabsTrigger>
-              <TabsTrigger value="writing">
-                Writing ({unlockedCounts.writing}/
-                {achievements.filter((a) => a.category === "writing").length})
-              </TabsTrigger>
-              <TabsTrigger value="creation">
-                Creation ({unlockedCounts.creation}/
-                {achievements.filter((a) => a.category === "creation").length})
-              </TabsTrigger>
-              <TabsTrigger value="completion">
-                Completion ({unlockedCounts.completion}/
-                {achievements.filter((a) => a.category === "completion").length}
-                )
-              </TabsTrigger>
-              <TabsTrigger value="social">
-                Social ({unlockedCounts.social}/
-                {achievements.filter((a) => a.category === "social").length})
-              </TabsTrigger>
-              <TabsTrigger value="special">
-                Special ({unlockedCounts.special}/
-                {achievements.filter((a) => a.category === "special").length})
-              </TabsTrigger>
-            </TabsList>
+            {/* Desktop View: Normal Tabs */}
+            <ScrollArea type="always">
+              <TabsList className="mb-4 overflow-x-auto flex-nowrap">
+                <TabsTrigger value="all">
+                  All ({unlockedCounts.all}/{achievements.length})
+                </TabsTrigger>
+                <TabsTrigger value="writing">
+                  Writing ({unlockedCounts.writing}/
+                  {achievements.filter((a) => a.category === "writing").length})
+                </TabsTrigger>
+                <TabsTrigger value="creation">
+                  Creation ({unlockedCounts.creation}/
+                  {achievements.filter((a) => a.category === "creation").length}
+                  )
+                </TabsTrigger>
+                <TabsTrigger value="completion">
+                  Completion ({unlockedCounts.completion}/
+                  {
+                    achievements.filter((a) => a.category === "completion")
+                      .length
+                  }
+                  )
+                </TabsTrigger>
+                <TabsTrigger value="social">
+                  Social ({unlockedCounts.social}/
+                  {achievements.filter((a) => a.category === "social").length})
+                </TabsTrigger>
+                <TabsTrigger value="special">
+                  Special ({unlockedCounts.special}/
+                  {achievements.filter((a) => a.category === "special").length})
+                </TabsTrigger>
+              </TabsList>
+              <ScrollBar orientation="horizontal" />
+            </ScrollArea>
 
+            {/* Tab Content */}
             <TabsContent value={activeTab} className="mt-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {filteredAchievements.map((achievement) =>
                   renderAchievementCard(achievement)
                 )}
-
                 {filteredAchievements.length === 0 && (
                   <div className="col-span-2 text-center py-8 text-secondary-text">
                     No achievements found in this category.
