@@ -27,7 +27,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { AlertTriangle } from "lucide-react";
 import axios from "axios";
-const API_BASE_URL = import.meta.env.BACKEND_URL || "http://localhost:8080";
+const API_BASE_URL = (import.meta.env.VITE_BACKEND_URL as string) || "http://localhost:8080";
 
 const Settings: React.FC = () => {
   // Setting states
