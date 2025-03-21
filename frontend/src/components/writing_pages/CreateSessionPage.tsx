@@ -66,12 +66,13 @@ const CreateSession: React.FC = () => {
   const [description, setDescription] = useState<string>("");
   const [content, setContent] = useState<string>("");
   const [genre, setGenre] = useState<string>("");
+  const [maxSnippets, setMaxSnippets] = useState<number>(10);
   const [isPublic, setIsPublic] = useState<boolean>(true);
-  const [isMatureContent, setIsMatureContent] = useState<boolean>(false);
-  const [maxSnippets, setMaxSnippets] = useState<number>(5);
+  const [isMature, setIsMature] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [tags, setTags] = useState<Tag[]>([]);
+  // const [selectedTags, setSelectedTags] = useState<number[]>([]);
   const [wordCount, setWordCount] = useState<number>(0);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
 
   const MAX_DESCRIPTION_LENGTH = 280;
@@ -149,11 +150,13 @@ const CreateSession: React.FC = () => {
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
     e.preventDefault();
+    setIsLoading(true);
 
     if (!title.trim()) {
       toast.error("Title Required", {
         description: "Please provide a title for your project.",
       });
+      setIsLoading(false);
       return;
     }
 
@@ -161,6 +164,7 @@ const CreateSession: React.FC = () => {
       toast.error("Description Required", {
         description: "Please provide a description for your project.",
       });
+      setIsLoading(false);
       return;
     }
 
@@ -168,6 +172,7 @@ const CreateSession: React.FC = () => {
       toast.error("Genre Required", {
         description: "Please select a genre for your project.",
       });
+      setIsLoading(false);
       return;
     }
 
@@ -175,6 +180,7 @@ const CreateSession: React.FC = () => {
       toast.error("Invalid Word Count", {
         description: `Please write between 50 to 100 words. Current count: ${wordCount}`,
       });
+      setIsLoading(false);
       return;
     }
 
@@ -182,10 +188,9 @@ const CreateSession: React.FC = () => {
       toast.error("Authentication Required", {
         description: "You must be logged in to create a new session.",
       });
+      setIsLoading(false);
       return;
     }
-
-    setIsSubmitting(true);
 
     try {
       if (!user?.id) {
@@ -205,7 +210,7 @@ const CreateSession: React.FC = () => {
         toast.error(
           `Content flagged for ${moderationResponse.data.reason}. Please try again.`
         );
-        setIsSubmitting(false);
+        setIsLoading(false);
         return;
       }
 
@@ -215,7 +220,7 @@ const CreateSession: React.FC = () => {
         creator_id: user.id,
         created_at: new Date().toISOString(),
         is_public: isPublic,
-        is_mature_content: isMatureContent,
+        is_mature_content: isMature,
         project_genre: genre,
         max_snippets: maxSnippets,
       };
@@ -273,7 +278,7 @@ const CreateSession: React.FC = () => {
           error.message || "Failed to create session. Please try again.",
       });
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
@@ -408,8 +413,8 @@ const CreateSession: React.FC = () => {
               <div className="flex items-center space-x-2">
                 <Switch
                   id="mature"
-                  checked={isMatureContent}
-                  onCheckedChange={setIsMatureContent}
+                  checked={isMature}
+                  onCheckedChange={setIsMature}
                 />
                 <Label htmlFor="mature">Mature Content</Label>
               </div>
@@ -446,14 +451,14 @@ const CreateSession: React.FC = () => {
               type="button"
               variant="outline"
               onClick={handleCancel}
-              disabled={isSubmitting}
+              disabled={isLoading}
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={
-                isSubmitting ||
+                isLoading ||
                 wordCount > 100 ||
                 wordCount < 50 ||
                 !title.trim() ||
@@ -461,7 +466,7 @@ const CreateSession: React.FC = () => {
                 !genre
               }
             >
-              {isSubmitting ? "Creating..." : "Create Session"}
+              {isLoading ? "Creating..." : "Create Session"}
             </Button>
           </CardFooter>
         </form>

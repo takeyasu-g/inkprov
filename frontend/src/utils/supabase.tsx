@@ -110,6 +110,16 @@ export const getProjectOfId = async (
 
 export const getSessions = async () => {
   try {
+    // Get the current user's mature content preference
+    const user = await getCurrentUser();
+    if (!user) return null;
+
+    const { data: userPrefs } = await supabase
+      .from("users_ext")
+      .select("user_profile_mature_enabled")
+      .eq("auth_id", user.id)
+      .single();
+
     // Get projects that are not completed (i.e., active sessions)
     const { data: projects, error } = await supabase
       .from("projects")
@@ -122,7 +132,13 @@ export const getSessions = async () => {
         )
       `
       )
-      .eq("is_completed", false);
+      .eq("is_completed", false)
+      // Only show mature content if user has enabled it
+      .or(
+        userPrefs?.user_profile_mature_enabled
+          ? "is_mature_content.eq.true,is_mature_content.eq.false"
+          : "is_mature_content.eq.false"
+      );
 
     if (error) {
       console.error("Error fetching sessions:", error);
@@ -144,25 +160,34 @@ export const getAllStoriesWithProfileName = async (): Promise<
   CompletedStoriesData[] | null
 > => {
   try {
+    // Get the current user's mature content preference
+    const user = await getCurrentUser();
+    if (!user) return null;
+
+    const { data: userPrefs } = await supabase
+      .from("users_ext")
+      .select("user_profile_mature_enabled")
+      .eq("auth_id", user.id)
+      .single();
+
     const { data, error } = await supabase
       .from("projects")
       .select(
         `
-        id,
-        title,
-        description,
-        project_genre,
-        creator_id,
-        users_ext!projects_creator_id_fkey(   
-        user_profile_name
-        ),
-        updated_at,
-        created_at,
-        current_contributors_count,
-        is_mature_content
+        *,
+        users_ext:creator_id(
+          auth_id,
+          user_profile_name
+        )
       `
       )
-      .eq("is_completed", true);
+      .eq("is_completed", true)
+      // Only show mature content if user has enabled it
+      .or(
+        userPrefs?.user_profile_mature_enabled
+          ? "is_mature_content.eq.true,is_mature_content.eq.false"
+          : "is_mature_content.eq.false"
+      );
 
     if (error) {
       console.error("Error fetching projects:", error.message);

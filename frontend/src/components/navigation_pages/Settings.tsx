@@ -24,8 +24,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Link, useNavigate } from "react-router-dom";
-import { UserCircle, AlertTriangle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { AlertTriangle } from "lucide-react";
 import axios from "axios";
 const API_BASE_URL = import.meta.env.BACKEND_URL || "http://localhost:8080";
 
@@ -153,6 +153,8 @@ const Settings: React.FC = () => {
         toast.error(result.message);
       }
     } catch (error: any) {
+      console.error(error);
+
       toast.error("Failed to delete account. Please try again.");
     } finally {
       setIsDeletingAccount(false);
