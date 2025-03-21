@@ -13,10 +13,40 @@ import CardHeaderWithMature from "@/components/ui/CardHeaderWithMature";
 import { CompletedStoriesData } from "@/types/global";
 import { supabase } from "@/utils/supabase";
 import { useAuth } from "@/contexts/AuthContext";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProjectCardDataProp {
   projectData: CompletedStoriesData;
 }
+
+// Adds skeleton version of ProjectCard form Sessions
+export const ProjectCardSkeleton: React.FC = () => {
+  return (
+    <Card className="w-full h-[300px] bg-card border-primary-border">
+      <CardHeader>
+        <div className="flex justify-between items-start">
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-[200px]" />
+            <Skeleton className="h-4 w-[150px]" />
+          </div>
+          <Skeleton className="h-8 w-8 rounded-full" />
+        </div>
+      </CardHeader>
+      <div className="px-6">
+        <Skeleton className="h-4 w-full mb-2" />
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-4 w-1/2 mt-2" />
+      </div>
+      <CardFooter className="flex justify-between items-center mt-auto">
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-4 w-4" />
+          <Skeleton className="h-4 w-20" />
+        </div>
+        <Skeleton className="h-9 w-24" />
+      </CardFooter>
+    </Card>
+  );
+};
 
 // ProjectCards
 const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
@@ -31,7 +61,7 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
       // check first if user exists, meaning authenticated and in session
       if (!user) return;
 
-      // first check if is creator of the story
+      // Check if current user is project creator
       if (user.id === projectData.creator_id) return setIsCreator(true);
 
       // Check if user is a contributor
@@ -41,12 +71,12 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
         .eq("project_id", projectData.id)
         .eq("user_id", user.id)
         .eq("user_made_contribution", true)
-        .maybeSingle(); // this is for if can't find a project of user_id it will not return a error in the console log
+        .maybeSingle(); // if we can't find a project of user_id, do not return error
 
       if (contributorError) {
         return;
       } else {
-        // gives true user is in the project
+        // Returns true user is in the project
         setIsContributor(!!contributorData);
       }
     };

@@ -1,26 +1,37 @@
 import React, { useEffect, useState } from "react";
-import ProjectCard from "../ProjectCard";
+import ProjectCard, { ProjectCardSkeleton } from "../ProjectCard";
 import SearchBar from "../SearchBar";
 import GenreFilter from "../GenreFilter";
 import { CompletedStoriesData } from "@/types/global";
 import { getAllStoriesWithProfileName } from "@/utils/supabase";
+import { Loader2 } from "lucide-react";
 
 const ProjectsPage: React.FC = () => {
   const [genreFilter, setGenreFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [allProjects, setAllProjects] = useState<CompletedStoriesData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // getAllProjects + users auth_id and user_profile_name
   const handleFetchAllProjects = async () => {
     try {
+      setIsLoading(true);
       const allProjectsData = await getAllStoriesWithProfileName();
-      setAllProjects(allProjectsData || []);
+      if (!allProjectsData) {
+        setError("No projects data returned");
+        return;
+      }
+      setAllProjects(allProjectsData);
     } catch (error) {
       console.error(error);
+      setError("Failed to fetch projects");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // useEffect to fetch allSessions once
+  // useEffect to fetch allProjects once
   useEffect(() => {
     handleFetchAllProjects();
   }, []);
@@ -29,7 +40,7 @@ const ProjectsPage: React.FC = () => {
   const handleGenreFilter = (genre: string = "All") => setGenreFilter(genre);
   const handleSearch = (query: string) => setSearchQuery(query);
 
-  // Make filteredSessions[] based on both searchQuery and genreFilter
+  // Make filteredProjects[] based on both searchQuery and genreFilter
   const filteredProjects = allProjects.filter((project) => {
     const matchesGenre =
       genreFilter === "All" || project.project_genre === genreFilter;
@@ -64,15 +75,27 @@ const ProjectsPage: React.FC = () => {
         </div>
       </nav>
 
+      {/* Error State */}
+      {error && <div className="text-red-500 text-center py-4">{error}</div>}
+
       <div className="grid grid-cols-1 place-items-center sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-10">
-        {filteredProjects.length > 0 ? (
+        {isLoading ? (
+          // Loading skeletons
+          Array.from({ length: 6 }).map((_, index) => (
+            <div key={index} className="flex space-x-4">
+              <ProjectCardSkeleton />
+            </div>
+          ))
+        ) : filteredProjects.length > 0 ? (
           filteredProjects.map((project) => (
-            <div className="flex space-x-4">
-              <ProjectCard key={project.id} projectData={project} />
+            <div key={project.id} className="flex space-x-4">
+              <ProjectCard projectData={project} />
             </div>
           ))
         ) : (
-          <p className="text-center text-gray-500">No Stories Found.</p>
+          <div className="col-span-full text-center py-8 text-secondary-text">
+            No stories found matching your criteria
+          </div>
         )}
       </div>
     </main>
