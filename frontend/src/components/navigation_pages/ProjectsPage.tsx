@@ -4,7 +4,6 @@ import SearchBar from "../SearchBar";
 import GenreFilter from "../GenreFilter";
 import { CompletedStoriesData } from "@/types/global";
 import { getAllStoriesWithProfileName } from "@/utils/supabase";
-import { Loader2 } from "lucide-react";
 
 const ProjectsPage: React.FC = () => {
   const [genreFilter, setGenreFilter] = useState<string>("All");

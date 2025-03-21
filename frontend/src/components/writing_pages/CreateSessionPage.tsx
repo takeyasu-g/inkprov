@@ -71,7 +71,7 @@ const CreateSession: React.FC = () => {
   const [isMature, setIsMature] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [tags, setTags] = useState<Tag[]>([]);
-  const [selectedTags, setSelectedTags] = useState<number[]>([]);
+  // const [selectedTags, setSelectedTags] = useState<number[]>([]);
   const [wordCount, setWordCount] = useState<number>(0);
   const [user, setUser] = useState<User | null>(null);
 
