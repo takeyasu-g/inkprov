@@ -800,6 +800,12 @@ const getProfilePictureOptionsSync = () => {
     "user_avatar_2_4.jpg",
     "user_avatar_2_5.jpg",
     "user_avatar_2_6.jpg",
+    "user_avatar_3_1.png",
+    "user_avatar_3_2.png",
+    "user_avatar_3_3.png",
+    "user_avatar_3_4.png",
+    "user_avatar_3_5.png",
+    "user_avatar_3_6.png",
   ];
 
   // Generate all public URLs using map
