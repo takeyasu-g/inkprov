@@ -5,7 +5,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-const API_BASE_URL = (import.meta.env.VITE_BACKEND_URL as string) || "http://localhost:8080";
+const API_BASE_URL =
+  (import.meta.env.VITE_BACKEND_URL as string) || "http://localhost:8080";
 
 // Sonner component for toast notifications
 import { toast } from "sonner";
@@ -73,7 +74,6 @@ const WritingEditor: React.FC = () => {
   const [project, setProject] = useState<Project | null>(null);
   const [isContributor, setIsContributor] = useState(false);
   const [isCurrentlyWriting, setIsCurrentlyWriting] = useState(false);
-  const [content, setContent] = useState("");
   const [wordCount, setWordCount] = useState(0);
   const [previousSnippets, setPreviousSnippets] = useState<ProjectSnippet[]>(
     []
@@ -92,6 +92,28 @@ const WritingEditor: React.FC = () => {
   const [writingIdeas, setWritingIdeas] = useState<string>("");
   // State to track if writing ideas have been viewed (Avoids Spamming API Calls
   const [writingIdeasViewed, setWritingIdeasViewed] = useState<boolean>(false);
+  const [content, setContent] = useState("");
+
+  // this useEffect will get the content from localStorage
+  useEffect(() => {
+    if (!userData?.auth_id) return;
+
+    // create unique storagekey for the user
+    const storageKey = `draftText_${userData.auth_id}_${projectId}`;
+    const savedDraft = localStorage.getItem(storageKey);
+
+    if (savedDraft !== null) {
+      setContent(savedDraft);
+    }
+  }, [userData?.auth_id]);
+
+  // will set content to localStorage
+  useEffect(() => {
+    if (!userData?.auth_id) return;
+
+    const storageKey = `draftText_${userData.auth_id}_${projectId}`;
+    localStorage.setItem(storageKey, content);
+  }, [content, userData?.auth_id]);
 
   console.log(isContributor);
 
