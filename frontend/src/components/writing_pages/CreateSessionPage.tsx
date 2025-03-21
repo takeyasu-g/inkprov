@@ -24,7 +24,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import axios from "axios";
-const API_BASE_URL = import.meta.env.BACKEND_URL || "http://localhost:8080";
+const API_BASE_URL = (import.meta.env.VITE_BACKEND_URL as string) || "http://localhost:8080";
 
 // Initializes supabase client
 import { supabase, getTags, getCurrentUser } from "../../utils/supabase";
