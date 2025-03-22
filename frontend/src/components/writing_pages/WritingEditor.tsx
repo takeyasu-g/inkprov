@@ -94,6 +94,8 @@ const WritingEditor: React.FC = () => {
   const [writingIdeasViewed, setWritingIdeasViewed] = useState<boolean>(false);
   const [content, setContent] = useState("");
 
+  console.log(isContributor);
+
   // this useEffect will get the content from localStorage
   useEffect(() => {
     if (!userData?.auth_id) return;
@@ -105,7 +107,7 @@ const WritingEditor: React.FC = () => {
     if (savedDraft !== null) {
       setContent(savedDraft);
     }
-  }, [userData?.auth_id]);
+  }, [userData?.auth_id, projectId]);
 
   // will set content to localStorage
   useEffect(() => {
@@ -113,9 +115,7 @@ const WritingEditor: React.FC = () => {
 
     const storageKey = `draftText_${userData.auth_id}_${projectId}`;
     localStorage.setItem(storageKey, content);
-  }, [content, userData?.auth_id]);
-
-  console.log(isContributor);
+  }, [content, userData?.auth_id, projectId]);
 
   // Function to fetch contributors - simplified version
   const fetchContributors = async () => {
