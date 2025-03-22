@@ -21,8 +21,13 @@ function useLocalStorage<T>(
       if (storedValue) {
         const parsedValue = JSON.parse(storedValue);
 
-        // merge with initalValue, if not all feilds were saved
-        return { ...initialValue, ...parsedValue };
+        // If initialValue is an object, merge with parsedValue
+        if (typeof initialValue === "object" && initialValue !== null) {
+          return { ...initialValue, ...parsedValue };
+        } else {
+          // For primitive types, return the parsed value directly
+          return parsedValue;
+        }
       } else {
         // if null
         return initialValue;

@@ -25,6 +25,8 @@ import {
 import SnippetSkeleton from "../SnippetSkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProjectSnippet } from "@/types/global";
+import { useAuth } from "@/contexts/AuthContext";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 // Basic interfaces for our data
 interface Project {
@@ -92,30 +94,11 @@ const WritingEditor: React.FC = () => {
   const [writingIdeas, setWritingIdeas] = useState<string>("");
   // State to track if writing ideas have been viewed (Avoids Spamming API Calls
   const [writingIdeasViewed, setWritingIdeasViewed] = useState<boolean>(false);
-  const [content, setContent] = useState("");
+  const { user } = useAuth();
+  const localStorageKey = `draftText_${user?.id}_${projectId}`;
+  const [content, setContent] = useLocalStorage(localStorageKey, "");
 
   console.log(isContributor);
-
-  // this useEffect will get the content from localStorage
-  useEffect(() => {
-    if (!userData?.auth_id) return;
-
-    // create unique storagekey for the user
-    const storageKey = `draftText_${userData.auth_id}_${projectId}`;
-    const savedDraft = localStorage.getItem(storageKey);
-
-    if (savedDraft !== null) {
-      setContent(savedDraft);
-    }
-  }, [userData?.auth_id, projectId]);
-
-  // will set content to localStorage
-  useEffect(() => {
-    if (!userData?.auth_id) return;
-
-    const storageKey = `draftText_${userData.auth_id}_${projectId}`;
-    localStorage.setItem(storageKey, content);
-  }, [content, userData?.auth_id, projectId]);
 
   // Function to fetch contributors - simplified version
   const fetchContributors = async () => {
@@ -536,6 +519,8 @@ const WritingEditor: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
+    // when on Submit is clear localStorage
+    localStorage.removeItem(localStorageKey);
   };
 
   // Add a function to cancel writing
@@ -573,6 +558,9 @@ const WritingEditor: React.FC = () => {
       console.error("Cancel writing error:", error);
       toast.error(`Failed to cancel: ${error.message || "Unknown error"}`);
     }
+
+    // clear localStorage on cancel
+    localStorage.removeItem(localStorageKey);
   };
 
   // Add a manual refresh function

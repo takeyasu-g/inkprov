@@ -54,7 +54,6 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
         // Use the consolidated API call
         // using this fetcher , causes less calls to supabase
         const userData = await getProfilesByUserIdsForPopUp([user.id]);
-        console.log(userData[0]);
 
         // Process username
         const splitusername = userData[0].user_profile_name.split("@")[0];
