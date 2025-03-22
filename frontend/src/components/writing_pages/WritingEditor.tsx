@@ -25,6 +25,8 @@ import {
 import SnippetSkeleton from "../SnippetSkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProjectSnippet } from "@/types/global";
+import { useAuth } from "@/contexts/AuthContext";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 // Basic interfaces for our data
 interface Project {
@@ -75,7 +77,6 @@ const WritingEditor: React.FC = () => {
   const [project, setProject] = useState<Project | null>(null);
   const [isContributor, setIsContributor] = useState(false);
   const [isCurrentlyWriting, setIsCurrentlyWriting] = useState(false);
-  const [content, setContent] = useState("");
   const [wordCount, setWordCount] = useState(0);
   const [previousSnippets, setPreviousSnippets] = useState<ProjectSnippet[]>(
     []
@@ -94,12 +95,18 @@ const WritingEditor: React.FC = () => {
   const [writingIdeas, setWritingIdeas] = useState<string>("");
   // State to track if writing ideas have been viewed (Avoids Spamming API Calls)
   const [writingIdeasViewed, setWritingIdeasViewed] = useState<boolean>(false);
+
   // New state for timer
   const [timeRemaining, setTimeRemaining] = useState<number>(600); // 10 minutes in seconds
   const [timerActive, setTimerActive] = useState<boolean>(false);
   const [lockCleanupInterval, setLockCleanupInterval] = useState<number | null>(
     null
   );
+
+  const { user } = useAuth();
+  const localStorageKey = `draftText_${user?.id}_${projectId}`;
+  const [content, setContent] = useLocalStorage(localStorageKey, "");
+
 
   console.log(isContributor);
 
@@ -699,6 +706,8 @@ const WritingEditor: React.FC = () => {
       );
       setIsSubmitting(false);
     }
+    // when on Submit is clear localStorage
+    localStorage.removeItem(localStorageKey);
   };
 
   const handleCancelWriting = async () => {
@@ -737,6 +746,9 @@ const WritingEditor: React.FC = () => {
     } catch (error) {
       console.error("Error in handleCancelWriting:", error);
     }
+
+    // clear localStorage on cancel
+    localStorage.removeItem(localStorageKey);
   };
 
   // Manual refresh
