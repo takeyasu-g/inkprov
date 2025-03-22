@@ -13,11 +13,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import {
-  supabase,
-  getUserProfileData,
-  getProfilesByUserIdsForPopUp,
-} from "@/utils/supabase";
+import { supabase, getProfilesByUserIdsForPopUp } from "@/utils/supabase";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
