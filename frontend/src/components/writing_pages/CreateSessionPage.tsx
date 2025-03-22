@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,15 +19,22 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { toast } from "sonner";
-import { User } from "@supabase/supabase-js";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import axios from "axios";
-const API_BASE_URL = (import.meta.env.VITE_BACKEND_URL as string) || "http://localhost:8080";
+const API_BASE_URL =
+  (import.meta.env.VITE_BACKEND_URL as string) || "http://localhost:8080";
 
 // Initializes supabase client
-import { supabase, getTags, getCurrentUser } from "../../utils/supabase";
+import { supabase } from "../../utils/supabase";
+// import { read } from "fs";
+
+// interface imports
+import { FormData } from "@/types/global";
+
+// custom hook
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 // Defines Project interface
 interface Project {
@@ -53,27 +60,46 @@ interface ProjectSnippet {
   sequence_number: number;
 }
 
-// Defines Tag interface
-interface Tag {
-  id: number;
-  name: string;
-}
+// hard coded some genres here
+const genres: string[] = [
+  "All",
+  "Adventure",
+  "Comedy",
+  "Crime",
+  "Fantasy",
+  "History",
+  "Horror",
+  "Mystery",
+  "Paranormal",
+  "Romance",
+  "Sci-Fi",
+  "Thriller",
+  "Western",
+];
+
+// initlial data for useLocalStorage
+const initialFormData: FormData = {
+  title: "",
+  description: "",
+  genre: "",
+  maxSnippets: 10,
+  isPublic: true,
+  isMature: false,
+  content: "",
+};
 
 const CreateSession: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user: authUser } = useAuth();
-  const [title, setTitle] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
-  const [content, setContent] = useState<string>("");
-  const [genre, setGenre] = useState<string>("");
-  const [maxSnippets, setMaxSnippets] = useState<number>(10);
-  const [isPublic, setIsPublic] = useState<boolean>(true);
-  const [isMature, setIsMature] = useState<boolean>(false);
+  const localStorageKey = `draftText_${authUser?.id}_session_create`;
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [tags, setTags] = useState<Tag[]>([]);
-  // const [selectedTags, setSelectedTags] = useState<number[]>([]);
   const [wordCount, setWordCount] = useState<number>(0);
-  const [user, setUser] = useState<User | null>(null);
+
+  // put all formData here, for it to be stored & updated to localStorage
+  const [formData, setFormData] = useLocalStorage(
+    localStorageKey,
+    initialFormData
+  );
 
   const MAX_DESCRIPTION_LENGTH = 280;
   const MAX_TITLE_LENGTH = 50;
@@ -84,73 +110,51 @@ const CreateSession: React.FC = () => {
       navigate("/login");
       return;
     }
-    setUser(authUser);
-  }, [isAuthenticated, navigate, authUser]);
+  }, [isAuthenticated, navigate]);
 
-  // Get the current user and tags on component mount
-  useEffect(() => {
-    const initialize = async () => {
-      // Fetch user using getCurrentUser
-      const currentUser = await getCurrentUser();
-      setUser(currentUser);
-
-      if (!currentUser) {
-        toast.error("Authentication Required", {
-          description: "You must be logged in to create a new session.",
-        });
-        navigate("/login");
-        return;
+  const handleChange = useCallback(
+    (field: keyof FormData, value: string | number | boolean) => {
+      // Handle specific checks for each field
+      if (field === "title" && typeof value === "string") {
+        if (value.length > MAX_TITLE_LENGTH) return; // Skip update if title exceeds limit
       }
 
-      // Fetch tags
-      const tagData = await getTags();
-      if (!tagData || tagData.length === 0) {
-        toast.error("Failed to load genres", {
-          description: "Could not load genre options. Please try again.",
-        });
+      if (field === "description" && typeof value === "string") {
+        if (value.length > MAX_DESCRIPTION_LENGTH) return; // Skip update if description exceeds limit
       }
-      setTags(tagData);
-    };
 
-    initialize();
-  }, [navigate]);
+      if (field === "content" && typeof value === "string") {
+        // Count words for content field
+        const words = value.trim() ? value.trim().split(/\s+/) : [];
+        setWordCount(words.length);
+      }
 
-  //* Handles content change (word count)
-  const handleContentChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement>
-  ): void => {
-    const newContent = e.target.value;
-    setContent(newContent);
-
-    // Count words (split by whitespace, previous method invalid)
-    const words = newContent.trim() ? newContent.trim().split(/\s+/) : [];
-    setWordCount(words.length);
-  };
-
-  // Handle description change with character limit
-  const handleDescriptionChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    const newDescription = e.target.value;
-    if (newDescription.length <= MAX_DESCRIPTION_LENGTH) {
-      setDescription(newDescription);
-    }
-  };
-
-  // Update the title change handler to limit characters
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newTitle = e.target.value;
-    if (newTitle.length <= MAX_TITLE_LENGTH) {
-      setTitle(newTitle);
-    }
-  };
+      // Update the form data => which will save to localStorage
+      setFormData((prevData) => ({
+        ...prevData,
+        [field]: value,
+      }));
+    },
+    []
+  );
 
   // Handles form submission
+  // Clear LocalStorage when submitting, to not save the data when creating another session later
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
     e.preventDefault();
     setIsLoading(true);
+
+    const {
+      title,
+      description,
+      content,
+      genre,
+      isPublic,
+      isMature,
+      maxSnippets,
+    } = formData;
 
     if (!title.trim()) {
       toast.error("Title Required", {
@@ -184,7 +188,7 @@ const CreateSession: React.FC = () => {
       return;
     }
 
-    if (!user) {
+    if (!authUser) {
       toast.error("Authentication Required", {
         description: "You must be logged in to create a new session.",
       });
@@ -193,7 +197,7 @@ const CreateSession: React.FC = () => {
     }
 
     try {
-      if (!user?.id) {
+      if (!authUser?.id) {
         throw new Error("User ID not found");
       }
 
@@ -217,7 +221,7 @@ const CreateSession: React.FC = () => {
       const newProject: Project = {
         title,
         description,
-        creator_id: user.id,
+        creator_id: authUser.id,
         created_at: new Date().toISOString(),
         is_public: isPublic,
         is_mature_content: isMature,
@@ -238,7 +242,7 @@ const CreateSession: React.FC = () => {
       const newSnippet: ProjectSnippet = {
         project_id: projectData.id,
         content,
-        creator_id: user.id,
+        creator_id: authUser.id,
         created_at: new Date().toISOString(),
         word_count: wordCount,
         sequence_number: 1,
@@ -257,7 +261,7 @@ const CreateSession: React.FC = () => {
         .insert([
           {
             project_id: projectData.id,
-            user_id: user.id,
+            user_id: authUser.id,
             user_is_project_creator: true,
             joined_at: new Date().toISOString(),
           },
@@ -266,6 +270,10 @@ const CreateSession: React.FC = () => {
       if (contributorError) {
         throw contributorError;
       }
+
+      // Clear localStorage after successful submission
+      // We don't want next create session to get last saved localStorage data
+      localStorage.removeItem(localStorageKey);
 
       toast.success("Session Created", {
         description: "Your writing session has been created successfully!",
@@ -283,6 +291,11 @@ const CreateSession: React.FC = () => {
   };
 
   const handleCancel = (): void => {
+    // clears localStorage, because they no longer want to create the session
+    // we don't want the same inputs to be saved if they cancel
+    localStorage.removeItem(localStorageKey);
+
+    // navigate back to sessions page
     navigate("/sessions");
   };
 
@@ -314,8 +327,8 @@ const CreateSession: React.FC = () => {
               </label>
               <Input
                 id="title"
-                value={title}
-                onChange={handleTitleChange}
+                value={formData.title}
+                onChange={(e) => handleChange("title", e.target.value)}
                 placeholder="Enter session title"
                 maxLength={MAX_TITLE_LENGTH}
                 required
@@ -323,12 +336,12 @@ const CreateSession: React.FC = () => {
               <div className="text-sm text-right">
                 <span
                   className={
-                    title.length === MAX_TITLE_LENGTH
+                    formData.title.length === MAX_TITLE_LENGTH
                       ? "text-red-500"
                       : "text-secondary-text"
                   }
                 >
-                  {title.length}/{MAX_TITLE_LENGTH} characters
+                  {formData.title.length}/{MAX_TITLE_LENGTH} characters
                 </span>
               </div>
             </div>
@@ -339,8 +352,8 @@ const CreateSession: React.FC = () => {
               </label>
               <Textarea
                 id="description"
-                value={description}
-                onChange={handleDescriptionChange}
+                value={formData.description || initialFormData.description}
+                onChange={(e) => handleChange("description", e.target.value)}
                 placeholder="Describe what this writing session is about..."
                 className="min-h-[100px] text-justify lg:text-left"
                 maxLength={MAX_DESCRIPTION_LENGTH}
@@ -349,12 +362,13 @@ const CreateSession: React.FC = () => {
               <div className="text-sm text-right">
                 <span
                   className={
-                    description.length === MAX_DESCRIPTION_LENGTH
+                    formData.description.length === MAX_DESCRIPTION_LENGTH
                       ? "text-red-500"
                       : "text-secondary-text"
                   }
                 >
-                  {description.length}/{MAX_DESCRIPTION_LENGTH} characters
+                  {formData.description.length}/{MAX_DESCRIPTION_LENGTH}{" "}
+                  characters
                 </span>
               </div>
             </div>
@@ -363,14 +377,18 @@ const CreateSession: React.FC = () => {
               <label htmlFor="genre" className="text-sm font-medium">
                 Genre
               </label>
-              <Select value={genre} onValueChange={setGenre}>
+
+              <Select
+                value={formData.genre}
+                onValueChange={(value) => handleChange("genre", value)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a genre" />
                 </SelectTrigger>
                 <SelectContent>
-                  {tags.map((tag) => (
-                    <SelectItem key={tag.id} value={tag.name}>
-                      {tag.name}
+                  {genres.map((genre) => (
+                    <SelectItem key={genre} value={genre}>
+                      {genre}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -379,9 +397,12 @@ const CreateSession: React.FC = () => {
 
             <div className="space-y-2">
               <Label htmlFor="maxSnippets">Maximum Number of Snippets</Label>
+
               <Select
-                value={maxSnippets.toString()}
-                onValueChange={(value) => setMaxSnippets(Number(value))}
+                value={formData.maxSnippets.toString()}
+                onValueChange={(value) =>
+                  handleChange("maxSnippets", Number(value))
+                }
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select snippet count" />
@@ -396,7 +417,7 @@ const CreateSession: React.FC = () => {
               </Select>
               <p className="text-xs text-muted-foreground mt-1">
                 Each snippet is 50-100 words. Estimated total story length:{" "}
-                {maxSnippets * 50}-{maxSnippets * 100} words
+                {formData.maxSnippets * 50}-{formData.maxSnippets * 100} words
               </p>
             </div>
 
@@ -404,17 +425,20 @@ const CreateSession: React.FC = () => {
               <div className="flex items-center space-x-2">
                 <Switch
                   id="public"
-                  checked={isPublic}
-                  onCheckedChange={setIsPublic}
+                  checked={formData.isPublic}
+                  onCheckedChange={(checked) =>
+                    handleChange("isPublic", checked)
+                  }
                 />
                 <Label htmlFor="public">Public Session</Label>
               </div>
-
               <div className="flex items-center space-x-2">
                 <Switch
                   id="mature"
-                  checked={isMature}
-                  onCheckedChange={setIsMature}
+                  checked={formData.isMature}
+                  onCheckedChange={(checked) =>
+                    handleChange("isMature", checked)
+                  }
                 />
                 <Label htmlFor="mature">Mature Content</Label>
               </div>
@@ -426,8 +450,8 @@ const CreateSession: React.FC = () => {
               </label>
               <Textarea
                 id="content"
-                value={content}
-                onChange={handleContentChange}
+                value={formData.content}
+                onChange={(e) => handleChange("content", e.target.value)}
                 placeholder="Start the story here..."
                 className="min-h-[200px] text-justify lg:text-left"
                 required
@@ -461,9 +485,9 @@ const CreateSession: React.FC = () => {
                 isLoading ||
                 wordCount > 100 ||
                 wordCount < 50 ||
-                !title.trim() ||
-                !description.trim() ||
-                !genre
+                !formData.title.trim() ||
+                !formData.description.trim() ||
+                !formData.genre
               }
             >
               {isLoading ? "Creating..." : "Create Session"}

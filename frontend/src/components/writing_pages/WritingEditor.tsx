@@ -5,7 +5,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-const API_BASE_URL = (import.meta.env.VITE_BACKEND_URL as string) || "http://localhost:8080";
+const API_BASE_URL =
+  (import.meta.env.VITE_BACKEND_URL as string) || "http://localhost:8080";
 
 // Sonner component for toast notifications
 import { toast } from "sonner";
@@ -24,6 +25,8 @@ import {
 import SnippetSkeleton from "../SnippetSkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProjectSnippet } from "@/types/global";
+import { useAuth } from "@/contexts/AuthContext";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 // Basic interfaces for our data
 interface Project {
@@ -73,7 +76,6 @@ const WritingEditor: React.FC = () => {
   const [project, setProject] = useState<Project | null>(null);
   const [isContributor, setIsContributor] = useState(false);
   const [isCurrentlyWriting, setIsCurrentlyWriting] = useState(false);
-  const [content, setContent] = useState("");
   const [wordCount, setWordCount] = useState(0);
   const [previousSnippets, setPreviousSnippets] = useState<ProjectSnippet[]>(
     []
@@ -92,6 +94,9 @@ const WritingEditor: React.FC = () => {
   const [writingIdeas, setWritingIdeas] = useState<string>("");
   // State to track if writing ideas have been viewed (Avoids Spamming API Calls
   const [writingIdeasViewed, setWritingIdeasViewed] = useState<boolean>(false);
+  const { user } = useAuth();
+  const localStorageKey = `draftText_${user?.id}_${projectId}`;
+  const [content, setContent] = useLocalStorage(localStorageKey, "");
 
   console.log(isContributor);
 
@@ -514,6 +519,8 @@ const WritingEditor: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
+    // when on Submit is clear localStorage
+    localStorage.removeItem(localStorageKey);
   };
 
   // Add a function to cancel writing
@@ -551,6 +558,9 @@ const WritingEditor: React.FC = () => {
       console.error("Cancel writing error:", error);
       toast.error(`Failed to cancel: ${error.message || "Unknown error"}`);
     }
+
+    // clear localStorage on cancel
+    localStorage.removeItem(localStorageKey);
   };
 
   // Add a manual refresh function

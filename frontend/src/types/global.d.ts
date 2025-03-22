@@ -77,3 +77,14 @@ export interface ProjectContributors {
   current_writer: boolean;
   user_made_contribution: boolean;
 }
+
+// interface for form input data in the create sessions page
+export interface FormData {
+  title: string;
+  description: string;
+  genre: string;
+  maxSnippets: number;
+  isPublic: boolean;
+  isMature: boolean;
+  content: string;
+}
