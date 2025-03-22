@@ -13,7 +13,11 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { supabase, getUserProfileData } from "@/utils/supabase";
+import {
+  supabase,
+  getUserProfileData,
+  getProfilesByUserIdsForPopUp,
+} from "@/utils/supabase";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -52,14 +56,17 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
 
       try {
         // Use the consolidated API call
-        const userData = await getUserProfileData();
+        // using this fetcher , causes less calls to supabase
+        const userData = await getProfilesByUserIdsForPopUp([user.id]);
+        console.log(userData[0]);
 
         // Process username
-        const user = userData.username.split("@")[0];
-        const formattedUsername = user[0].toUpperCase() + user.substring(1);
+        const splitusername = userData[0].user_profile_name.split("@")[0];
+        const formattedUsername =
+          splitusername[0].toUpperCase() + splitusername.substring(1);
 
         setUsername(formattedUsername);
-        setCurrentProfilePicture(userData.profilePicture);
+        setCurrentProfilePicture(userData[0].profile_pic_url);
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
