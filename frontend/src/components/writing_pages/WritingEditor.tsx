@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { Crown, Loader2, Lightbulb } from "lucide-react";
+import { Crown, Loader2, Lightbulb, Clock } from "lucide-react";
 import {
   supabase,
   getCurrentUser,
@@ -38,6 +38,7 @@ interface Project {
   is_completed: boolean;
   is_locked: boolean;
   locked_by?: string;
+  locked_at?: string;
 }
 
 // Use the imported type instead of redefining it
@@ -92,11 +93,20 @@ const WritingEditor: React.FC = () => {
   const [showWritersBlockIdeas, setShowWritersBlockIdeas] =
     useState<boolean>(false);
   const [writingIdeas, setWritingIdeas] = useState<string>("");
-  // State to track if writing ideas have been viewed (Avoids Spamming API Calls
+  // State to track if writing ideas have been viewed (Avoids Spamming API Calls)
   const [writingIdeasViewed, setWritingIdeasViewed] = useState<boolean>(false);
+
+  // New state for timer
+  const [timeRemaining, setTimeRemaining] = useState<number>(600); // 10 minutes in seconds
+  const [timerActive, setTimerActive] = useState<boolean>(false);
+  const [lockCleanupInterval, setLockCleanupInterval] = useState<number | null>(
+    null
+  );
+
   const { user } = useAuth();
   const localStorageKey = `draftText_${user?.id}_${projectId}`;
   const [content, setContent] = useLocalStorage(localStorageKey, "");
+
 
   console.log(isContributor);
 
@@ -128,14 +138,13 @@ const WritingEditor: React.FC = () => {
         }
       }
     } catch (error) {
-      // Keeping error log as it's important for all functionality
       console.error("Failed to load contributors:", error);
     } finally {
       setLoadingContributors(false);
     }
   };
 
-  // replaces the original code with a call to the supabase utility function
+  // original code has been moved to supabase.tsx with other helper functions for better organization
   const fetchSnippets = async () => {
     setIsRefreshing(true);
     try {
@@ -184,7 +193,7 @@ const WritingEditor: React.FC = () => {
             .eq("user_id", user.id)
             .single(),
 
-          // Fetch project snippets in parallel
+          // Fetch project snippets
           getProjectSnippets(projectId || ""),
         ]);
 
@@ -192,7 +201,7 @@ const WritingEditor: React.FC = () => {
 
         if (projectError) throw projectError;
 
-        // Cap max_snippets at 12 if a larger value is provided
+        // Cap max_snippets at 12 if a larger value is provided (shouldn't be possible but accounts for spooky behavior)
         const cappedProjectData = {
           ...projectData,
           max_snippets: projectData.max_snippets
@@ -213,7 +222,7 @@ const WritingEditor: React.FC = () => {
           contributorData.data?.user_is_project_creator || false
         );
 
-        // Fetch project contributors (optimized in supabase.tsx)
+        // Fetch project contributors (moved to supabase.tsx)
         const contributorsData = await getProjectContributors(projectId);
 
         // Sort contributors by joined_at to ensure consistent display order
@@ -258,7 +267,116 @@ const WritingEditor: React.FC = () => {
     fetchProjectData();
   }, [projectId, navigate]);
 
-  // Handle making a contribution - replacing handleJoin
+  // Function to check for and clean up stale locks
+  // TODO: Might need to move to a helper function, currently its specific to this component
+  const checkForStaleLocks = async () => {
+    try {
+      // Don't run if no project ID is available ( API call prevention edge handling)
+      if (!projectId) return;
+
+      // Skip check if the project is not locked or if the current user is the one writing (API call prevention)
+      if (!projectLocked || lockedBy === userData?.auth_id) {
+        return;
+      }
+
+      // Get current time
+      const now = new Date();
+
+      // Get the current project data
+      const { data: currentProject, error: projectError } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("id", projectId)
+        .single();
+
+      if (projectError || !currentProject) {
+        console.error("Error fetching project for lock check:", projectError);
+        return;
+      }
+
+      // IF project is locked and has a locked_at timestamp
+      if (currentProject.is_locked && currentProject.locked_at) {
+        const lockedTime = new Date(currentProject.locked_at);
+        const timeDiffMinutes =
+          (now.getTime() - lockedTime.getTime()) / (1000 * 60);
+
+        // If locked for more than 10 minutes, force unlock it
+        if (timeDiffMinutes >= 10) {
+          console.log("Found stale lock on project, unlocking...");
+
+          const { error: unlockError } = await supabase
+            .from("projects")
+            .update({
+              is_locked: false,
+              locked_by: null,
+              locked_at: null,
+            })
+            .eq("id", projectId);
+
+          if (unlockError) {
+            console.error("Error unlocking stale project:", unlockError);
+            return;
+          }
+
+          // Update local state if we're viewing this project
+          setProjectLocked(false);
+          setLockedBy(null);
+
+          toast.info(
+            "Project was automatically unlocked after 10 minutes of inactivity"
+          );
+
+          // Refresh project data
+          fetchProject();
+        }
+      }
+    } catch (error) {
+      console.error("Error in checkForStaleLocks:", error);
+    }
+  };
+
+  // Fetches the most recent project data
+  const fetchProject = async () => {
+    try {
+      const { data: projectData, error } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("id", projectId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching project data:", error);
+        return;
+      }
+
+      if (projectData) {
+        setProject(projectData);
+        setProjectLocked(projectData.is_locked);
+        setLockedBy(projectData.locked_by || null);
+      }
+    } catch (error) {
+      console.error("Error in fetchProject:", error);
+    }
+  };
+
+  // Set up periodic lock check when component mounts
+  useEffect(() => {
+    // Start the interval
+    const interval = window.setInterval(checkForStaleLocks, 15000); // Check every 15 seconds
+    setLockCleanupInterval(interval);
+
+    // Run once at component mount
+    checkForStaleLocks();
+
+    // Clean up the interval when the component unmounts
+    return () => {
+      if (lockCleanupInterval) {
+        clearInterval(lockCleanupInterval);
+      }
+    };
+  }, [projectId, userData]);
+
+  // This block now handles making a contribution
   const handleStartContribution = async () => {
     try {
       const user = await getCurrentUser();
@@ -292,6 +410,7 @@ const WritingEditor: React.FC = () => {
         .update({
           is_locked: true,
           locked_by: user.id,
+          locked_at: new Date().toISOString(),
         })
         .eq("id", projectId);
 
@@ -304,14 +423,80 @@ const WritingEditor: React.FC = () => {
       setProjectLocked(true);
       setLockedBy(user.id);
       setIsCurrentlyWriting(true);
+      // Start the timer when contribution begins
+      setTimeRemaining(600); // Reset to 10 minutes
+      setTimerActive(true);
 
-      toast.success("You can now write your contribution!");
+      toast.success(
+        "You can now write your contribution! You have 10 minutes to submit."
+      );
     } catch (error: any) {
       console.error("Start contribution error:", error);
       toast.error(
         `Failed to start contribution: ${error.message || "Unknown error"}`
       );
     }
+  };
+
+  // Timer effect
+  useEffect(() => {
+    let timer: number | undefined;
+
+    if (timerActive && timeRemaining > 0) {
+      timer = window.setInterval(() => {
+        setTimeRemaining((prev) => prev - 1);
+      }, 1000);
+    } else if (timerActive && timeRemaining <= 0) {
+      // Time's up - cancel writing and unlock project
+      handleTimerExpired();
+    }
+
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [timerActive, timeRemaining]);
+
+  // Handle timer expiration
+  const handleTimerExpired = async () => {
+    setTimerActive(false);
+    setIsCurrentlyWriting(false);
+
+    toast.warning("Time's up! The project has been unlocked.");
+
+    // Reset content if user hasn't submitted
+    setContent("");
+    setWordCount(0);
+
+    // Unlock the project in the database
+    try {
+      if (projectId) {
+        const { error } = await supabase
+          .from("projects")
+          .update({
+            is_locked: false,
+            locked_by: null,
+            locked_at: null,
+          })
+          .eq("id", projectId);
+
+        if (error) {
+          console.error("Error unlocking project:", error);
+        }
+
+        setProjectLocked(false);
+        setLockedBy(null);
+      }
+    } catch (error) {
+      console.error("Error in handleTimerExpired:", error);
+    }
+  };
+
+  // Format time remaining as MM:SS
+  // TODO: Human-readable format or just MM:SS? Which do we like? (I like MM:SS -D)
+  const formatTimeRemaining = () => {
+    const minutes = Math.floor(timeRemaining / 60);
+    const seconds = timeRemaining % 60;
+    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
 
   // Get ideas from AI API
@@ -326,7 +511,59 @@ const WritingEditor: React.FC = () => {
     }
   };
 
-  // Modify handleSubmit to focus on snippets over contributors
+  // Helper function to unlock the project
+  const unlockProject = async () => {
+    if (!projectId) return;
+
+    try {
+      // Check if project should be marked as completed
+      if (
+        project?.max_snippets &&
+        previousSnippets.length + 1 >= project.max_snippets
+      ) {
+        // Mark project as completed
+        const { error: completedError } = await supabase
+          .from("projects")
+          .update({
+            is_completed: true,
+            is_locked: false,
+            locked_by: null,
+            locked_at: null,
+          })
+          .eq("id", projectId);
+
+        if (completedError) {
+          console.error("Error marking project as completed:", completedError);
+        } else {
+          toast.success("Project completed! This was the final contribution.");
+          // Falgs that sessions page needs to refresh data
+          sessionStorage.setItem("refreshSessions", "true");
+        }
+      } else {
+        // Just unlock the project
+        const { error } = await supabase
+          .from("projects")
+          .update({
+            is_locked: false,
+            locked_by: null,
+            locked_at: null,
+          })
+          .eq("id", projectId);
+
+        if (error) {
+          console.error("Error unlocking project:", error);
+          return;
+        }
+      }
+
+      setProjectLocked(false);
+      setLockedBy(null);
+    } catch (error) {
+      console.error("Error in unlockProject:", error);
+    }
+  };
+
+  // Modify handleSubmit to reset timer and unlock project on successful submission
   const handleSubmit = async () => {
     if (wordCount < 50 || wordCount > 100) {
       toast.error("Please write between 50 and 100 words.");
@@ -355,6 +592,8 @@ const WritingEditor: React.FC = () => {
         setIsSubmitting(false);
         return;
       }
+
+      // Add the snippet
       const { error: snippetError } = await supabase
         .from("project_snippets")
         .insert({
@@ -372,7 +611,6 @@ const WritingEditor: React.FC = () => {
         setIsSubmitting(false);
         return;
       }
-
       const { data: existingContributor } = await supabase
         .from("project_contributors")
         .select("id")
@@ -404,7 +642,7 @@ const WritingEditor: React.FC = () => {
           console.error("Error adding new contributor:", contributorError);
         }
 
-        const { error: updateError } = await supabase
+        const { error: updateCountError } = await supabase
           .from("projects")
           .update({
             current_contributors_count:
@@ -412,13 +650,15 @@ const WritingEditor: React.FC = () => {
           })
           .eq("id", projectId);
 
-        if (updateError) {
+        if (updateCountError) {
           console.error(
             "Failed to update project contributor count:",
-            updateError
+            updateCountError
           );
         }
+        setIsContributor(true);
       } else {
+        // updatges contribution time for existing contributor
         const { error: updateError } = await supabase
           .from("project_contributors")
           .update({
@@ -433,55 +673,21 @@ const WritingEditor: React.FC = () => {
         }
       }
 
-      if (
-        project?.max_snippets &&
-        previousSnippets.length + 1 >= project.max_snippets
-      ) {
-        const { error: completedError } = await supabase
-          .from("projects")
-          .update({
-            is_completed: true,
-            is_locked: false,
-            locked_by: null,
-          })
-          .eq("id", projectId);
+      setTimerActive(false);
+      setTimeRemaining(600);
 
-        if (completedError) {
-          console.error("Error marking project as completed:", completedError);
-        } else {
-          toast.success("Project completed! This was the final contribution.");
-        }
-      } else {
-        const { error: unlockError } = await supabase
-          .from("projects")
-          .update({
-            is_locked: false,
-            locked_by: null,
-          })
-          .eq("id", projectId);
-
-        if (unlockError) {
-          console.error("Error unlocking project:", unlockError);
-        }
-      }
-
-      await fetchSnippets();
-      await fetchContributors();
-
-      // Update local state
-      setProjectLocked(false);
-      setLockedBy(null);
       setIsCurrentlyWriting(false);
-      setIsContributor(true);
-
-      // Signal that sessions page needs to refresh data
-      sessionStorage.setItem("refreshSessions", "true");
-
-      toast.success("Contribution submitted successfully!");
       setContent("");
       setWordCount(0);
 
-      // Refresh project data
+      // Unlock the project
+      await unlockProject();
+      await fetchSnippets();
+      await fetchContributors();
+
+      // Toast the user
+      toast.success("Contribution added successfully!");
+
       const { data: refreshedProject } = await supabase
         .from("projects")
         .select("*")
@@ -491,15 +697,37 @@ const WritingEditor: React.FC = () => {
       if (refreshedProject) {
         setProject(refreshedProject);
       }
+
+      setIsSubmitting(false);
     } catch (error: any) {
       console.error("Submit contribution error:", error);
       toast.error(
         `Failed to submit contribution: ${error.message || "Unknown error"}`
       );
+      setIsSubmitting(false);
+    }
+    // when on Submit is clear localStorage
+    localStorage.removeItem(localStorageKey);
+  };
 
-      // Attempt to unlock the project even if there was an error
-      try {
-        await supabase
+  const handleCancelWriting = async () => {
+    // Reset the timer
+    setTimerActive(false);
+    setTimeRemaining(600);
+
+    try {
+      if (!userData?.auth_id || !projectId) {
+        return;
+      }
+
+      setContent("");
+      setWordCount(0);
+      setIsCurrentlyWriting(false);
+
+      // Only try to unlock if the current user is the one who locked it
+      // There shouldn't be a way for the non-current user to see cancel button for another user, but handles spooky cases
+      if (lockedBy === userData.auth_id) {
+        const { error } = await supabase
           .from("projects")
           .update({
             is_locked: false,
@@ -507,63 +735,23 @@ const WritingEditor: React.FC = () => {
           })
           .eq("id", projectId);
 
+        if (error) {
+          console.error("Error unlocking project:", error);
+          return;
+        }
+
         setProjectLocked(false);
         setLockedBy(null);
-        setIsCurrentlyWriting(false);
-      } catch (unlockError) {
-        console.error(
-          "Error unlocking project after failed submission:",
-          unlockError
-        );
       }
-    } finally {
-      setIsSubmitting(false);
-    }
-    // when on Submit is clear localStorage
-    localStorage.removeItem(localStorageKey);
-  };
-
-  // Add a function to cancel writing
-  const handleCancelWriting = async () => {
-    if (!userData?.auth_id) return;
-
-    try {
-      // Unlock the project
-      const { error: unlockError } = await supabase
-        .from("projects")
-        .update({
-          is_locked: false,
-          locked_by: null,
-        })
-        .eq("id", projectId)
-        .eq("locked_by", userData.auth_id); // Make sure only the current locker can unlock
-
-      if (unlockError) {
-        console.error("Error unlocking project:", unlockError);
-        toast.error("Failed to cancel. Please try again.");
-        return;
-      }
-
-      // Update local state
-      setProjectLocked(false);
-      setLockedBy(null);
-      setIsCurrentlyWriting(false);
-      setContent("");
-      setWordCount(0);
-
-      toast.success(
-        "Writing cancelled. The project is now available for others."
-      );
-    } catch (error: any) {
-      console.error("Cancel writing error:", error);
-      toast.error(`Failed to cancel: ${error.message || "Unknown error"}`);
+    } catch (error) {
+      console.error("Error in handleCancelWriting:", error);
     }
 
     // clear localStorage on cancel
     localStorage.removeItem(localStorageKey);
   };
 
-  // Add a manual refresh function
+  // Manual refresh
   const handleManualRefresh = async () => {
     try {
       await fetchContributors();
@@ -586,7 +774,6 @@ const WritingEditor: React.FC = () => {
         setProjectLocked(refreshedProject.is_locked || false);
         setLockedBy(refreshedProject.locked_by || null);
 
-        // Update writing status if the current user is the one writing
         if (userData?.auth_id) {
           setIsCurrentlyWriting(
             refreshedProject.locked_by === userData.auth_id
@@ -634,6 +821,7 @@ const WritingEditor: React.FC = () => {
 
   const renderContributors = (contributors: Contributor[]) => {
     // Always sort contributors by join date for consistent display
+    // TODO: re-add "current writer" pen or quill icon
     const sortedContributors = [...contributors].sort(
       (a, b) =>
         new Date(a.joined_at || "").getTime() -
@@ -656,12 +844,49 @@ const WritingEditor: React.FC = () => {
     ));
   };
 
+  // Create a function to handle the Back to Sessions button click
+  const handleBackClick = async () => {
+    // If the current user is writing, cancel it before navigating away
+    if (isCurrentlyWriting && lockedBy === userData?.auth_id) {
+      await handleCancelWriting();
+    }
+    navigate("/sessions");
+  };
+
+  // Add a cleanup effect to unlock the project when the component unmounts
+  useEffect(() => {
+    return () => {
+      // Only try to unlock if the current user is the one who locked it
+      if (projectLocked && lockedBy === userData?.auth_id && projectId) {
+        // Release the lock asynchronously (can't await in useEffect cleanup)
+        const unlockProjectOnUnmount = async () => {
+          try {
+            await supabase
+              .from("projects")
+              .update({
+                is_locked: false,
+                locked_by: null,
+                locked_at: null,
+              })
+              .eq("id", projectId);
+
+            console.log("Project unlocked on component unmount");
+          } catch (error) {
+            console.error("Error unlocking project on unmount:", error);
+          }
+        };
+
+        unlockProjectOnUnmount();
+      }
+    };
+  }, [projectId, userData, projectLocked, lockedBy]);
+
   return (
     <div className="h-full md:flex md:flex-col md:gap-5 py-6 mb-15 md:px-4 md:mx-auto md:max-w-[800px] bg-white md:bg-background">
       <div className="bg-white md:bg-background px-5">
         <Button
           variant="outline"
-          onClick={() => navigate("/sessions")}
+          onClick={handleBackClick}
           className="text-sm bg-white md:bg-background"
         >
           Back to Sessions
@@ -780,84 +1005,93 @@ const WritingEditor: React.FC = () => {
             )}
           </div>
 
-          {/* Writing Area */}
-          {!isCurrentlyWriting ? (
-            <>
-              <div className="mb-4">
-                <Textarea
-                  value={content}
-                  onChange={handleContentChange}
-                  placeholder="Add your contribution (50-100 words)..."
-                  className="min-h-[200px] mb-2"
-                  disabled={isSubmitting}
-                />
-                <div className="flex flex-col">
-                  <div
-                    onClick={() => {
-                      setShowWritersBlockIdeas(!showWritersBlockIdeas);
-                      if (!showWritersBlockIdeas) {
-                        if (!writingIdeasViewed) {
-                          getWritingIdeas();
-                        }
-                        setWritingIdeasViewed(true);
-                      }
-                    }}
-                    className="flex justify-end text-secondary-text cursor-pointer my-3"
-                  >
-                    <Lightbulb />
-                    <p className="text-sm font-medium mt-1">Writer's Block?</p>
-                  </div>
-                  {showWritersBlockIdeas ? (
-                    <div className="mb-3 rounded-lg">
-                      <h3 className="text-lg font-semibold text-left mb-3 text-primary-text">
-                        Writing Ideas
-                      </h3>
-                      <div className="flex justify-start">
-                        <Lightbulb className="text-primary-button-hover" />
-                        <p className="text-left text-secondary-text">
-                          {writingIdeas.length > 0
-                            ? writingIdeas
-                            : "No writing ideas available"}
-                        </p>
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-                <div className="flex justify-between items-center">
-                  <span
-                    className={
-                      wordCount > 100 || wordCount < 50 ? "text-red-500" : ""
-                    }
-                  >
-                    {wordCount} words
-                  </span>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={handleCancelWriting}
-                      disabled={isSubmitting}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={handleSubmit}
-                      disabled={
-                        wordCount > 100 || wordCount < 50 || isSubmitting
-                      }
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Submitting...
-                        </>
-                      ) : (
-                        "Submit Contribution"
-                      )}
-                    </Button>
-                  </div>
+          {/* Writing Area - Only show when isCurrentlyWriting is true */}
+          {isCurrentlyWriting ? (
+            <div className="mb-4">
+              {/* Timer display */}
+              <div className="flex justify-end mb-3">
+                <div
+                  className={`flex items-center gap-1 ${
+                    timeRemaining < 60 ? "text-red-500" : "text-amber-600"
+                  }`}
+                >
+                  <Clock size={18} />
+                  <span className="font-mono">{formatTimeRemaining()}</span>
+                  <span className="text-sm">remaining</span>
                 </div>
               </div>
-            </>
+
+              <Textarea
+                value={content}
+                onChange={handleContentChange}
+                placeholder="Add your contribution (50-100 words)..."
+                className="min-h-[200px] mb-2"
+                disabled={isSubmitting}
+              />
+              <div className="flex flex-col">
+                <div
+                  onClick={() => {
+                    setShowWritersBlockIdeas(!showWritersBlockIdeas);
+                    if (!showWritersBlockIdeas) {
+                      if (!writingIdeasViewed) {
+                        getWritingIdeas();
+                      }
+                      setWritingIdeasViewed(true);
+                    }
+                  }}
+                  className="flex justify-end text-secondary-text cursor-pointer my-3"
+                >
+                  <Lightbulb />
+                  <p className="text-sm font-medium mt-1">Writer's Block?</p>
+                </div>
+                {showWritersBlockIdeas ? (
+                  <div className="mb-3 rounded-lg">
+                    <h3 className="text-lg font-semibold text-left mb-3 text-primary-text">
+                      Writing Ideas
+                    </h3>
+                    <div className="flex justify-start">
+                      <Lightbulb className="text-primary-button-hover" />
+                      <p className="text-left text-secondary-text">
+                        {writingIdeas.length > 0
+                          ? writingIdeas
+                          : "No writing ideas available"}
+                      </p>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+              <div className="flex justify-between items-center">
+                <span
+                  className={
+                    wordCount > 100 || wordCount < 50 ? "text-red-500" : ""
+                  }
+                >
+                  {wordCount} words
+                </span>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={handleCancelWriting}
+                    disabled={isSubmitting}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={wordCount > 100 || wordCount < 50 || isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      "Submit Contribution"
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
           ) : (
             <div className="flex justify-center">
               <Button
@@ -880,7 +1114,7 @@ const WritingEditor: React.FC = () => {
                   (project?.max_snippets !== undefined &&
                     previousSnippets.length >= project.max_snippets) ? (
                   "Project Completed"
-                ) : projectLocked ? (
+                ) : projectLocked && lockedBy !== userData?.auth_id ? (
                   "Someone is currently writing..."
                 ) : (
                   "Make Contribution"
