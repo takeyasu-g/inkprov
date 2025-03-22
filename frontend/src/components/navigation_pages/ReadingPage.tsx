@@ -185,16 +185,24 @@ const ReadingPage: React.FC = () => {
       <Card className="border-none shadow-none md:shadow-lg">
         <CardHeader className="mb-2">
           <CardTitle className="text-3xl font-bold text-primary-text mb-2">
-            {project?.title}
+            {project?.title || projectData?.title}
           </CardTitle>
           <div className="flex flex-wrap gap-4 items-center text-secondary-text">
-            <Badge className={`genre-${project.project_genre.toLowerCase()}`}>
-              {project?.project_genre}
+            <Badge
+              className={`genre-${
+                projectData?.project_genre?.toLowerCase() || ""
+              }`}
+            >
+              {projectData?.project_genre ||
+                project?.project_genre ||
+                "Unknown"}
             </Badge>
             <span className="text-secondary-text">
               Completed:{" "}
-              {project?.updated_at
-                ? new Date(project.updated_at).toDateString()
+              {project?.updated_at || projectData?.updated_at
+                ? new Date(
+                    project?.updated_at || projectData?.updated_at
+                  ).toDateString()
                 : "No date found"}
             </span>
           </div>
