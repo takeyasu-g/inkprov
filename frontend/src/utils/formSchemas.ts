@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const registerSchema = z
   .object({
-    email: z.string(),
+    email: z.string().email({ message: "Invalid email address" }), // Validate email format
     password: z
       .string()
       .min(6, { message: "Password must be at least 6 characters long" }),
@@ -16,7 +16,7 @@ const registerSchema = z
   });
 
 const loginSchema = z.object({
-  email: z.string(),
+  email: z.string().email({ message: "Invalid email address" }), // Validate email format
   password: z
     .string()
     .min(6, { message: "Password must be at least 6 characters long" }),
