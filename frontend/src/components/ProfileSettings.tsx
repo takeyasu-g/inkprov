@@ -86,24 +86,24 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
     try {
       setIsLoading(true);
 
-      //   Check if any of the fields have data
-      //   if (values.username.length > 0 || values.bio.length > 0) {
-      //     const moderationResponse = await axios.post(
-      //       `${API_BASE_URL}/moderation`,
-      //       {
-      //         content: values.username + " " + values.bio,
-      //       }
-      //     );
+      // Check if any of the fields have data
+      if (values.username.length > 0 || values.bio.length > 0) {
+        const moderationResponse = await axios.post(
+          `${API_BASE_URL}/moderation`,
+          {
+            content: values.username + " " + values.bio,
+          }
+        );
 
-      //     // If content is flagged, display reason
-      //     if (moderationResponse.data.flagged) {
-      //       toast.error(
-      //         `Content flagged for ${moderationResponse.data.reason}. Please try again.`
-      //       );
-      //       setIsLoading(false);
-      //       return;
-      //     }
-      //   }
+        // If content is flagged, display reason
+        if (moderationResponse.data.flagged) {
+          toast.error(
+            `Content flagged for ${moderationResponse.data.reason}. Please try again.`
+          );
+          setIsLoading(false);
+          return;
+        }
+      }
 
       // Update username and bio
       if (values.username.length > 0) {
