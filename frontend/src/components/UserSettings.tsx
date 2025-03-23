@@ -71,8 +71,8 @@ const UserSettings: React.FC<UserSettingsProps> = ({ userPreference }) => {
       {/* Icon to open the AlertDialog */}
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <button className=" hover:scale-110 transition-transform duration-200">
-            <Settings className="h-6 w-6" />
+          <button className=" hover:scale-110 transition-transform duration-200 cursor-pointer">
+            <Settings className="h-6 w-6 " />
           </button>
         </AlertDialogTrigger>
 
@@ -97,6 +97,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ userPreference }) => {
               id="mature-content-toggle"
               checked={matureContent}
               onCheckedChange={handleMatureToggle}
+              className="cursor-pointer"
             />
           </div>
 
@@ -108,7 +109,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ userPreference }) => {
             </p>
             <Button
               variant="destructive"
-              className="w-[80%] sm:w-[50%] flex items-center justify-center gap-2"
+              className="w-[80%] sm:w-[50%] flex items-center justify-center gap-2 cursor-pointer"
               onClick={handleDeleteAccount}
               disabled={isDeletingAccount}
             >
@@ -119,7 +120,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ userPreference }) => {
                 </>
               ) : (
                 <>
-                  <AlertTriangle className="h-5 w-5" />
+                  <AlertTriangle className="h-5 w-5 " />
                   Delete Account
                 </>
               )}
@@ -128,7 +129,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ userPreference }) => {
 
           {/* AlertDialog Footer */}
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-white w-25">
+            <AlertDialogCancel className="bg-white w-25 cursor-pointer">
               Close
             </AlertDialogCancel>
           </AlertDialogFooter>

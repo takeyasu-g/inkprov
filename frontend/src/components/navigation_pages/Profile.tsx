@@ -102,7 +102,7 @@ const Profile: React.FC = () => {
       ) : (
         <div className=" mb-5 lg:flex lg:gap-2 lg:p-4 ">
           <section className="flex flex-col lg:h-150 w-[95%] md:w-[90%] lg:w-100 mx-auto bg-card rounded-lg border border-primary-border p-4">
-            <div className="ml-auto">
+            <div className="ml-auto ">
               <UserSettings userPreference={userPreference} />
             </div>
             <section className="flex space-y-5">
