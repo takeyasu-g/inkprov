@@ -35,6 +35,7 @@ import { FormData } from "@/types/global";
 
 // custom hook
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { ChevronLeft } from "lucide-react";
 
 // Defines Project interface
 interface Project {
@@ -304,10 +305,11 @@ const CreateSession: React.FC = () => {
       <div className="px-5 bg-white md:bg-background">
         <Button
           variant="outline"
-          onClick={() => navigate("/sessions")}
+          onClick={() => navigate(-1)}
           className="text-sm bg-white md:bg-background"
         >
-          Back to Sessions
+          <ChevronLeft />
+          <span>Back</span>
         </Button>
       </div>
       <Card className="border-none shadow-none md:shadow-lg">

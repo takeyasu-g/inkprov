@@ -180,7 +180,7 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
                   <FormControl>
                     <Textarea
                       placeholder="Share a glimpse of your story with others."
-                      className="mt-1 block w-full rounded-md border border-primary-border bg-white px-4 py-2 text-primary-text shadow-sm focus:outline-none focus-visible:ring-1 focus-visible:ring-input-focus focus-visible:border-input-focus sm:text-sm"
+                      className="mt-1 block w-full rounded-md border border-primary-border resize-y max-h-38 bg-white px-4 py-2 text-primary-text shadow-sm focus:outline-none focus-visible:ring-1 focus-visible:ring-input-focus focus-visible:border-input-focus sm:text-sm"
                       onChange={(e) => handleBioChange(e, field.onChange)}
                       value={field.value}
                       maxLength={180}

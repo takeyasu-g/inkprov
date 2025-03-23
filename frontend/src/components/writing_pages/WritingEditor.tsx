@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { Crown, Loader2, Lightbulb, Clock } from "lucide-react";
+import { Crown, Loader2, Lightbulb, Clock, ChevronLeft } from "lucide-react";
 import {
   supabase,
   getCurrentUser,
@@ -856,7 +856,7 @@ const WritingEditor: React.FC = () => {
     if (isCurrentlyWriting && lockedBy === userData?.auth_id) {
       await handleCancelWriting();
     }
-    navigate("/sessions");
+    navigate(-1);
   };
 
   // Add a cleanup effect to unlock the project when the component unmounts
@@ -895,7 +895,8 @@ const WritingEditor: React.FC = () => {
           onClick={handleBackClick}
           className="text-sm bg-white md:bg-background"
         >
-          Back to Sessions
+          <ChevronLeft />
+          <span>Back</span>
         </Button>
       </div>
       <Card className="border-none shadow-none md:shadow-lg">

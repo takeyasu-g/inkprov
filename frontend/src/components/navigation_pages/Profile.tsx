@@ -100,8 +100,8 @@ const Profile: React.FC = () => {
       {isLoading ? (
         <ProfileSkeleton />
       ) : (
-        <div className="h-full mb-5">
-          <section className="flex flex-col w-[95%] md:w-[90%] xl:w-[85%] mx-auto bg-card rounded-lg border border-primary-border p-4">
+        <div className=" mb-5 lg:flex lg:gap-2 lg:p-4 ">
+          <section className="flex flex-col lg:h-150 w-[95%] md:w-[90%] lg:w-100 mx-auto bg-card rounded-lg border border-primary-border p-4">
             <div className="ml-auto">
               <UserSettings userPreference={userPreference} />
             </div>
@@ -128,7 +128,7 @@ const Profile: React.FC = () => {
                       </div>
                     </div>
                   </AlertDialogTrigger>
-                  <AlertDialogContent>
+                  <AlertDialogContent className=" landscape:md:h-full landscape:lg:h-auto landscape:overflow-y-auto">
                     <AlertDialogHeader>
                       <AlertDialogTitle className="text-primary-text font-bold">
                         Select Profile Picture
@@ -273,12 +273,12 @@ const Profile: React.FC = () => {
             {!isEditing && (
               <Button
                 onClick={() => setIsEditing(!isEditing)}
-                className="self-center sm:self-start  mx-auto sm:mx-0 w-[90%] sm:w-[60%] mt-6 bg-gray-100 text-black border border-gray-300 hover:bg-gray-200 cursor-pointer"
+                className="self-center sm:self-start  mx-auto sm:mx-0 w-[90%] sm:w-[60%] md:w-[50%] lg:w-[90%] lg:self-center mt-6 bg-gray-100 text-black border border-gray-300 hover:bg-gray-200 cursor-pointer"
               >
                 Edit profile
               </Button>
             )}
-            <div className="self-center sm:self-start mx-auto sm:mx-0 w-[90%] sm:w-[60%] ">
+            <div className="self-center sm:self-start mx-auto sm:mx-0 w-[90%] sm:w-[60%] lg:w-full">
               {isEditing && (
                 <ProfileSettings
                   isEditing={isEditing}
@@ -293,7 +293,7 @@ const Profile: React.FC = () => {
           {/* Profile Content - Main Tabs */}
           <Tabs
             defaultValue="stories"
-            className="relative w-[95%] md:w-[90%] xl:w-[85%] mx-auto mt-5 gap-0"
+            className="relative w-[95%] md:w-[90%] xl:w-[85%] mx-auto mt-5 lg:mt-0 lg:mb-10 gap-0 lg:flex-grow"
           >
             <TabsList className="p-0 absolute rounded-none rounded-t-lg grid grid-cols-2 bg-gray-300 z-10 h-10 shadow-none text-primary-text border border-b-0 border-primary-border">
               <TabsTrigger
@@ -320,7 +320,7 @@ const Profile: React.FC = () => {
 
             {/* Your Stories Tab Content */}
             <TabsContent value="stories">
-              <section className="w-full space-y-8 bg-card p-8 mt-[39px] rounded-lg rounded-tl-none border border-primary-border">
+              <section className="w-full lg:min-h-full space-y-8 bg-card p-8 mt-[39px] rounded-lg rounded-tl-none border border-primary-border">
                 <section className="flex flex-col">
                   <div className="flex items-center text-secondary-text">
                     <BookOpen />
