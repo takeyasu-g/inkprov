@@ -32,7 +32,6 @@ const UserSettings: React.FC<UserSettingsProps> = ({ userPreference }) => {
   // Handle mature toggle
   const handleMatureToggle = async (checked: boolean) => {
     setMatureContent(checked);
-    console.log(checked);
 
     try {
       await updateMatureContent(checked);

@@ -64,8 +64,6 @@ const Profile: React.FC = () => {
         // Single API call to get all user data
         const userData = await getUserProfileData();
 
-        console.log(userData);
-
         // Process username
         const user = userData.username.split("@")[0];
         const username = user[0].toUpperCase() + user.substring(1);
