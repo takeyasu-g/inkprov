@@ -296,13 +296,13 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
                     <p>Create</p>
                   </a>
 
-                  <a
+                  {/* <a
                     href="/settings"
                     className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover"
                   >
                     <Settings />
                     <p>Settings</p>
-                  </a>
+                  </a> */}
                   <a
                     onClick={handleLogout}
                     className=" w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover"

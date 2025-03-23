@@ -107,7 +107,6 @@ const WritingEditor: React.FC = () => {
   const localStorageKey = `draftText_${user?.id}_${projectId}`;
   const [content, setContent] = useLocalStorage(localStorageKey, "");
 
-
   console.log(isContributor);
 
   // Function to fetch contributors - simplified version
@@ -563,6 +562,9 @@ const WritingEditor: React.FC = () => {
     }
   };
 
+  console.log(previousSnippets.length);
+  console.log(project?.max_snippets);
+
   // Modify handleSubmit to reset timer and unlock project on successful submission
   const handleSubmit = async () => {
     if (wordCount < 50 || wordCount > 100) {
@@ -577,21 +579,21 @@ const WritingEditor: React.FC = () => {
       }
       setIsSubmitting(true);
 
-      const moderationResponse = await axios.post(
-        `${API_BASE_URL}/moderation`,
-        {
-          content: content,
-        }
-      );
+      // const moderationResponse = await axios.post(
+      //   `${API_BASE_URL}/moderation`,
+      //   {
+      //     content: content,
+      //   }
+      // );
 
-      // If content is flagged, display reason
-      if (moderationResponse.data.flagged) {
-        toast.error(
-          `Content flagged for ${moderationResponse.data.reason}. Please try again.`
-        );
-        setIsSubmitting(false);
-        return;
-      }
+      // // If content is flagged, display reason
+      // if (moderationResponse.data.flagged) {
+      //   toast.error(
+      //     `Content flagged for ${moderationResponse.data.reason}. Please try again.`
+      //   );
+      //   setIsSubmitting(false);
+      //   return;
+      // }
 
       // Add the snippet
       const { error: snippetError } = await supabase
@@ -642,6 +644,10 @@ const WritingEditor: React.FC = () => {
           console.error("Error adding new contributor:", contributorError);
         }
 
+        // check if the submitted snippet is the max amount of snippets if so then mark project as completed
+        console.log(previousSnippets.length);
+        console.log(project?.max_snippets);
+
         const { error: updateCountError } = await supabase
           .from("projects")
           .update({
@@ -658,7 +664,7 @@ const WritingEditor: React.FC = () => {
         }
         setIsContributor(true);
       } else {
-        // updatges contribution time for existing contributor
+        // updates contribution time for existing contributor
         const { error: updateError } = await supabase
           .from("project_contributors")
           .update({
