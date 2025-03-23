@@ -39,8 +39,6 @@ const ProfileStoriesCard: React.FC<ProfileStoriesCardProps> = ({
   const formattedCreationDate = format(new Date(creationDate), "MMM dd, yyyy");
   const formattedLastUpdatedDate = formatDistanceToNow(new Date(lastUpdated));
 
-  console.log(currentTab);
-
   return (
     <Card
       className="w-[350px] bg-background-card  flex flex-col cursor-pointer"

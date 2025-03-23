@@ -301,8 +301,6 @@ const WritingEditor: React.FC = () => {
 
         // If locked for more than 10 minutes, force unlock it
         if (timeDiffMinutes >= 10) {
-          console.log("Found stale lock on project, unlocking...");
-
           const { error: unlockError } = await supabase
             .from("projects")
             .update({
@@ -562,9 +560,6 @@ const WritingEditor: React.FC = () => {
     }
   };
 
-  console.log(previousSnippets.length);
-  console.log(project?.max_snippets);
-
   // Modify handleSubmit to reset timer and unlock project on successful submission
   const handleSubmit = async () => {
     if (wordCount < 50 || wordCount > 100) {
@@ -645,8 +640,6 @@ const WritingEditor: React.FC = () => {
         }
 
         // check if the submitted snippet is the max amount of snippets if so then mark project as completed
-        console.log(previousSnippets.length);
-        console.log(project?.max_snippets);
 
         const { error: updateCountError } = await supabase
           .from("projects")
@@ -875,8 +868,6 @@ const WritingEditor: React.FC = () => {
                 locked_at: null,
               })
               .eq("id", projectId);
-
-            console.log("Project unlocked on component unmount");
           } catch (error) {
             console.error("Error unlocking project on unmount:", error);
           }
