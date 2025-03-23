@@ -89,7 +89,10 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
   );
 
   return (
-    <Card className="w-[300px] h-[327px] bg-background-card">
+    <Card
+      className="w-[300px] h-[327px] bg-background-card cursor-pointer"
+      onClick={() => navigate(`/writing/${sessionData.id}`)}
+    >
       <CardHeader className="flex-none space-y-3 h-[76px]">
         <CardHeaderWithMature
           genre={sessionData.project_genre}
