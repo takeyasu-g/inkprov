@@ -137,7 +137,7 @@ const Profile: React.FC = () => {
         <div className=" mb-5 lg:flex lg:gap-2 lg:p-4 ">
           <section className="flex flex-col lg:h-150 w-[95%] md:w-[90%] lg:w-100 mx-auto bg-card rounded-lg border border-primary-border p-4">
             {/* Only display settings when currentUser === to the profile you are viewing */}
-            {currentUser.id === profileUserId && (
+            {currentUser.id === (profileUserId || currentUser.id) && (
               <div className="ml-auto ">
                 <UserSettings userPreference={userPreference} />
               </div>
@@ -146,7 +146,7 @@ const Profile: React.FC = () => {
             <section className="flex space-y-5">
               <div>
                 <AlertDialog>
-                  {currentUser.id === profileUserId ? (
+                  {currentUser.id === (profileUserId || currentUser.id) ? (
                     <AlertDialogTrigger asChild>
                       <div className="relative group w-22 h-22 cursor-pointer">
                         <Avatar className="w-22 h-22 cursor-pointer">
@@ -175,7 +175,7 @@ const Profile: React.FC = () => {
                     </div>
                   )}
 
-                  {currentUser.id === profileUserId && (
+                  {currentUser.id === (profileUserId || currentUser.id) && (
                     <AlertDialogContent className="landscape:md:h-full landscape:lg:h-auto landscape:overflow-y-auto">
                       <AlertDialogHeader>
                         <AlertDialogTitle className="text-primary-text font-bold">
@@ -336,15 +336,15 @@ const Profile: React.FC = () => {
               </section>
             )}
 
-            {currentUser.id === profileUserId && !isEditing && (
-              <Button
-                onClick={() => setIsEditing(!isEditing)}
-                className="self-center sm:self-start  mx-auto sm:mx-0 w-[90%] sm:w-[60%] md:w-[50%] lg:w-[90%] lg:self-center mt-6 bg-gray-100 text-black border border-gray-300 hover:bg-gray-200 cursor-pointer"
-              >
-                {t("profile.header.editProfile")}
-              </Button>
-            )}
-            {/* handles displaying editing pane */}
+            {currentUser.id === (profileUserId || currentUser.id) &&
+              !isEditing && (
+                <Button
+                  onClick={() => setIsEditing(!isEditing)}
+                  className="self-center sm:self-start  mx-auto sm:mx-0 w-[90%] sm:w-[60%] md:w-[50%] lg:w-[90%] lg:self-center mt-6 bg-gray-100 text-black border border-gray-300 hover:bg-gray-200 cursor-pointer"
+                >
+                  {t("profile.header.editprofile")}
+                </Button>
+              )}
             <div className="self-center sm:self-start mx-auto sm:mx-0 w-[90%] sm:w-[60%] lg:w-full">
               {currentUser.id === (profileUserId || currentUser.id) &&
                 isEditing && (
@@ -353,7 +353,7 @@ const Profile: React.FC = () => {
                     setIsEditing={setIsEditing}
                     setBio={setBio}
                     setUsername={setUsername}
-                    userId={profileUserId}
+                    userId={profileUserId || currentUser.id}
                   />
                 )}
             </div>

@@ -40,7 +40,11 @@ const ContributorPopup: React.FC<ContributorPopupProps> = ({ profile }) => {
           <Avatar
             className="w-9 h-9 cursor-pointer border-1 border-gray-300"
             // not sure if this is the right path, since we didn't finish profile page yet
-            onClick={() => navigate(`/profile/${profile.id}`)}
+            onClick={() =>
+              navigate(`/profile`, {
+                state: { userId: profile.id },
+              })
+            }
           >
             <AvatarImage src={avatarSrc} alt={profile.user_profile_name} />
             <AvatarFallback>
@@ -52,7 +56,11 @@ const ContributorPopup: React.FC<ContributorPopupProps> = ({ profile }) => {
             <div className="flex items-center gap-1">
               <p
                 className="font-bold cursor-pointer truncate w-full hover:underline"
-                onClick={() => navigate(`/profile/${profile.id}`)}
+                onClick={() =>
+                  navigate(`/profile`, {
+                    state: { userId: profile.id },
+                  })
+                }
               >
                 {profile.user_profile_name || t("unknnown")}
               </p>
