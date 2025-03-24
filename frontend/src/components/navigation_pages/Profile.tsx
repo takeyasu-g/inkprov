@@ -5,11 +5,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { BookOpen, PenTool, Trophy } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChalkboard } from "@fortawesome/free-solid-svg-icons";
 import ProfileStoriesCard from "../ProfileStoriesCard";
 import ProfileSkeleton from "../ProfileSkeleton";
 import RewardTrophiesPage from "../user/RewardTrophiesPage";
 import { ProjectsData } from "@/types/global";
-import { getUserProfileData, updateProfilePicture } from "@/utils/supabase";
+import {
+  getUserProfileData,
+  updateProfilePicture,
+  supabase,
+} from "@/utils/supabase";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -49,6 +55,7 @@ const Profile: React.FC = () => {
     ProjectsData[] | null
   >([]);
   const [currentPage, setCurrentPage] = useState(0);
+  const [isInstructor, setIsInstructor] = useState<boolean>(false);
 
   // maybe future add also private toggle
   const [userPreference, setUserPreference] = useState<boolean>(false);
@@ -67,17 +74,29 @@ const Profile: React.FC = () => {
         const userData = await getUserProfileData();
 
         // Process username
-        const user = userData.username.split("@")[0];
-        const username = user[0].toUpperCase() + user.substring(1);
+        const userNameParts = userData.username.split("@")[0];
+        const formattedUsername =
+          userNameParts[0].toUpperCase() + userNameParts.substring(1);
 
         // Update all state
-        setUsername(username);
+        setUsername(formattedUsername);
         setBio(userData.bio || "");
         setCurrentProfilePicture(userData.profilePicture);
         setProfilePictureOptions(userData.profilePictureOptions);
         setStoriesCompleted(userData.completedProjects);
         setStoriesInprogress(userData.inProgressProjects);
         setUserPreference(userData.matureContentEnabled);
+
+        // Get instructor status
+        if (user && user.id) {
+          const { data: stats } = await supabase
+            .from("user_gamification_stats")
+            .select("is_cc_instructor")
+            .eq("user_id", user.id)
+            .single();
+
+          setIsInstructor(!!stats?.is_cc_instructor);
+        }
       } catch (error) {
         console.error("Error fetching profile data:", error);
       } finally {
@@ -86,7 +105,7 @@ const Profile: React.FC = () => {
     };
 
     fetchProfileData();
-  }, []);
+  }, [user]);
 
   const getInitials = () => {
     if (!user?.email) return "?";
@@ -239,9 +258,18 @@ const Profile: React.FC = () => {
 
               <article className="flex flex-col justify-center">
                 {!isEditing && (
-                  <h3 className="text-2xl font-bold text-primary-text text-left mb-1 ml-3">
-                    {username}
-                  </h3>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-2xl font-bold text-primary-text">
+                      {username}
+                    </h1>
+                    {isInstructor && (
+                      <FontAwesomeIcon
+                        icon={faChalkboard}
+                        className="text-yellow-500"
+                        size="lg"
+                      />
+                    )}
+                  </div>
                 )}
 
                 {/* Completed Stories Tracker */}

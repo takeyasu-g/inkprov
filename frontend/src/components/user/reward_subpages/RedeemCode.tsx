@@ -14,6 +14,8 @@ interface RedeemCodeProps {
 // Map to link redemption codes to the appripriate stat in user_gamification_stats
 const CODE_TO_STAT_MAPPING: Record<string, string> = {
   CC37DEMODAY: "attended_demo_day",
+  CC_INSTRUCTOR: "is_cc_instructor",
+  CC_DEVELOPER: "is_cc_developer",
 };
 
 const RedeemCode: React.FC<RedeemCodeProps> = ({ setIsRedeeming }) => {
@@ -63,7 +65,11 @@ const RedeemCode: React.FC<RedeemCodeProps> = ({ setIsRedeeming }) => {
 
       // Prepare update data
       const updateData: Record<string, any> = {};
-      updateData[statColumn] = 1;
+      if (statColumn === "is_cc_instructor") {
+        updateData[statColumn] = true;
+      } else {
+        updateData[statColumn] = 1;
+      }
 
       if (userStats) {
         // Update existing record

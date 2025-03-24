@@ -73,7 +73,8 @@ export const getProjectSnippets = async (
       `
       *,
       creator:users_ext!creator_id(
-        user_profile_name
+        user_profile_name,
+        id
       )
     `
     )
@@ -83,6 +84,37 @@ export const getProjectSnippets = async (
   if (error) {
     console.error("Error fetching project snippets:", error);
     return null;
+  }
+
+  // Get instructor status for each creator
+  if (projectSnippets?.length) {
+    // Get unique creator IDs
+    const creatorIds = [
+      ...new Set(projectSnippets.map((snippet) => snippet.creator_id)),
+    ];
+
+    // Fetch instructor status for all creators at once
+    const { data: statsData } = await supabase
+      .from("user_gamification_stats")
+      .select("user_id, is_cc_instructor")
+      .in("user_id", creatorIds);
+
+    // Create a map of user_id to instructor status
+    const instructorMap = new Map();
+    if (statsData) {
+      statsData.forEach((stat) => {
+        instructorMap.set(stat.user_id, !!stat.is_cc_instructor);
+      });
+    }
+
+    // Add instructor flag to each snippet's creator
+    return projectSnippets.map((snippet) => ({
+      ...snippet,
+      creator: {
+        ...snippet.creator,
+        is_instructor: instructorMap.get(snippet.creator_id) || false,
+      },
+    }));
   }
 
   return projectSnippets;
@@ -306,17 +338,43 @@ const insertUsername = async (): Promise<any> => {
 export const getProfilesByUserIdsForPopUp = async (
   userIds: string[]
 ): Promise<UserProfilePopUp[] | []> => {
-  const { data, error } = await supabase
-    .from("users_ext")
-    .select("id, user_profile_name, profile_pic_url, user_email")
-    .in("id", userIds);
+  try {
+    // Get user profiles
+    const { data: profiles, error: profilesError } = await supabase
+      .from("users_ext")
+      .select("id, user_profile_name, profile_pic_url, user_email")
+      .in("id", userIds);
 
-  if (error) {
-    console.error("Error fetching profiles:", error);
+    if (profilesError) {
+      console.error("Error fetching profiles:", profilesError);
+      return [];
+    }
+
+    // Get instructor status for these users
+    const { data: stats, error: statsError } = await supabase
+      .from("user_gamification_stats")
+      .select("user_id, is_cc_instructor")
+      .in("user_id", userIds);
+
+    if (statsError) {
+      console.error("Error fetching instructor stats:", statsError);
+      return profiles;
+    }
+
+    // Create a map of user_id to instructor status
+    const instructorMap = new Map(
+      stats.map((stat) => [stat.user_id, stat.is_cc_instructor])
+    );
+
+    // Combine the data
+    return profiles.map((profile) => ({
+      ...profile,
+      is_instructor: instructorMap.get(profile.id) || false,
+    }));
+  } catch (error) {
+    console.error("Error in getProfilesByUserIdsForPopUp:", error);
     return [];
   }
-
-  return data;
 };
 
 // handles the user updating their username using the field in settings.
@@ -457,6 +515,27 @@ export async function getProjectContributors(projectId: string | undefined) {
       return [];
     }
 
+    // Get unique user IDs
+    const userIds = [
+      ...new Set(
+        enrichedContributors.map((contributor) => contributor.user_id)
+      ),
+    ];
+
+    // Fetch instructor status for all users at once
+    const { data: statsData } = await supabase
+      .from("user_gamification_stats")
+      .select("user_id, is_cc_instructor")
+      .in("user_id", userIds);
+
+    // Create a map of user_id to instructor status
+    const instructorMap = new Map();
+    if (statsData) {
+      statsData.forEach((stat) => {
+        instructorMap.set(stat.user_id, !!stat.is_cc_instructor);
+      });
+    }
+
     // Process the data to ensure all fields have default values
     return enrichedContributors.map((contributor) => ({
       ...contributor,
@@ -468,10 +547,16 @@ export async function getProjectContributors(projectId: string | undefined) {
         contributor.joined_at ||
         new Date().toISOString(),
       // Extract user from the joined data
-      user: contributor.user || {
-        id: contributor.user_id,
-        user_profile_name: "Unknown",
-      },
+      user: contributor.user
+        ? {
+            ...contributor.user,
+            is_instructor: instructorMap.get(contributor.user_id) || false,
+          }
+        : {
+            id: contributor.user_id,
+            user_profile_name: "Unknown",
+            is_instructor: false,
+          },
     }));
   } catch (err) {
     console.error("Exception when fetching project contributors:", err);
@@ -839,6 +924,25 @@ const getProfilePictureOptionsSync = () => {
       supabase.storage.from("user-profile-pictures").getPublicUrl(filename).data
         .publicUrl
   );
+};
+
+// Check if a user has the instructor badge
+export const getUserIsInstructor = async (userId: string): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase
+      .from("user_gamification_stats")
+      .select("is_cc_instructor")
+      .eq("user_id", userId)
+      .single();
+
+    if (error || !data) {
+      return false;
+    }
+
+    return !!data.is_cc_instructor;
+  } catch (error) {
+    return false;
+  }
 };
 
 export {

@@ -86,7 +86,7 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
     try {
       setIsLoading(true);
 
-      // Check if any of the fields have data
+      /* Check if any of the fields have data
       if (values.username.length > 0 || values.bio.length > 0) {
         const moderationResponse = await axios.post(
           `${API_BASE_URL}moderation`,
@@ -104,6 +104,7 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
           return;
         }
       }
+        */
 
       // Update username and bio
       if (values.username.length > 0) {
