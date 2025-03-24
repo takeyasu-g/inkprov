@@ -56,7 +56,7 @@ const GenreFilter: React.FC<GenreFilterProps> = ({ onSelect }) => {
             <button
               className={`px-4 py-2 text-white ${`genre-${selectedGenre.toLowerCase()}`} cursor-pointer rounded-lg w-auto text-left`}
             >
-              {selectedGenre.toLowerCase() === "all" ? t("all") : t(`genres.${selectedGenre.toLocaleLowerCase()}`)} <span className="ml-2">▼</span>
+              {selectedGenre.toLowerCase() === "all" ? t("all") : t(`genres.${selectedGenre.toLowerCase()}`)} <span className="ml-2">▼</span> 
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-fit bg-white">
@@ -78,7 +78,7 @@ const GenreFilter: React.FC<GenreFilterProps> = ({ onSelect }) => {
       <ToggleGroup
         className="hidden xl:flex gap-1 bg-secondary-background text-[var(--filter-btn-text)]"
         type="single"
-        value={selectedGenre.toLowerCase() === "all" ? t("all") : t(`genres.${selectedGenre.toLowerCase}`)}
+        value={selectedGenre.toLowerCase() === "all" ? "All" : selectedGenre.toLowerCase()}
         onValueChange={handleSelectFilter}
       >
         {/* map through hard coded genres */}
@@ -86,7 +86,7 @@ const GenreFilter: React.FC<GenreFilterProps> = ({ onSelect }) => {
           <ToggleGroupItem
             className="px-4 min-w-auto  hover:bg-amber-600 rounded-lg not-data-[state=on]:hover:text-white data-[state=on]:text-white data-[state=on]:bg-amber-700 data-[state=on]:rounded-lg cursor-pointer"
             key={genre}
-            value={genre === "all" ? t("all") : t(`genres.${genre}`)}
+            value={genre}
           >
             {genre === "all" ? t("all") : t(`genres.${genre}`)}
           </ToggleGroupItem>

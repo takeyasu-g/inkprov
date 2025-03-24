@@ -14,6 +14,8 @@ import { CompletedStoriesData } from "@/types/global";
 import { supabase } from "@/utils/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatRelative } from "date-fns";
+import { enUS, ja } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
 
 interface ProjectCardDataProp {
@@ -137,7 +139,7 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
       </div>
       <CardFooter className="flex justify-between items-center">
         <span className="text-sm text-secondary-text">
-          {t("completed")}: {new Date(projectData.updated_at).toLocaleDateString()}
+          {t("completed")}: {`${formatRelative(new Date(projectData.updated_at), new Date(), { locale: sessionStorage.getItem("lang") === "ja" ? ja : enUS })}`}
         </span>
         <Button
           className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"

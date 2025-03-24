@@ -193,7 +193,6 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
               <PopoverTrigger asChild>
               <div className="flex flex-col items-center cursor-pointer text-primary-text">
                 <Globe size={25}/>
-                {/* <p>{t("header.languagePopover.title")}</p> */}
               </div>
               </PopoverTrigger>
               <PopoverContent
@@ -378,12 +377,11 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
       ) : (
         <div className="col-start-3 justify-self-end flex gap-4">
           {/* Language Change */}
-          <div className="hidden md:block md:justify-self-end">
+          <div className="hidden md:flex md:gap-4 md:items-center md:justify-self-end">
             <Popover open={langPopOpen} onOpenChange={setLangPopOpen}>
               <PopoverTrigger asChild>
               <div className="flex flex-col items-center cursor-pointer text-primary-text">
-                <Globe/>
-                <p>{t("header.languagePopover.title")}</p>
+              <Globe size={25}/>
               </div>
               </PopoverTrigger>
               <PopoverContent

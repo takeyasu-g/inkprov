@@ -9,6 +9,7 @@ import React, {
   import { initReactI18next } from "react-i18next";
   import LanguageDetector from "i18next-browser-languagedetector";
   import en from "../locales/en.json";
+  import ja from "../locales/ja.json";
   
   // Initialize i18next with language detection
   i18n
@@ -16,10 +17,12 @@ import React, {
   .use(initReactI18next).init({
     supportedLngs: ["en", "ja"],  
     fallbackLng: getSessionLang(),
-    debug: true,
     resources: {
       en: {
         translation: en,
+      },
+      ja: {
+        translation: ja,
       },
     },
   });

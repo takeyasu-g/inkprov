@@ -178,11 +178,6 @@
       "changeProfilePictureAlert": {
         "header": {
           "title": "Select Profile Picture"
-        },
-        "pagination": {
-          "previous": "Previous",
-          "next": "Next",
-          "page": "Page"
         }
       },
       "stories": {
@@ -308,9 +303,6 @@
       
     },
     "readingView": {
-      "header": {
-        "backtoStories": "Back to Stories"
-      },
       "footer": {
         "title": "How did this story make you feel?"
       },
@@ -322,7 +314,7 @@
       "cool": "Cool",
       "funny": "Funny",
       "sad": "Sad",
-      "heartwarming": "Heartwarming",
+      "moving": "Moving",
       "interesting": "Interesting",
       "scary": "Scary"
     }
@@ -449,16 +441,22 @@
       "thriller": "Thriller",
       "western": "Western"
     },
+    "pagination": {
+          "previous": "Previous",
+          "next": "Next",
+          "page": "Page"
+        },
     "genresTitle": "Genres",
     "all": "All",
     "by": "by",
-    "backtoSessions": "Back to Sessions",
+    "back": "Back",
     "loading": "Loading",
     "startedby": "Started by",
     "completed": "Completed",
     "noDate": "No date found",
     "inProgress": "In progress",
     "matureContent": "Mature Content",
+    "noSessions": "No sessions available",
     "createSession": "Create Session",
     "createSessionLoading": "Creating Session",
     "cancel": "Cancel",

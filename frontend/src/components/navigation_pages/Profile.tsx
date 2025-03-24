@@ -193,10 +193,10 @@ const Profile: React.FC = () => {
                               variant="outline"
                               className="text-primary-text"
                             >
-                              {t("profile.changeProfilePictureAlert.pagination.previous")}
+                              {t("pagination.previous")}
                             </Button>
                             <span className="text-sm text-primary-text">
-                              {t("profile.changeProfilePictureAlert.pagination.page")} {currentPage + 1} {t("of")}{" "}
+                              {t("pagination.page")} {currentPage + 1} {t("of")}{" "}
                               {Math.ceil(
                                 profilepictureOptions.length / ITEMS_PER_PAGE
                               )}
@@ -223,7 +223,7 @@ const Profile: React.FC = () => {
                               variant="outline"
                               className="text-primary-text"
                             >
-                              {t("profile.changeProfilePictureAlert.pagination.next")}
+                              {t("pagination.next")}
                             </Button>
                           </div>
                         )}
@@ -478,19 +478,6 @@ const Profile: React.FC = () => {
             {/* Gamification Tab Content */}
             <TabsContent value="gamification">
               <section className="w-full space-y-8 bg-card p-8 mt-[39px] rounded-lg rounded-tl-none border border-primary-border">
-                <section className="flex flex-col">
-                  <div className="flex items-center text-secondary-text">
-                    <Trophy />
-                    <h3 className="text-xl font-bold text-primary-text text-left mb-1 ml-3">
-                      Gamification
-                    </h3>
-                  </div>
-                  <p className="ml-3 text-secondary-text text-left mb-4">
-                    Your achievements and progress
-                  </p>
-                </section>
-
-                {/* Integrated RewardTrophiesPage component */}
                 <RewardTrophiesPage />
               </section>
             </TabsContent>

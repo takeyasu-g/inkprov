@@ -1,0 +1,488 @@
+{
+  "header": {
+    "appName": "Inkprov",
+    "signIn": "ログイン",
+    "register": "登録",
+    "navbar": {
+      "sessions": "セッション",
+      "stories": "ストーリー",
+      "create": "作成"
+    },
+    "accountPopover": {
+      "profile": "プロフィール",
+      "settings": "設定",
+      "logout": "ログアウト"
+    },
+    "languagePopover": {
+      "title": "言語",
+      "english": "英語",
+      "japanese": "日本語"
+    }
+  },
+  "footer": {
+    "about": "概要",
+    "privacy": "プライバシー",
+    "terms": "利用規約",
+    "contact": "お問い合わせ"
+  },
+  "landing": {
+    "topSection": {
+      "title1": "一緒に書く",
+      "title2": "一緒に創作する",
+      "subtitle": "作家のコミュニティに参加し、リアルタイムでストーリー、詩などを共同で創作しましょう。",
+      "startWriting": "執筆を始める",
+      "exploreStories": "ストーリーを探索する"
+    },
+    "middleSection": {
+      "title": "Inkprovの仕組み",
+      "action1": {
+        "title": "セッションに参加する",
+        "description": "あなたの興味に合ったオープンな執筆セッションを見つけるか、自分で作成しましょう。"
+      },
+      "action2": {
+        "title": "一緒に書く",
+        "description": "他の作家とリアルタイムで協力して、美しいものを創り出しましょう。"
+      },
+      "action3": {
+        "title": "共有と発見",
+        "description": "共同作品を公開し、他の作家からの創作物を探索しましょう。"
+      }
+    },
+    "bottomSection": {
+      "title": "創造的な心のための居心地の良い空間",
+      "description": "Inkprovは、お気に入りの読書スペースで書いているような温かく招待的な環境を提供します。私たちのプラットフォームは創造性を刺激し、コラボレーションを促進するために設計されています。",
+      "bulletPoints": {
+        "point1": "リアルタイムの共同執筆",
+        "point2": "インスピレーションが必要な時のためのアイデアプロンプト",
+        "point3": "ジャンルベースのセッションとフィルタリング",
+        "point4": "コミュニティからのフィードバックと反応"
+      }
+    }
+  },
+  "auth": {
+    "form": {
+      "email": "メールアドレス",
+      "password": "パスワード"
+    },
+    "signIn": {
+      "leftSection": {
+        "title": "執筆コミュニティに参加しましょう",
+        "quote": "「書くという行為は楽観主義の行為です。それが重要でないと感じるなら、あなたはその手間をかけないでしょう。」",
+        "quoteAuthor": "- エドワード・アルビー",
+        "bottomSubtitle": "Inkprovは、創造性が自由に流れる居心地の良い共同環境で作家を結びつけます。"
+      },
+      "rightSection": {
+        "title": "おかえりなさい",
+        "subtitle": "執筆の旅を続けるためにログインしてください",
+        "form": {
+          "forgotPassword": "パスワードをお忘れですか？",
+          "rememberMe": "ログイン状態を保持する",
+          "signIn": "ログイン",
+          "signInLoading": "ログイン中"
+        },
+        "noAccount": "アカウントをお持ちでないですか？",
+        "signUp": "新規登録"
+      }
+    },
+    "register": {
+      "leftSection": {
+        "title": "執筆の冒険を始めましょう",
+        "quote": "「語られていない物語をあなたの中に抱えることほど大きな苦痛はありません。」",
+        "quoteAuthor": "- マヤ・アンジェロウ",
+        "bottomSubtitle": "今日Inkprovに参加して、あなたのアイデアを仲間の作家と一緒に共同傑作に変えましょう。"
+      },
+      "rightSection": {
+        "title": "アカウントを作成する",
+        "subtitle": "作家のコミュニティに参加しましょう。",
+        "form": {
+          "passwordRequirments": "最低6文字",
+          "confirmPassword": "パスワード確認",
+          "register": "アカウント作成",
+          "registerLoading": "アカウント作成中",
+          "haveAccount": "すでにアカウントをお持ちですか？",
+          "signIn": "ログイン"
+        }
+      }
+    },
+    "continueWith": {
+      "subtitle": "または次で続ける",
+      "google": "Googleで続ける"
+    }
+  },
+  "openSessions": {
+    "header": {
+      "title": "オープン執筆セッション",
+      "subtitle": "既存のセッションに参加するか、自分で作成しましょう！",
+      "refreshLoading": "更新中",
+      "searchbar": {
+        "placeholder": "セッションを検索"
+      }
+    },
+    "card": {
+      "time": {
+        "created": "作成日時"
+      },
+      "viewSession": "セッションを表示"
+    }
+  },
+  "stories": {
+    "header": {
+      "title": "完成したストーリー",
+      "subtitle": "コミュニティによって創作された共同ストーリーを閲覧して読みましょう",
+      "searchbar": {
+        "placeholder": "ストーリーを検索"
+      }
+    },
+    "card": {
+      "readStory": "ストーリーを読む"
+    }
+  },
+  "create": {
+    "header": {
+      "title": "新規執筆セッションを作成",
+      "description": "新しい共同執筆セッションを開始します。各貢献者はスニペットごとに50〜100語を追加します。ストーリーに必要な合計貢献数を設定してください。"
+    },
+    "form": {
+      "titleField": {
+        "title": "セッションタイトル",
+        "placeholder": "セッションタイトルを入力"
+      },
+      "descriptionField": {
+        "title": "説明",
+        "placeholder": "このセッションの内容を説明してください"
+      },
+      "genreField": {
+        "title": "ジャンル",
+        "placeholder": "ジャンルを選択"
+      },
+      "snippetsField": {
+        "title": "スニペットの最大数",
+        "snippets": "スニペット",
+        "subtitle": "各スニペットは50〜100語です。推定総ストーリー長："
+      },
+      "publicSession": "公開セッション",
+      "contributionField": {
+        "title": "あなたの貢献（50〜100語）",
+        "placeholder": "ここでストーリーを始めましょう"
+      }
+    }
+  },
+  "profile": {
+    "header": {
+      "completedStories": "完成したストーリー",
+      "inProgressStories": "進行中のストーリー",
+      "profilePictureChange": "変更",
+      "aboutMe": "自己紹介",
+      "editProfile": "プロフィール編集"
+    },
+    "changeProfilePictureAlert": {
+      "header": {
+        "title": "プロフィール画像を選択"
+      }
+    },
+    "stories": {
+      "title": "あなたのストーリー",
+      "subtitle": "あなたが貢献したストーリー"
+    },
+    "empty": {
+      "noCompleted": "完成したストーリーはありません",
+      "noInProgress": "進行中のストーリーはありません"
+    },
+    "tabs": {
+      "yourStories": "あなたのストーリー",
+      "achievements": "実績"
+    },
+    "cards": {
+      "collaborators": "共同作成者",
+      "wordCount": "単語数",
+      "lastActive": "最終アクティブ",
+      "private": "非公開"
+    },
+    "achievements": {
+      "title": "実績とトロフィー",
+      "subtitle": "執筆、創作、コミュニティとの交流を通じて進捗を追跡し、実績を解除しましょう。",
+      "stats": {
+        "projectsCreated": "作成したプロジェクト",
+        "projectsCompleted": "完了したプロジェクト",
+        "wordsWritten": "書いた単語数",
+        "tabs": {
+          "writing": "執筆",
+          "creation": "創作",
+          "completion": "完了",
+          "social": "ソーシャル",
+          "special": "スペシャル"
+        }
+      },
+      "unlocked": "解除済み",
+      "noAchievements": "実績が見つかりません",
+      "trophies": {
+        "trophy1": {
+          "title": "初めての貢献",
+          "description": "プロジェクトへ初めて貢献しました"
+        },
+        "trophy2": {
+          "title": "多作な作家",
+          "description": "プロジェクトに10回貢献しました"
+        },
+        "trophy3": {
+          "title": "言葉の職人",
+          "description": "全プロジェクトで1,000語を書きました"
+        },
+        "trophy4": {
+          "title": "プロジェクト作成者",
+          "description": "初めての執筆プロジェクトを作成しました"
+        },
+        "trophy5": {
+          "title": "ビジョナリー",
+          "description": "5つの執筆プロジェクトを作成しました"
+        },
+        "trophy6": {
+          "title": "完成者",
+          "description": "初めてのプロジェクトを完了しました"
+        },
+        "trophy7": {
+          "title": "マスターストーリーテラー",
+          "description": "3つのプロジェクトを完了しました"
+        },
+        "trophy8": {
+          "title": "ロイヤルユーザー",
+          "description": "プラットフォームに5回ログインしました"
+        },
+        "trophy9": {
+          "title": "賞賛者",
+          "description": "他のプロジェクトに10回いいねをしました"
+        },
+        "trophy10": {
+          "title": "人気者",
+          "description": "あなたのプロジェクトが10回いいねされました"
+        },
+        "trophy11": {
+          "title": "コミュニティメンバー",
+          "description": "5つの異なるプロジェクトに貢献しました"
+        },
+        "trophy12": {
+          "title": "ロックスター",
+          "description": "他の5つの実績を解除しました"
+        }
+      }
+    }
+  },
+  "settings": {
+    "title": "ユーザー設定",
+    "subtitle": "設定とアカウント設定を管理します。",
+    "leftSection": {
+      "title": "プロフィール情報",
+      "subtitle": "アカウント設定を更新する",
+      "form": {
+        "usernameField": {
+          "title": "ユーザー名",
+          "placeholder": "ユーザー名"
+        },
+        "bioField": {
+          "title": "自己紹介",
+          "placeholder": "あなたの物語の一部を他の人と共有しましょう。"
+        }
+      },
+      "saveChanges": "変更を保存",
+      "saveChangesLoading": "変更を保存中"
+    },
+    "rightSection": {
+      "title": "設定",
+      "subtitle": "アカウント設定を管理する",
+      "toggle": {
+        "matureContentTitle": "成人向けコンテンツを許可"
+      }
+    },
+    "loadError": "設定の読み込みに失敗しました",
+    "dangerZone": {
+      "title": "危険ゾーン",
+      "deleteAccountMessage": "Inkprovからユーザーアカウントと情報を削除する",
+      "deleteAccountLoading": "アカウント削除中",
+      "deleteAccount": "アカウント削除"
+    }
+  },
+  "readingView": {
+    "footer": {
+      "title": "このストーリーはどう感じましたか？"
+    },
+    "reactionTitle": "このストーリーはどう感じましたか？",
+    "removeReaction": "リアクションを削除",
+    "reactionTooltip": "次としてマーク：",
+    "reactionAria": "次でリアクション：",
+    "reactions": {
+      "cool": "クール",
+      "funny": "面白い",
+      "sad": "悲しい",
+      "moving": "感動的",
+      "interesting": "興味深い",
+      "scary": "怖い"
+    }
+  },
+  "writingSession": {
+    "header": {
+      "subtitle1": "各貢献：50〜100語。",
+      "subtitle2": "推定総ストーリー長：",
+      "note": "注意：ストーリーは最大12の貢献に制限されています。",
+      "userCurrentlyWriting": "現在誰かが貢献を書いています。"
+    },
+    "content": {
+      "title": "ここまでのストーリー：",
+      "contribution": "貢献",
+      "form": {
+        "contributors": "貢献者",
+        "textarea": {
+          "placeholder": "あなたの貢献を追加してください（50〜100語）。",
+          "timeRemaining": "残り"
+        },
+        "submitContribution": "貢献を提出",
+        "submitLoading": "提出中",
+        "deleteProject": "プロジェクト削除",
+        "deleteProjectConfirm": "このプロジェクトを削除してもよろしいですか？この操作は元に戻せません。",
+        "contributionAddSuccess": "貢献が正常に追加されました！",
+        "submitError": "貢献の提出中にエラーが発生しました。もう一度お試しください。",
+        "deleteProjectSuccess": "プロジェクトが正常に削除されました。"
+      },
+      "writersBlock": "ライターズブロック？",
+      "writingIdeas": "執筆アイデア",
+      "noWritingIdeas": "利用可能な執筆アイデアはありません。",
+      "projectCompleted": "プロジェクト完了",
+      "userWaiting": "現在誰かが書いています"
+    }
+  },
+  "toasts": {
+    "logoutSuccess": "正常にログアウトしました",
+    "logoutError": "ログアウト中にエラーが発生しました。もう一度お試しください。",
+    "signInSuccess": "正常にログインしました",
+    "signInError": "ログイン中にエラーが発生しました。もう一度お試しください。",
+    "registerSuccess": "登録に成功しました",
+    "registerError": "登録中にエラーが発生しました。もう一度お試しください。",
+    "saveChangesSuccess": "変更を正常に保存しました",
+    "matureContentEnabled": "成人向けコンテンツが有効になりました",
+    "matureContentDisabled": "成人向けコンテンツが無効になりました",
+    "reactionAdded": "このストーリーを次としてマークしました：",
+    "reactionRemoved": "リアクションが削除されました",
+    "reactionError": "リアクションを更新できませんでした",
+    "snippetsError": "スニペットの取得中にエラーが発生しました。もう一度お試しください。",
+    "completedStoryError": "このプロジェクトはすでに完了しています。もう一度お試しください。",
+    "maxSnippetsError": "このプロジェクトのスニペットの最大数に達しました。もう一度お試しください。",
+    "otherUserWritingError": "現在別のユーザーがこのプロジェクトを書いています。後でもう一度お試しください。",
+    "collaborationError": "貢献の開始に失敗しました。もう一度お試しください。",
+    "collaborationSuccess": "あなたの貢献を書くことができるようになりました！",
+    "wordCountErrorGeneral": "50〜100語で書いてください。",
+    "noUserDataError": "ユーザーデータが利用できません。もう一度ログインしてください。",
+    "contributionSubmitError": "貢献の提出中にエラーが発生しました。もう一度お試しください。",
+    "contributionSubmitSuccess": "貢献を正常に提出しました。",
+    "storyCompletedSuccess": "プロジェクト完了！これが最後の貢献でした。",
+    "cancelError": "キャンセルに失敗しました。もう一度お試しください。",
+    "writingCancelled": "執筆がキャンセルされました。プロジェクトは他の人が利用できるようになりました。",
+    "confirmDelete": "このプロジェクトを削除してもよろしいですか？この操作は元に戻せません。",
+    "deleteSuccess": "プロジェクトが正常に削除されました。",
+    "inactivity": "10分間の非アクティブ状態の後、プロジェクトは自動的にロック解除されました。",
+    "timerExpired": "時間切れです！プロジェクトはロック解除されました。",
+    "deleteAccountError": "アカウントの削除に失敗しました。",
+    "authRequired": {
+      "title": "認証が必要です",
+      "description": "このページにアクセスするにはログインが必要です。"
+    },
+    "genreLoadError": {
+      "title": "ジャンルの読み込みに失敗しました",
+      "description": "ジャンルオプションを読み込めませんでした。もう一度お試しください。"
+    },
+    "titleRequired": {
+      "title": "タイトルが必要です",
+      "description": "プロジェクトのタイトルを入力してください"
+    },
+    "descriptionRequired": {
+      "title": "説明が必要です",
+      "description": "プロジェクトの説明を入力してください"
+    },
+    "genreRequired": {
+      "title": "ジャンルが必要です",
+      "description": "プロジェクトのジャンルを選択してください"
+    },
+    "wordCountError": {
+      "title": "無効な単語数",
+      "description": "50〜100語で書いてください。現在の単語数："
+    },
+    "sessionCreated": {
+      "title": "セッション作成完了",
+      "description": "セッションが正常に作成されました"
+    },
+    "sessionCreatedError": {
+      "title": "セッション作成エラー",
+      "description": "セッション作成中にエラーが発生しました。もう一度お試しください。"
+    }
+  },
+  "error": "エラー",
+  "authError": "認証中にエラーが発生しました。もう一度お試しください。",
+  "loadSessionError": "セッションの読み込み中にエラーが発生しました。もう一度お試しください。",
+  "noSession": "セッションが見つかりません。",
+  "noStories": "ストーリーが見つかりません。",
+  "unknownError": "不明なエラーが発生しました。もう一度お試しください。",
+  "unknown": "不明",
+  "refresh": "更新",
+  "makeContribution": "貢献する",
+  "noEmail": "メールなし",
+  "genres": {
+    "adventure": "冒険",
+    "comedy": "コメディ",
+    "crime": "犯罪",
+    "fantasy": "ファンタジー",
+    "history": "歴史",
+    "horror": "ホラー",
+    "mystery": "ミステリー",
+    "paranormal": "超常現象",
+    "romance": "ロマンス",
+    "scifi": "SF",
+    "thriller": "スリラー",
+    "western": "西部劇"
+  },
+  "pagination": {
+    "previous": "前へ",
+    "next": "次へ",
+    "page": "ページ"
+  },
+  "genresTitle": "ジャンル",
+  "all": "すべて",
+  "by": "作者：",
+  "back": "戻る",
+  "loading": "読み込み中",
+  "startedby": "開始者：",
+  "completed": "完了",
+  "noDate": "日付が見つかりません",
+  "inProgress": "進行中",
+  "matureContent": "成人向けコンテンツ",
+  "noSessions": "利用可能なセッションはありません",
+  "createSession": "セッション作成",
+  "createSessionLoading": "セッション作成中",
+  "cancel": "キャンセル",
+  "select": "選択",
+  "words": "単語",
+  "startCreating": "作成を開始",
+  "characters": "文字",
+  "contributions": "貢献",
+  "of": "の",
+  "you": "あなた",
+  "anonymous": "匿名",
+  "close": "閉じる",
+  "competeLogin": "ログインを完了しています。",
+  "userIDError": "ユーザーIDが見つかりません",
+  "moderation": {
+    "flagged": "コンテンツが次の理由でフラグ付けされました：",
+    "categories": {
+      "sexual": "性的",
+      "sexual/minors": "性的/未成年",
+      "harassment": "ハラスメント",
+      "harassment/threatening": "ハラスメント/脅迫的",
+      "hate": "憎悪",
+      "hate/threatening": "憎悪/脅迫的",
+      "illicit": "不正",
+      "illicit/violent": "不正/暴力的",
+      "self-harm": "自傷行為",
+      "self-harm/intent": "自傷行為/意図",
+      "self-harm/instructions": "自傷行為/指示",
+      "violence": "暴力",
+      "violence/graphic": "暴力/グラフィック"
+    }
+  }
+}

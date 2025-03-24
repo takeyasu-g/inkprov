@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 
 const ProjectsPage: React.FC = () => {
   const { t } = useTranslation();
-  const [genreFilter, setGenreFilter] = useState<string>("All");
+  const [genreFilter, setGenreFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [allProjects, setAllProjects] = useState<CompletedStoriesData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,7 +44,7 @@ const ProjectsPage: React.FC = () => {
   // Make filteredProjects[] based on both searchQuery and genreFilter
   const filteredProjects = allProjects.filter((project) => {
     const matchesGenre =
-      genreFilter === t("all") || project.project_genre === genreFilter;
+      genreFilter.toLowerCase() === "all" || project.project_genre.toLowerCase() === genreFilter.toLowerCase();
     const words = searchQuery.toLowerCase().split(" ");
     const matchesSearch =
       searchQuery.trim() === "" ||

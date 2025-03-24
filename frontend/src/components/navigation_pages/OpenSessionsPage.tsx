@@ -18,7 +18,7 @@ import { useTranslation } from "react-i18next";
 
 const OpenSessionsPage: React.FC = () => {
   const { t } = useTranslation();
-  const [genreFilter, setGenreFilter] = useState<string>("All");
+  const [genreFilter, setGenreFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [allSessions, setAllSessions] = useState<ProjectsData[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -110,12 +110,12 @@ const OpenSessionsPage: React.FC = () => {
     return allSessions
       .filter((session) => {
         // Only filter if we have filters applied
-        if (genreFilter === "All" && searchQuery.trim() === "") {
+        if (genreFilter === "all" && searchQuery.trim() === "") {
           return true;
         }
 
         const matchesGenre =
-          genreFilter === t("all") || session.project_genre === genreFilter;
+          genreFilter === t("all") || session.project_genre.toLowerCase() === genreFilter;
 
         // Only perform search filtering if there's a search query
         if (searchQuery.trim() === "") {
@@ -268,11 +268,11 @@ const OpenSessionsPage: React.FC = () => {
             className="h-10 px-4"
           >
             <ChevronLeft className="h-4 w-4 mr-1" />
-            Previous
+            {t("pagination.previous")}
           </Button>
 
           <div className="text-sm text-secondary-text">
-            Page {currentPage} of {totalPages}
+            {t("pagination.page")} {currentPage} {t("of")} {totalPages}
           </div>
 
           <Button
@@ -281,7 +281,7 @@ const OpenSessionsPage: React.FC = () => {
             disabled={currentPage === totalPages}
             className="h-10 px-4"
           >
-            Next
+            {t("pagination.next")}
             <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
         </div>

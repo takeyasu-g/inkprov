@@ -415,7 +415,7 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
 
   return (
     <div className="trophies-container">
-      <Card>
+      <Card className="border-none shadow-none">
         <CardHeader>
           <CardTitle className="flex items-center">
             <FontAwesomeIcon icon={faTrophy} className="mr-2 text-amber-500" />

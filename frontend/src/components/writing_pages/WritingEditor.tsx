@@ -1035,13 +1035,13 @@ const WritingEditor: React.FC = () => {
   return (
     <div className="h-full md:flex md:flex-col md:gap-5 py-6 mb-15 md:px-4 md:mx-auto md:max-w-[800px] bg-white md:bg-background">
       <div className="bg-white md:bg-background px-5">
-        <Button
+        <Button 
           variant="outline"
           onClick={handleBackClick}
           className="text-sm bg-white md:bg-background"
         >
           <ChevronLeft />
-          <span>{t("backtoSessions")}</span>
+          <span>{t("back")}</span>
         </Button>
       </div>
       <Card className="border-none shadow-none md:shadow-lg">
@@ -1075,7 +1075,7 @@ const WritingEditor: React.FC = () => {
                 {project?.max_snippets && (
                   <div className="mt-3">
                     <p className="text-sm text-primary-text">
-                      <span className="font-medium">Contributions:</span>{" "}
+                      <span className="font-medium">{t("contributions")}</span>{" "}
                       {previousSnippets.length} / {project.max_snippets}
                       {project.is_completed && t("completed")}
                     </p>
@@ -1183,14 +1183,14 @@ const WritingEditor: React.FC = () => {
                 >
                   <Clock size={18} />
                   <span className="font-mono">{formatTimeRemaining()}</span>
-                  <span className="text-sm">{t("writingSession.content.form.timeRemaining")}</span>
+                  <span className="text-sm">{t("writingSession.content.form.textarea.timeRemaining")}</span>
                 </div>
               </div>
 
               <Textarea
                 value={content}
                 onChange={handleContentChange}
-                placeholder={t("writingSession.content.form.placeholder")}
+                placeholder={t("writingSession.content.form.textarea.placeholder")}
                 className="min-h-[200px] mb-2"
                 disabled={isSubmitting}
               />
@@ -1252,7 +1252,7 @@ const WritingEditor: React.FC = () => {
                         {t("writingSession.content.form.submitLoading")}
                       </>
                     ) : (
-                      t("writingSession.content.form.submit")
+                      t("writingSession.content.form.submitContribution")
                     )}
                   </Button>
                 </div>

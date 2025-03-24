@@ -66,7 +66,7 @@ export default function LoginPage() {
 
         setIsAuthenticated(true);
         setUser(data.user);
-        toast.success(t("toasts.loginSuccess"));
+        toast.success(t("toasts.signInSuccess"));
         navigate("/sessions");
       }
     } catch (dataError: any) {

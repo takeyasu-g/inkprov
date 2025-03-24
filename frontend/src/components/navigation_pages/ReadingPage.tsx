@@ -183,7 +183,7 @@ const ReadingPage: React.FC = () => {
           className="text-sm bg-white md:bg-background"
         >
           <ChevronLeft />
-          <span>{t("readingView.header.backtoStories")}</span>
+          <span>{t("back")}</span>
         </Button>
       </div>
       <Card className="border-none shadow-none md:shadow-lg">
@@ -197,7 +197,7 @@ const ReadingPage: React.FC = () => {
                 projectData?.project_genre?.toLowerCase() || ""
               }`}
             >
-              {projectData?.project_genre ||
+              {t(`genres.${projectData?.project_genre.toLowerCase()}`) ||
                 t(`genres.${project?.project_genre ||
                 "unknown".toLowerCase()}`)} 
             </Badge>
@@ -263,7 +263,7 @@ const ReadingPage: React.FC = () => {
                                 : "hover:bg-gray-50 dark:hover:bg-gray-800"
                             }`}
                             disabled={isLoading}
-                            aria-label={`${t("readingView.reactionAria")} ${t(reaction.label)}`}
+                            aria-label={`${t("readingView.reactionAria")} ${t(`readingView.reactions.${reaction.label.toLowerCase()}`)}`}
                           >
                             <div className="flex items-center justify-center h-7 w-full mt-2">
                               <Icon
@@ -285,7 +285,7 @@ const ReadingPage: React.FC = () => {
                           <p>
                             {isSelected
                               ? t("readingView.removeReaction")
-                              : `${t("readingView.reactionTooltip")} ${t(reaction.label)}`}
+                              : `${t("readingView.reactionTooltip")} ${t(`readingView.reactions.${reaction.label.toLowerCase()}`)}`}
                           </p>
                         </TooltipContent>
                       </Tooltip>

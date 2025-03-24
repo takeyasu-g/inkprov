@@ -64,19 +64,19 @@ interface ProjectSnippet {
 
 // hard coded some genres here
 const genres: string[] = [
-  "All",
-  "Adventure",
-  "Comedy",
-  "Crime",
-  "Fantasy",
-  "History",
-  "Horror",
-  "Mystery",
-  "Paranormal",
-  "Romance",
-  "Sci-Fi",
-  "Thriller",
-  "Western",
+  "all",
+  "adventure",
+  "comedy",
+  "crime",
+  "fantasy",
+  "history",
+  "horror",
+  "mystery",
+  "paranormal",
+  "romance",
+  "scifi",
+  "thriller",
+  "western",
 ];
 
 // initlial data for useLocalStorage
@@ -311,7 +311,7 @@ const CreateSession: React.FC = () => {
           className="text-sm bg-white md:bg-background"
         >
           <ChevronLeft />
-          <span>{t("backToSessions")}</span>
+          <span>{t("back")}</span>
         </Button>
       </div>
       <Card className="border-none shadow-none md:shadow-lg">
@@ -390,7 +390,7 @@ const CreateSession: React.FC = () => {
                 <SelectContent>
                   {genres.map((genre) => (
                     <SelectItem key={genre} value={genre}>
-                      {t(genre)}
+                      {genre === "all" ? t("all") : t(`genres.${genre}`)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -412,7 +412,7 @@ const CreateSession: React.FC = () => {
                 <SelectContent>
                   {[3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((num) => (
                     <SelectItem key={num} value={num.toString()}>
-                      {num} {t("snippets")}
+                      {num} {t("create.form.snippetsField.snippets")}
                     </SelectItem>
                   ))}
                 </SelectContent>
