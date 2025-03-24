@@ -244,7 +244,8 @@ const WritingEditor: React.FC = () => {
         if (
           snippets &&
           snippets.length >= (cappedProjectData.max_snippets || 0) &&
-          cappedProjectData.max_snippets > 0
+          cappedProjectData.max_snippets > 0 &&
+          !cappedProjectData.is_completed // Only update if not already marked as completed
         ) {
           // Mark project as completed if it's reached max snippets
           const { error: updateError } = await supabase
@@ -254,6 +255,12 @@ const WritingEditor: React.FC = () => {
 
           if (updateError) {
             console.error("Error marking project as completed:", updateError);
+          } else {
+            console.log(
+              "Project automatically marked as completed due to max snippets reached"
+            );
+            // Flag that sessions page needs to refresh data
+            sessionStorage.setItem("refreshSessions", "true");
           }
         }
       } catch (error) {
@@ -467,17 +474,76 @@ const WritingEditor: React.FC = () => {
     // Unlock the project in the database
     try {
       if (projectId) {
-        const { error } = await supabase
+        // Check if the project has reached max snippets
+        const { data: projectData, error: fetchError } = await supabase
           .from("projects")
-          .update({
-            is_locked: false,
-            locked_by: null,
-            locked_at: null,
-          })
-          .eq("id", projectId);
+          .select("*")
+          .eq("id", projectId)
+          .single();
 
-        if (error) {
-          console.error("Error unlocking project:", error);
+        const { data: snippetsData, error: snippetsError } = await supabase
+          .from("project_snippets")
+          .select("id")
+          .eq("project_id", projectId);
+
+        if (!fetchError && !snippetsError && projectData && snippetsData) {
+          const shouldComplete =
+            projectData.max_snippets &&
+            snippetsData.length >= projectData.max_snippets &&
+            !projectData.is_completed;
+
+          if (shouldComplete) {
+            // Mark project as completed
+            const { error: updateError } = await supabase
+              .from("projects")
+              .update({
+                is_completed: true,
+                is_locked: false,
+                locked_by: null,
+                locked_at: null,
+              })
+              .eq("id", projectId);
+
+            if (updateError) {
+              console.error("Error completing project:", updateError);
+            } else {
+              console.log(
+                "Project automatically marked as completed due to max snippets reached"
+              );
+              toast.success(
+                "Project completed - maximum contributions reached!"
+              );
+              sessionStorage.setItem("refreshSessions", "true");
+            }
+          } else {
+            // Just unlock the project
+            const { error } = await supabase
+              .from("projects")
+              .update({
+                is_locked: false,
+                locked_by: null,
+                locked_at: null,
+              })
+              .eq("id", projectId);
+
+            if (error) {
+              console.error("Error unlocking project:", error);
+            }
+          }
+        } else {
+          // Fallback to just unlocking if there was an error fetching data
+          const { error } = await supabase
+            .from("projects")
+            .update({
+              is_locked: false,
+              locked_by: null,
+              locked_at: null,
+            })
+            .eq("id", projectId);
+
+          if (error) {
+            console.error("Error unlocking project:", error);
+          }
         }
 
         setProjectLocked(false);
@@ -513,10 +579,36 @@ const WritingEditor: React.FC = () => {
     if (!projectId) return;
 
     try {
+      // Fetch the latest project data to ensure accurate check
+      const { data: latestProject, error: fetchError } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("id", projectId)
+        .single();
+
+      if (fetchError) {
+        console.error("Error fetching latest project data:", fetchError);
+        return;
+      }
+
+      // Get the latest snippet count from the database
+      const { data: snippetsData, error: snippetsError } = await supabase
+        .from("project_snippets")
+        .select("id")
+        .eq("project_id", projectId);
+
+      if (snippetsError) {
+        console.error("Error fetching snippets:", snippetsError);
+        return;
+      }
+
+      const currentSnippetCount = snippetsData ? snippetsData.length : 0;
+
       // Check if project should be marked as completed
       if (
-        project?.max_snippets &&
-        previousSnippets.length + 1 >= project.max_snippets
+        latestProject?.max_snippets &&
+        currentSnippetCount >= latestProject.max_snippets &&
+        !latestProject.is_completed
       ) {
         // Mark project as completed
         const { error: completedError } = await supabase
@@ -533,8 +625,17 @@ const WritingEditor: React.FC = () => {
           console.error("Error marking project as completed:", completedError);
         } else {
           toast.success("Project completed! This was the final contribution.");
-          // Falgs that sessions page needs to refresh data
+          // Flags that sessions page needs to refresh data
           sessionStorage.setItem("refreshSessions", "true");
+
+          // Update local state
+          setProject({
+            ...project!,
+            is_completed: true,
+            is_locked: false,
+            locked_by: null as any,
+            locked_at: null as any,
+          });
         }
       } else {
         // Just unlock the project
@@ -608,70 +709,43 @@ const WritingEditor: React.FC = () => {
         setIsSubmitting(false);
         return;
       }
+
+      // Get the latest snippet count to check if we should mark the project as completed
+      const { data: currentSnippets, error: snippetsCountError } =
+        await supabase
+          .from("project_snippets")
+          .select("id")
+          .eq("project_id", projectId);
+
+      if (snippetsCountError) {
+        console.error(
+          "Error fetching current snippets count:",
+          snippetsCountError
+        );
+      } else {
+        const snippetCount = currentSnippets?.length || 0;
+
+        // Check if this submission completes the project
+        if (
+          project?.max_snippets &&
+          snippetCount >= project.max_snippets &&
+          !project.is_completed
+        ) {
+          console.log(
+            `Project has reached max snippets (${snippetCount}/${project.max_snippets}). Marking as completed.`
+          );
+          // We'll mark the project as completed later in unlockProject()
+          // This serves as an additional check
+        }
+      }
+
       const { data: existingContributor } = await supabase
         .from("project_contributors")
         .select("id")
         .eq("project_id", projectId)
         .eq("user_id", userData.auth_id);
 
-      if (!existingContributor || existingContributor.length === 0) {
-        const { data: projectData } = await supabase
-          .from("projects")
-          .select("creator_id")
-          .eq("id", projectId)
-          .single();
-
-        const isProjectCreator = projectData?.creator_id === userData.auth_id;
-
-        const { error: contributorError } = await supabase
-          .from("project_contributors")
-          .insert({
-            project_id: projectId,
-            user_id: userData.auth_id,
-            joined_at: new Date().toISOString(),
-            user_made_contribution: true,
-            user_is_project_creator: isProjectCreator,
-            last_contribution_at: new Date().toISOString(),
-            current_writer: false,
-          });
-
-        if (contributorError) {
-          console.error("Error adding new contributor:", contributorError);
-        }
-
-        // check if the submitted snippet is the max amount of snippets if so then mark project as completed
-
-        const { error: updateCountError } = await supabase
-          .from("projects")
-          .update({
-            current_contributors_count:
-              (project?.current_contributors_count || 0) + 1,
-          })
-          .eq("id", projectId);
-
-        if (updateCountError) {
-          console.error(
-            "Failed to update project contributor count:",
-            updateCountError
-          );
-        }
-        setIsContributor(true);
-      } else {
-        // updates contribution time for existing contributor
-        const { error: updateError } = await supabase
-          .from("project_contributors")
-          .update({
-            user_made_contribution: true,
-            last_contribution_at: new Date().toISOString(),
-          })
-          .eq("project_id", projectId)
-          .eq("user_id", userData.auth_id);
-
-        if (updateError) {
-          console.error("Error updating contributor:", updateError);
-        }
-      }
-
+      // Stop the timer and reset writing fields
       setTimerActive(false);
       setTimeRemaining(600);
 
