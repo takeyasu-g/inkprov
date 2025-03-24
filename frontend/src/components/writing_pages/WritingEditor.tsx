@@ -676,7 +676,7 @@ const WritingEditor: React.FC = () => {
       setIsSubmitting(true);
 
       const moderationResponse = await axios.post(
-        `${API_BASE_URL}/moderation`,
+        `${API_BASE_URL}moderation`,
         {
           content: content,
         }
