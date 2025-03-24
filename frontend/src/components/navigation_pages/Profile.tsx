@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -34,13 +34,19 @@ import RedeemCode from "@/components/user/reward_subpages/RedeemCode";
 
 const Profile: React.FC = () => {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user: currentUser } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  let profileUserId: string = location.state?.userId;
+
+  // const { profileId } = useParams();
 
   // Profile States
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [username, setUsername] = useState<string>("");
   const [bio, setBio] = useState<string>("");
+  const [userEmail, setUserEmail] = useState<string>("");
   const [selectedProfilePicture, setSelectedProfilePicture] = useState<
     number | null
   >(null);
@@ -71,9 +77,13 @@ const Profile: React.FC = () => {
   useEffect(() => {
     const fetchProfileData = async () => {
       setIsLoading(true);
+      // go back where you cam from, id the param is null/undefined
+
       try {
         // Single API call to get all user data
-        const userData = await getUserProfileData();
+        const userData = await getUserProfileData(
+          profileUserId || currentUser.id
+        );
 
         // Process username
         const userNameParts = userData.username.split("@")[0];
@@ -88,13 +98,14 @@ const Profile: React.FC = () => {
         setStoriesCompleted(userData.completedProjects);
         setStoriesInprogress(userData.inProgressProjects);
         setUserPreference(userData.matureContentEnabled);
+        setUserEmail(userData.email);
 
         // Get instructor status
-        if (user && user.id) {
+        if (currentUser && currentUser.id) {
           const { data: stats } = await supabase
             .from("user_gamification_stats")
             .select("is_cc_instructor")
-            .eq("user_id", user.id)
+            .eq("user_id", currentUser.id)
             .single();
 
           setIsInstructor(!!stats?.is_cc_instructor);
@@ -107,11 +118,11 @@ const Profile: React.FC = () => {
     };
 
     fetchProfileData();
-  }, [user]);
+  }, [profileUserId, currentUser]);
 
   const getInitials = () => {
-    if (!user?.email) return "?";
-    return user.email
+    if (!userEmail) return "?";
+    return userEmail
       .split("@")[0]
       .split(".")
       .map((n: string) => n[0].toUpperCase())
@@ -125,136 +136,157 @@ const Profile: React.FC = () => {
       ) : (
         <div className=" mb-5 lg:flex lg:gap-2 lg:p-4 ">
           <section className="flex flex-col lg:h-150 w-[95%] md:w-[90%] lg:w-100 mx-auto bg-card rounded-lg border border-primary-border p-4">
-            <div className="ml-auto ">
-              <UserSettings userPreference={userPreference} />
-            </div>
+            {/* Only display settings when currentUser === to the profile you are viewing */}
+            {currentUser.id === profileUserId && (
+              <div className="ml-auto ">
+                <UserSettings userPreference={userPreference} />
+              </div>
+            )}
+
             <section className="flex space-y-5">
               <div>
                 <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <div className="relative group w-22 h-22 cursor-pointer">
-                      <Avatar className="w-22 h-22 cursor-pointer">
-                        <AvatarImage
-                          src={
-                            currentProfilePicture ||
-                            user?.user_metadata?.avatar_url
-                          }
-                        />
+                  {currentUser.id === profileUserId ? (
+                    <AlertDialogTrigger asChild>
+                      <div className="relative group w-22 h-22 cursor-pointer">
+                        <Avatar className="w-22 h-22 cursor-pointer">
+                          <AvatarImage
+                            src={currentProfilePicture || undefined}
+                          />
+                          <AvatarFallback className="bg-white border border-tab-active">
+                            {getInitials()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="absolute inset-0 bg-background bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-60 transition-opacity duration-300 rounded-full">
+                          <span className="text-primary-text text-sm font-bold">
+                            {t("profile.header.profilePictureChange")}
+                          </span>
+                        </div>
+                      </div>
+                    </AlertDialogTrigger>
+                  ) : (
+                    <div className="w-22 h-22">
+                      <Avatar className="w-22 h-22">
+                        <AvatarImage src={currentProfilePicture || undefined} />
                         <AvatarFallback className="bg-white border border-tab-active">
                           {getInitials()}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="absolute inset-0 bg-background bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-60 transition-opacity duration-300 rounded-full">
-                        <span className="text-primary-text text-sm font-bold">
-                          {t("profile.header.profilePictureChange")}
-                        </span>
-                      </div>
                     </div>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent className=" landscape:md:h-full landscape:lg:h-auto landscape:overflow-y-auto">
-                    <AlertDialogHeader>
-                      <AlertDialogTitle className="text-primary-text font-bold">
-                        {t("profile.changeProfilePictureAlert.header.title")}
-                      </AlertDialogTitle>
-                      <AlertDialogDescription className="flex flex-col gap-4">
-                        <div className="flex flex-wrap gap-4 justify-center">
-                          {profilepictureOptions
-                            .slice(
-                              currentPage * ITEMS_PER_PAGE,
-                              (currentPage + 1) * ITEMS_PER_PAGE
-                            )
-                            .map((url, index) => {
-                              const actualIndex =
-                                currentPage * ITEMS_PER_PAGE + index;
-                              return (
-                                <img
-                                  key={actualIndex}
-                                  src={url}
-                                  alt={url.substring(url.lastIndexOf("/") + 1)}
-                                  className={`w-32 h-32 rounded-full cursor-pointer transition-transform hover:scale-105 ${
-                                    selectedProfilePicture === actualIndex
-                                      ? "border-4 border-primary-button"
-                                      : "border-2 border-transparent hover:border-primary-button/50"
-                                  }`}
-                                  onClick={() =>
-                                    setSelectedProfilePicture(actualIndex)
-                                  }
-                                />
-                              );
-                            })}
-                        </div>
-                        {profilepictureOptions.length > ITEMS_PER_PAGE && (
-                          <div className="flex justify-between items-center pt-4 border-t border-primary-border">
-                            <Button
-                              onClick={() =>
-                                setCurrentPage((prev) => Math.max(0, prev - 1))
-                              }
-                              disabled={currentPage === 0}
-                              variant="outline"
-                              className="text-primary-text"
-                            >
-                              {t("pagination.previous")}
-                            </Button>
-                            <span className="text-sm text-primary-text">
-                              {t("pagination.page")} {currentPage + 1} {t("of")}{" "}
-                              {Math.ceil(
-                                profilepictureOptions.length / ITEMS_PER_PAGE
-                              )}
-                            </span>
-                            <Button
-                              onClick={() =>
-                                setCurrentPage((prev) =>
-                                  Math.min(
-                                    Math.ceil(
-                                      profilepictureOptions.length /
-                                        ITEMS_PER_PAGE
-                                    ) - 1,
-                                    prev + 1
-                                  )
-                                )
-                              }
-                              disabled={
-                                currentPage >=
-                                Math.ceil(
-                                  profilepictureOptions.length / ITEMS_PER_PAGE
-                                ) -
-                                  1
-                              }
-                              variant="outline"
-                              className="text-primary-text"
-                            >
-                              {t("pagination.next")}
-                            </Button>
+                  )}
+
+                  {currentUser.id === profileUserId && (
+                    <AlertDialogContent className="landscape:md:h-full landscape:lg:h-auto landscape:overflow-y-auto">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-primary-text font-bold">
+                          {t("profile.changeProfilePictureAlert.header.title")}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="flex flex-col gap-4">
+                          <div className="flex flex-wrap gap-4 justify-center">
+                            {profilepictureOptions
+                              .slice(
+                                currentPage * ITEMS_PER_PAGE,
+                                (currentPage + 1) * ITEMS_PER_PAGE
+                              )
+                              .map((url, index) => {
+                                const actualIndex =
+                                  currentPage * ITEMS_PER_PAGE + index;
+                                return (
+                                  <img
+                                    key={actualIndex}
+                                    src={url}
+                                    alt={url.substring(
+                                      url.lastIndexOf("/") + 1
+                                    )}
+                                    className={`w-32 h-32 rounded-full cursor-pointer transition-transform hover:scale-105 ${
+                                      selectedProfilePicture === actualIndex
+                                        ? "border-4 border-primary-button"
+                                        : "border-2 border-transparent hover:border-primary-button/50"
+                                    }`}
+                                    onClick={() =>
+                                      setSelectedProfilePicture(actualIndex)
+                                    }
+                                  />
+                                );
+                              })}
                           </div>
-                        )}
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel
-                        className="cursor-pointer"
-                        onClick={() => setSelectedProfilePicture(null)}
-                      >
-                       {t("cancel")}
-                      </AlertDialogCancel>
-                      <AlertDialogAction
-                        disabled={selectedProfilePicture === null}
-                        onClick={() => {
-                          if (selectedProfilePicture !== null) {
-                            setCurrentProfilePicture(
-                              profilepictureOptions[selectedProfilePicture]
-                            );
-                            setSelectedProfilePicture(null);
-                            updateProfilePicture(
-                              profilepictureOptions[selectedProfilePicture]
-                            );
-                          }
-                        }}
-                        className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
-                      >
-                        {t("select")}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
+                          {profilepictureOptions.length > ITEMS_PER_PAGE && (
+                            <div className="flex justify-between items-center pt-4 border-t border-primary-border">
+                              <Button
+                                onClick={() =>
+                                  setCurrentPage((prev) =>
+                                    Math.max(0, prev - 1)
+                                  )
+                                }
+                                disabled={currentPage === 0}
+                                variant="outline"
+                                className="text-primary-text"
+                              >
+                                {t("pagination.previous")}
+                              </Button>
+                              <span className="text-sm text-primary-text">
+                                {t("pagination.page")} {currentPage + 1}{" "}
+                                {t("of")}{" "}
+                                {Math.ceil(
+                                  profilepictureOptions.length / ITEMS_PER_PAGE
+                                )}
+                              </span>
+                              <Button
+                                onClick={() =>
+                                  setCurrentPage((prev) =>
+                                    Math.min(
+                                      Math.ceil(
+                                        profilepictureOptions.length /
+                                          ITEMS_PER_PAGE
+                                      ) - 1,
+                                      prev + 1
+                                    )
+                                  )
+                                }
+                                disabled={
+                                  currentPage >=
+                                  Math.ceil(
+                                    profilepictureOptions.length /
+                                      ITEMS_PER_PAGE
+                                  ) -
+                                    1
+                                }
+                                variant="outline"
+                                className="text-primary-text"
+                              >
+                                {t("pagination.next")}
+                              </Button>
+                            </div>
+                          )}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel
+                          className="cursor-pointer"
+                          onClick={() => setSelectedProfilePicture(null)}
+                        >
+                          {t("cancel")}
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          disabled={selectedProfilePicture === null}
+                          onClick={() => {
+                            if (selectedProfilePicture !== null) {
+                              setCurrentProfilePicture(
+                                profilepictureOptions[selectedProfilePicture]
+                              );
+                              setSelectedProfilePicture(null);
+                              updateProfilePicture(
+                                profilepictureOptions[selectedProfilePicture]
+                              );
+                            }
+                          }}
+                          className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
+                        >
+                          {t("select")}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  )}
                 </AlertDialog>
               </div>
 
@@ -278,14 +310,16 @@ const Profile: React.FC = () => {
                 <div className="flex items-center ml-3 text-secondary-text">
                   <BookOpen size={20} />
                   <p className="ml-2 mb-1">
-                    {storiesCompleted?.length} {t("profile.header.completedStories")}
+                    {storiesCompleted?.length}{" "}
+                    {t("profile.header.completedStories")}
                   </p>
                 </div>
                 {/* In Progress Stories Tracker */}
                 <div className="flex items-center ml-3 text-secondary-text">
                   <PenTool size={20} />
                   <p className="ml-2 mb-1">
-                    {storiesInprogress?.length}/5 {t("profile.header.inProgressStories")}
+                    {storiesInprogress?.length}/5{" "}
+                    {t("profile.header.inProgressStories")}
                   </p>
                 </div>
               </article>
@@ -302,7 +336,7 @@ const Profile: React.FC = () => {
               </section>
             )}
 
-            {!isEditing && (
+            {currentUser.id === profileUserId && !isEditing && (
               <Button
                 onClick={() => setIsEditing(!isEditing)}
                 className="self-center sm:self-start  mx-auto sm:mx-0 w-[90%] sm:w-[60%] md:w-[50%] lg:w-[90%] lg:self-center mt-6 bg-gray-100 text-black border border-gray-300 hover:bg-gray-200 cursor-pointer"
@@ -312,14 +346,16 @@ const Profile: React.FC = () => {
             )}
             {/* handles displaying editing pane */}
             <div className="self-center sm:self-start mx-auto sm:mx-0 w-[90%] sm:w-[60%] lg:w-full">
-              {isEditing && (
-                <ProfileSettings
-                  isEditing={isEditing}
-                  setIsEditing={setIsEditing}
-                  setBio={setBio}
-                  setUsername={setUsername}
-                />
-              )}
+              {currentUser.id === (profileUserId || currentUser.id) &&
+                isEditing && (
+                  <ProfileSettings
+                    isEditing={isEditing}
+                    setIsEditing={setIsEditing}
+                    setBio={setBio}
+                    setUsername={setUsername}
+                    userId={profileUserId}
+                  />
+                )}
             </div>
 
             {!isRedeeming && (
@@ -478,7 +514,7 @@ const Profile: React.FC = () => {
             {/* Gamification Tab Content */}
             <TabsContent value="gamification">
               <section className="w-full space-y-8 bg-card p-8 mt-[39px] rounded-lg rounded-tl-none border border-primary-border">
-                <RewardTrophiesPage />
+                <RewardTrophiesPage userId={profileUserId || currentUser.id} />
               </section>
             </TabsContent>
           </Tabs>

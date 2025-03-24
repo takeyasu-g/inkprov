@@ -7,7 +7,7 @@ import {
   User,
   LogOut,
   PanelRightOpen,
-  Globe
+  Globe,
   // GitBranchPlus,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -127,7 +127,9 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
             className="text-primary-text text-xl font-bold pl-2 hover:no-underline cursor-pointer"
             variant="link"
             onClick={handleLoggedInHomepage}
-          >{t("header.appName")}</Button>
+          >
+            {t("header.appName")}
+          </Button>
 
           {/* Development Mode Indicator */}
           {/* {isDevelopment && (
@@ -189,11 +191,11 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
           </NavigationMenu>
           {/* Profile Picture Account Menu */}
           <div className="hidden md:flex md:gap-4 md:items-center md:justify-self-end">
-          <Popover open={langPopOpen} onOpenChange={setLangPopOpen}>
+            <Popover open={langPopOpen} onOpenChange={setLangPopOpen}>
               <PopoverTrigger asChild>
-              <div className="flex flex-col items-center cursor-pointer text-primary-text">
-                <Globe size={25}/>
-              </div>
+                <div className="flex flex-col items-center cursor-pointer text-primary-text">
+                  <Globe size={25} />
+                </div>
               </PopoverTrigger>
               <PopoverContent
                 className="w-full p-0 bg-background"
@@ -380,9 +382,9 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
           <div className="hidden md:flex md:gap-4 md:items-center md:justify-self-end">
             <Popover open={langPopOpen} onOpenChange={setLangPopOpen}>
               <PopoverTrigger asChild>
-              <div className="flex flex-col items-center cursor-pointer text-primary-text">
-              <Globe size={25}/>
-              </div>
+                <div className="flex flex-col items-center cursor-pointer text-primary-text">
+                  <Globe size={25} />
+                </div>
               </PopoverTrigger>
               <PopoverContent
                 className="w-full p-0 bg-background"

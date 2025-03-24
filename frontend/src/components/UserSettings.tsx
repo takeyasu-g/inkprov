@@ -20,6 +20,7 @@ import {
 import { useTranslation } from "react-i18next";
 
 interface UserSettingsProps {
+  // currently just mature toggle
   userPreference: boolean;
 }
 

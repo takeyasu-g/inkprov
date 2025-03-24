@@ -23,6 +23,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 interface EditingToggleProps {
@@ -30,6 +31,7 @@ interface EditingToggleProps {
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
   setBio: React.Dispatch<React.SetStateAction<string>>;
   setUsername: React.Dispatch<React.SetStateAction<string>>;
+  userId?: string;
 }
 
 const API_BASE_URL =
@@ -40,7 +42,10 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
   setIsEditing,
   setBio,
   setUsername,
+  userId,
 }) => {
+  const navigate = useNavigate();
+
   const { t } = useTranslation();
   // Setting states
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -58,8 +63,9 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
   // Fetch user data on mount
   useEffect(() => {
     const fetchSettingsData = async () => {
+      if (!userId) return navigate(-1);
       try {
-        const userData = await getUserProfileData();
+        const userData = await getUserProfileData(userId);
 
         let username = userData.username;
         if (username.includes("@")) {
@@ -160,7 +166,9 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
                 <FormControl>
                   <Input
                     className="mt-1 block w-full rounded-md border border-primary-border bg-white px-4 py-2 text-primary-text shadow-sm focus:outline-none focus-visible:ring-1 focus-visible:ring-input-focus focus-visible:border-input-focus sm:text-sm"
-                    placeholder={t("settings.leftSection.form.usernameField.placeholder")}
+                    placeholder={t(
+                      "settings.leftSection.form.usernameField.placeholder"
+                    )}
                     type="text"
                     {...field}
                   />
@@ -182,7 +190,9 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
                 <div className="flex flex-col">
                   <FormControl>
                     <Textarea
-                      placeholder={t("settings.leftSection.form.bioField.placeholder")}
+                      placeholder={t(
+                        "settings.leftSection.form.bioField.placeholder"
+                      )}
                       className="mt-1 block w-full rounded-md border border-primary-border resize-y max-h-38 bg-white px-4 py-2 text-primary-text shadow-sm focus:outline-none focus-visible:ring-1 focus-visible:ring-input-focus focus-visible:border-input-focus sm:text-sm"
                       onChange={(e) => handleBioChange(e, field.onChange)}
                       value={field.value}
@@ -208,7 +218,8 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="animate-spin" /> {t("settings.leftSection.saveChangesLoading")}
+                  <Loader2 className="animate-spin" />{" "}
+                  {t("settings.leftSection.saveChangesLoading")}
                 </>
               ) : (
                 t("settings.leftSection.saveChanges")
