@@ -23,6 +23,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 
 interface EditingToggleProps {
   isEditing: boolean;
@@ -40,6 +41,7 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
   setBio,
   setUsername,
 }) => {
+  const { t } = useTranslation();
   // Setting states
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [bioCharCount, setBioCharCount] = useState<number>(0);
@@ -74,7 +76,7 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
         });
       } catch (error) {
         console.error("Error fetching settings data:", error);
-        toast.error("Failed to load settings");
+        toast.error(t("settings.loadError"));
       }
     };
 
@@ -98,7 +100,7 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
         // If content is flagged, display reason
         if (moderationResponse.data.flagged) {
           toast.error(
-            `Content flagged for ${moderationResponse.data.reason}. Please try again.`
+            `${t("moderation.flagged")} ${moderationResponse.data.reason}`
           );
           setIsLoading(false);
           return;
@@ -117,7 +119,7 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
         setBio(values.bio);
       }
 
-      toast.success("Successfully Saved Changes");
+      toast.success(t("toasts.saveChangesSuccess"));
     } catch (error: any) {
       toast.error(`${error.message}`);
     } finally {
@@ -153,12 +155,12 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-sm font-medium text-primary-text text-left">
-                  Username
+                  {t("settings.leftSection.form.usernameField.title")}
                 </FormLabel>
                 <FormControl>
                   <Input
                     className="mt-1 block w-full rounded-md border border-primary-border bg-white px-4 py-2 text-primary-text shadow-sm focus:outline-none focus-visible:ring-1 focus-visible:ring-input-focus focus-visible:border-input-focus sm:text-sm"
-                    placeholder="Username"
+                    placeholder={t("settings.leftSection.form.usernameField.placeholder")}
                     type="text"
                     {...field}
                   />
@@ -175,12 +177,12 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-sm font-medium text-primary-text text-left">
-                  Bio
+                  {t("settings.leftSection.form.bioField.title")}
                 </FormLabel>
                 <div className="flex flex-col">
                   <FormControl>
                     <Textarea
-                      placeholder="Share a glimpse of your story with others."
+                      placeholder={t("settings.leftSection.form.bioField.placeholder")}
                       className="mt-1 block w-full rounded-md border border-primary-border resize-y max-h-38 bg-white px-4 py-2 text-primary-text shadow-sm focus:outline-none focus-visible:ring-1 focus-visible:ring-input-focus focus-visible:border-input-focus sm:text-sm"
                       onChange={(e) => handleBioChange(e, field.onChange)}
                       value={field.value}
@@ -188,7 +190,7 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
                     />
                   </FormControl>
                   <div className="text-xs text-tertiary-text text-right mt-1">
-                    {bioCharCount}/180 characters
+                    {bioCharCount}/180 {t("characters")}
                   </div>
                 </div>
                 <FormMessage />
@@ -206,17 +208,17 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="animate-spin" /> Saving Changes
+                  <Loader2 className="animate-spin" /> {t("settings.leftSection.saveChangesLoading")}
                 </>
               ) : (
-                "Save Changes"
+                t("settings.leftSection.saveChanges")
               )}
             </Button>
             <Button
               onClick={() => setIsEditing(!isEditing)}
               className="w-auto bg-gray-100 text-black border border-gray-300 hover:bg-gray-200 cursor-pointer"
             >
-              Cancel
+              {t("cancel")}
             </Button>
           </div>
         </div>

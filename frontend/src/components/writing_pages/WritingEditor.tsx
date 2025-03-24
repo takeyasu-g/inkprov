@@ -263,7 +263,6 @@ const WritingEditor: React.FC = () => {
           if (updateError) {
             // Handle error without logging
           } else {
-            // Project automatically marked as completed due to max snippets reached
             // Flag that sessions page needs to refresh data
             sessionStorage.setItem("refreshSessions", "true");
           }
@@ -329,9 +328,7 @@ const WritingEditor: React.FC = () => {
           setProjectLocked(false);
           setLockedBy(null);
 
-          toast.info(
-            "Project was automatically unlocked after 10 minutes of inactivity"
-          );
+          toast.info(t("toasts.inactivity"));
 
           // Refresh project data
           fetchProject();
@@ -469,7 +466,7 @@ const WritingEditor: React.FC = () => {
       }
 
       if (projectCheck.is_locked) {
-        toast.error(t("toasts.otherUserWritingError"));
+        toast.error(toast.error(t("toasts.otherUserWritingError")));
         return;
       }
 
@@ -513,23 +510,6 @@ const WritingEditor: React.FC = () => {
     }
   };
 
-  // Get ideas from AI API
-  const getWritingIdeas = async () => {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/ideas`, {
-        prompt: previousSnippets[previousSnippets.length - 1].content,
-      });
-      setWritingIdeas(response.data);
-    } catch (error) {
-      console.error("Error fetching writing ideas:", error);
-    }
-  };
-
-  // Modify handleSubmit to focus on snippets over contributors
-  const handleSubmit = async () => {
-    if (wordCount < 50 || wordCount > 100) {
-      toast.error(t("toasts.wordCountErrorGeneral"));
-      return;
   // Timer effect
   useEffect(() => {
     let timer: number | undefined;
@@ -543,54 +523,6 @@ const WritingEditor: React.FC = () => {
       handleTimerExpired();
     }
 
-    try {
-      if (!userData?.auth_id) {
-        toast.error(t("toasts.noUserDataError"));
-        return;
-      }
-      setIsSubmitting(true);
-
-      const moderationResponse = await axios.post(
-        `${API_BASE_URL}/moderation`,
-        {
-          content: content,
-        }
-      );
-
-      // If content is flagged, display reason
-      if (moderationResponse.data.flagged) {
-        toast.error(
-          `${t("moderation.flagged")} ${moderationResponse.data.reason.toLowerCase()}.`
-        );
-        setIsSubmitting(false);
-        return;
-      }
-      const { error: snippetError } = await supabase
-        .from("project_snippets")
-        .insert({
-          project_id: projectId,
-          creator_id: userData.auth_id,
-          content,
-          word_count: wordCount,
-          sequence_number: previousSnippets.length + 1,
-          created_at: new Date().toISOString(),
-        });
-
-      if (snippetError) {
-        console.error("Error adding new snippet:", snippetError);
-        toast.error(`${t("toasts.contributionSubmitError")} ${snippetError.message}`);
-        setIsSubmitting(false);
-        return;
-      }
-
-      const { data: existingContributor } = await supabase
-        .from("project_contributors")
-        .select("id")
-        .eq("project_id", projectId)
-        .eq("user_id", userData.auth_id);
-
-      if (!existingContributor || existingContributor.length === 0) {
-        const { data: projectData } = await supabase
     return () => {
       if (timer) clearInterval(timer);
     };
@@ -601,7 +533,7 @@ const WritingEditor: React.FC = () => {
     setTimerActive(false);
     setIsCurrentlyWriting(false);
 
-    toast.warning("Time's up! The project has been unlocked.");
+    toast.warning(t("toasts.timerExpired"));
 
     // Reset content if user hasn't submitted
     setContent("");
@@ -643,10 +575,7 @@ const WritingEditor: React.FC = () => {
             if (updateError) {
               // Handle error without logging
             } else {
-              // Project automatically marked as completed
-              toast.success(
-                "Project completed - maximum contributions reached!"
-              );
+              toast.success(t("toasts.projectCompleted"));
               sessionStorage.setItem("refreshSessions", "true");
             }
           } else {
@@ -765,7 +694,7 @@ const WritingEditor: React.FC = () => {
         if (completedError) {
           // Handle error but don't log it
         } else {
-          toast.success(t("toasts.storyCompletedSuccess"));
+          toast.success(t("toasts.projectCompleted"));
           // Flags that sessions page needs to refresh data
           sessionStorage.setItem("refreshSessions", "true");
         }
@@ -813,32 +742,32 @@ const WritingEditor: React.FC = () => {
   // Modify handleSubmit to reset timer and unlock project on successful submission
   const handleSubmit = async () => {
     if (wordCount < 50 || wordCount > 100) {
-      toast.error("Please write between 50 and 100 words.");
+      toast.error(t("toasts.wordCountErrorGeneral"));
       return;
     }
 
     try {
       if (!userData?.auth_id) {
-        toast.error("User data not available. Please log in again.");
+        toast.error(t("toasts.noUserDataError"));
         return;
       }
       setIsSubmitting(true);
 
-      // const moderationResponse = await axios.post(
-      //   `${API_BASE_URL}/moderation`,
-      //   {
-      //     content: content,
-      //   }
-      // );
+      const moderationResponse = await axios.post(
+        `${API_BASE_URL}/moderation`,
+        {
+          content: content,
+        }
+      );
 
-      // // If content is flagged, display reason
-      // if (moderationResponse.data.flagged) {
-      //   toast.error(
-      //     `Content flagged for ${moderationResponse.data.reason}. Please try again.`
-      //   );
-      //   setIsSubmitting(false);
-      //   return;
-      // }
+      // If content is flagged, display reason
+      if (moderationResponse.data.flagged) {
+        toast.error(
+          `${t("moderation.flagged")} ${moderationResponse.data.reason.toLowerCase()}`
+        );
+        setIsSubmitting(false);
+        return;
+      }
 
       // Add the snippet
       const { error: snippetError } = await supabase
@@ -854,7 +783,7 @@ const WritingEditor: React.FC = () => {
 
       if (snippetError) {
         console.error("Error adding new snippet:", snippetError);
-        toast.error(`Failed to submit contribution: ${snippetError.message}`);
+        toast.error(`${t("toasts.contributionSubmitError")} ${snippetError.message}`);
         setIsSubmitting(false);
         return;
       }
@@ -880,19 +809,16 @@ const WritingEditor: React.FC = () => {
           snippetCount >= project.max_snippets &&
           !project.is_completed
         ) {
-          console.log(
-            `Project has reached max snippets (${snippetCount}/${project.max_snippets}). Marking as completed.`
-          );
           // We'll mark the project as completed later in unlockProject()
           // This serves as an additional check
         }
       }
 
-      const { data: existingContributor } = await supabase
-        .from("project_contributors")
-        .select("id")
-        .eq("project_id", projectId)
-        .eq("user_id", userData.auth_id);
+      // const { data: existingContributor } = await supabase
+      //   .from("project_contributors")
+      //   .select("id")
+      //   .eq("project_id", projectId)
+      //   .eq("user_id", userData.auth_id);
 
       // Stop the timer and reset writing fields
       setTimerActive(false);
@@ -908,7 +834,7 @@ const WritingEditor: React.FC = () => {
       await fetchContributors();
 
       // Toast the user
-      toast.success("Contribution added successfully!");
+      toast.success(t("writingSession.content.contributionAddSuccess"));
 
       const { data: refreshedProject } = await supabase
         .from("projects")
@@ -923,7 +849,7 @@ const WritingEditor: React.FC = () => {
       setIsSubmitting(false);
     } catch (error: any) {
       toast.error(
-        `${t("toasts.contributionSubmitError")} ${error.message || t("toasts.unknownError")}`
+        `t("writingSession.content.submitError") ${error}`
       );
       setIsSubmitting(false);
     }
@@ -956,11 +882,6 @@ const WritingEditor: React.FC = () => {
           })
           .eq("id", projectId);
 
-      if (unlockError) {
-        console.error("Error unlocking project:", unlockError);
-        toast.error(t("toasts.cancelError"));
-        return;
-      }
         if (error) {
           return;
         }
@@ -1020,7 +941,7 @@ const WritingEditor: React.FC = () => {
   const handleDeleteProject = async () => {
     if (
       !window.confirm(
-        t("toasts.confirmDeleteProject")
+        t("writingSession.content.deleteProjectConfirm")
       )
     ) {
       return;
@@ -1037,7 +958,7 @@ const WritingEditor: React.FC = () => {
       // Signal that sessions page needs to refresh data
       sessionStorage.setItem("refreshSessions", "true");
 
-      toast.success(t("toasts.deleteSuccess"));
+      toast.success(t("writingSession.content.deleteProjectSuccess"));
       navigate("/sessions");
     } catch (error) {
       toast.error(`${error}`);
@@ -1120,7 +1041,7 @@ const WritingEditor: React.FC = () => {
           className="text-sm bg-white md:bg-background"
         >
           <ChevronLeft />
-          <span>Back</span>
+          <span>{t("backtoSessions")}</span>
         </Button>
       </div>
       <Card className="border-none shadow-none md:shadow-lg">
@@ -1154,7 +1075,7 @@ const WritingEditor: React.FC = () => {
                 {project?.max_snippets && (
                   <div className="mt-3">
                     <p className="text-sm text-primary-text">
-                      <span className="font-medium">{t("contributions")}</span>{" "}
+                      <span className="font-medium">Contributions:</span>{" "}
                       {previousSnippets.length} / {project.max_snippets}
                       {project.is_completed && t("completed")}
                     </p>
@@ -1174,7 +1095,7 @@ const WritingEditor: React.FC = () => {
                   lockedBy &&
                   lockedBy !== userData?.auth_id && (
                     <p className="text-sm text-amber-500 mt-2 font-medium">
-                      {t("writingSession.header.userCurrentlyWriting")}{" "}
+                      {t("writingSession.header.userCurrentlyWriting")}
                     </p>
                   )}
               </div>
@@ -1199,7 +1120,7 @@ const WritingEditor: React.FC = () => {
                       {snippet.content}
                     </p>
                     <p className="text-sm text-secondary-text mt-2 flex items-center gap-1">
-                      {t("contribution")} #{snippet.sequence_number} {t("by")}{" "}
+                      {t("writingSession.content.contribution")} #{snippet.sequence_number} {t("by")}{" "}
                       {snippet.creator?.user_profile_name || t("unknown")}
                       {snippet.creator?.is_instructor && (
                         <FontAwesomeIcon
@@ -1221,8 +1142,8 @@ const WritingEditor: React.FC = () => {
                 >
                   <p className="text-justify lg:text-left">{snippet.content}</p>
                   <p className="text-sm text-secondary-text mt-2 flex items-center gap-1">
-                    {t("contribution")} #{snippet.sequence_number} by{" "}
-                    {snippet.creator?.user_profile_name || "Unknown"}
+                    {t("writingSession.content.contribution")} #{snippet.sequence_number} {t("by")}{" "}
+                    {snippet.creator?.user_profile_name || t("unknown")}
                     {snippet.creator?.is_instructor && (
                       <FontAwesomeIcon
                         icon={faChalkboard}
@@ -1250,84 +1171,93 @@ const WritingEditor: React.FC = () => {
             )}
           </div>
 
-          {/* Writing Area */}
-          {!isCurrentlyWriting ? (
-            <>
-              <div className="mb-4">
-                <Textarea
-                  value={content}
-                  onChange={handleContentChange}
-                  placeholder="Add your contribution (50-100 words)..."
-                  className="min-h-[200px] mb-2"
-                  disabled={isSubmitting}
-                />
-                <div className="flex flex-col">
-                  <div
-                    onClick={() => {
-                      setShowWritersBlockIdeas(!showWritersBlockIdeas);
-                      if (!showWritersBlockIdeas) {
-                        if (!writingIdeasViewed) {
-                          getWritingIdeas();
-                        }
-                        setWritingIdeasViewed(true);
-                      }
-                    }}
-                    className="flex justify-end text-secondary-text cursor-pointer my-3"
-                  >
-                    <Lightbulb />
-                    <p className="text-sm font-medium mt-1">Writer's Block?</p>
-                  </div>
-                  {showWritersBlockIdeas ? (
-                    <div className="mb-3 rounded-lg">
-                      <h3 className="text-lg font-semibold text-left mb-3 text-primary-text">
-                        Writing Ideas
-                      </h3>
-                      <div className="flex justify-start">
-                        <Lightbulb className="text-primary-button-hover" />
-                        <p className="text-left text-secondary-text">
-                          {writingIdeas.length > 0
-                            ? writingIdeas
-                            : "No writing ideas available"}
-                        </p>
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-                <div className="flex justify-between items-center">
-                  <span
-                    className={
-                      wordCount > 100 || wordCount < 50 ? "text-red-500" : ""
-                    }
-                  >
-                    {wordCount} words
-                  </span>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={handleCancelWriting}
-                      disabled={isSubmitting}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={handleSubmit}
-                      disabled={
-                        wordCount > 100 || wordCount < 50 || isSubmitting
-                      }
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          {t("submitLoading")}
-                        </>
-                      ) : (
-                        t("writingSession.content.form.submitContribution")
-                      )}
-                    </Button>
-                  </div>
+          {/* Writing Area - Only show when isCurrentlyWriting is true */}
+          {isCurrentlyWriting ? (
+            <div className="mb-4">
+              {/* Timer display */}
+              <div className="flex justify-end mb-3">
+                <div
+                  className={`flex items-center gap-1 ${
+                    timeRemaining < 60 ? "text-red-500" : "text-amber-600"
+                  }`}
+                >
+                  <Clock size={18} />
+                  <span className="font-mono">{formatTimeRemaining()}</span>
+                  <span className="text-sm">{t("writingSession.content.form.timeRemaining")}</span>
                 </div>
               </div>
-            </>
+
+              <Textarea
+                value={content}
+                onChange={handleContentChange}
+                placeholder={t("writingSession.content.form.placeholder")}
+                className="min-h-[200px] mb-2"
+                disabled={isSubmitting}
+              />
+              <div className="flex flex-col">
+                <div
+                  onClick={() => {
+                    setShowWritersBlockIdeas(!showWritersBlockIdeas);
+                    if (!showWritersBlockIdeas) {
+                      if (!writingIdeasViewed) {
+                        getWritingIdeas();
+                      }
+                      setWritingIdeasViewed(true);
+                    }
+                  }}
+                  className="flex justify-end text-secondary-text cursor-pointer my-3"
+                >
+                  <Lightbulb />
+                  <p className="text-sm font-medium mt-1">{t("writingSession.content.writersBlock")}</p>
+                </div>
+                {showWritersBlockIdeas ? (
+                  <div className="mb-3 rounded-lg">
+                    <h3 className="text-lg font-semibold text-left mb-3 text-primary-text">
+                      {t("writingSession.content.writingIdeas")}
+                    </h3>
+                    <div className="flex justify-start">
+                      <Lightbulb className="text-primary-button-hover" />
+                      <p className="text-left text-secondary-text">
+                        {writingIdeas.length > 0
+                          ? writingIdeas
+                          : t("writingSession.content.noWritingIdeas")}
+                      </p>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+              <div className="flex justify-between items-center">
+                <span
+                  className={
+                    wordCount > 100 || wordCount < 50 ? "text-red-500" : ""
+                  }
+                >
+                  {wordCount} {t("words")}
+                </span>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={handleCancelWriting}
+                    disabled={isSubmitting}
+                  >
+                    {t("cancel")}
+                  </Button>
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={wordCount > 100 || wordCount < 50 || isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {t("writingSession.content.form.submitLoading")}
+                      </>
+                    ) : (
+                      t("writingSession.content.form.submit")
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
           ) : (
             <div className="flex justify-center">
               <Button
@@ -1351,7 +1281,7 @@ const WritingEditor: React.FC = () => {
                     previousSnippets.length >= project.max_snippets) ? (
                   t("writingSession.content.projectCompleted")
                 ) : projectLocked && lockedBy !== userData?.auth_id ? (
-                  t("writingSession.content.userWaiting")
+                  t("writingSession.header.userCurrentlyWriting")
                 ) : (
                   t("makeContribution")
                 )}

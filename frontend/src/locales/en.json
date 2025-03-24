@@ -172,7 +172,8 @@
         "completedStories": "Completed Stories",
         "inProgressStories": "In Progress Stories",
         "profilePictureChange": "Change",
-        "aboutMe": "About Me"
+        "aboutMe": "About Me",
+        "editProfile": "Edit Profile"
       },
       "changeProfilePictureAlert": {
         "header": {
@@ -272,7 +273,8 @@
       }
     },
     "settings": {
-      "title": "Settings",
+      "title": "User Settings",
+      "subtitle": "Manage your preferences and account settings.",
       "leftSection": {
         "title": "Profile Information",
         "subtitle": "Update your account settings",
@@ -295,7 +297,15 @@
         "toggle": {
           "matureContentTitle": "Allow Mature Content"
         }
+      },
+      "loadError": "Failed to load settings",
+      "dangerZone": {
+        "title": "Danger Zone",
+        "deleteAccountMessage": "Delete user account and information from Inkprov",
+        "deleteAccountLoading": "Deleting Account",
+        "deleteAccount": "Delete Account"
       }
+      
     },
     "readingView": {
       "header": {
@@ -330,11 +340,18 @@
         "form": {
           "contributors": "Contributors",
           "textarea": {
-            "placeholder": "Add your contribution(50-100 words)."
+            "placeholder": "Add your contribution(50-100 words).",
+            "timeRemaining": "remaining"
           },
           "submitContribution": "Submit Contribution",
           "submitLoading": "Submitting",
-          "deleteProject": "Delete Project"
+          "deleteProject": "Delete Project",
+          "deleteProjectConfirm": "Are you sure you want to delete this project? This action cannot be undone.",
+          "contributionAddSuccess": "Contribution added successfully!",
+          "submitError": "Error submitting contribution. Please try again.",
+          "deleteProjectSuccess": "Successfully deleted project."
+
+
         },
         "writersBlock": "Writer's Block?",
         "writingIdeas": "Writing Ideas",
@@ -371,6 +388,9 @@
       "writingCancelled": "Writing cancelled. The project is now available for others.",
       "confirmDelete": "Are you sure you want to delete this project? This action cannot be undone.",
       "deleteSuccess": "Successfully deleted project.",
+      "inactivity": "Project was automatically unlocked after 10 minutes of inactivity.",
+      "timerExpired": "Time's up! The project has been unlocked.",
+      "deleteAccountError": "Failed to delete account.",
 
       "authRequired": {
         "title": "Authentication Required",
@@ -450,6 +470,7 @@
     "of": "of",
     "you": "You",
     "anonymous": "Anonymous",
+    "close": "Close",
     "competeLogin": "Completing your login.",
     "userIDError": "User ID not found",
     "moderation": {
