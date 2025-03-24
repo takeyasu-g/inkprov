@@ -21,6 +21,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import ProfileSettings from "../ProfileSettings";
+import UserSettings from "../UserSettings";
 
 const Profile: React.FC = () => {
   const { user } = useAuth();
@@ -46,6 +48,13 @@ const Profile: React.FC = () => {
     ProjectsData[] | null
   >([]);
   const [currentPage, setCurrentPage] = useState(0);
+
+  // maybe future add also private toggle
+  const [userPreference, setUserPreference] = useState<boolean>(false);
+
+  // state isEditing
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+
   const ITEMS_PER_PAGE = 6;
 
   useEffect(() => {
@@ -54,8 +63,6 @@ const Profile: React.FC = () => {
       try {
         // Single API call to get all user data
         const userData = await getUserProfileData();
-
-        console.log(userData);
 
         // Process username
         const user = userData.username.split("@")[0];
@@ -68,6 +75,7 @@ const Profile: React.FC = () => {
         setProfilePictureOptions(userData.profilePictureOptions);
         setStoriesCompleted(userData.completedProjects);
         setStoriesInprogress(userData.inProgressProjects);
+        setUserPreference(userData.matureContentEnabled);
       } catch (error) {
         console.error("Error fetching profile data:", error);
       } finally {
@@ -92,9 +100,12 @@ const Profile: React.FC = () => {
       {isLoading ? (
         <ProfileSkeleton />
       ) : (
-        <div className="h-full mb-5">
-          <section className="w-[95%] md:w-[90%] xl:w-[85%] mx-auto space-y-8 bg-card p-8 mt-5 rounded-lg border border-primary-border pb-4">
-            <section className="flex">
+        <div className=" mb-5 lg:flex lg:gap-2 lg:p-4 ">
+          <section className="flex flex-col lg:h-150 w-[95%] md:w-[90%] lg:w-100 mx-auto bg-card rounded-lg border border-primary-border p-4">
+            <div className="ml-auto ">
+              <UserSettings userPreference={userPreference} />
+            </div>
+            <section className="flex space-y-5">
               <div>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
@@ -117,7 +128,7 @@ const Profile: React.FC = () => {
                       </div>
                     </div>
                   </AlertDialogTrigger>
-                  <AlertDialogContent>
+                  <AlertDialogContent className=" landscape:md:h-full landscape:lg:h-auto landscape:overflow-y-auto">
                     <AlertDialogHeader>
                       <AlertDialogTitle className="text-primary-text font-bold">
                         Select Profile Picture
@@ -223,10 +234,14 @@ const Profile: React.FC = () => {
                   </AlertDialogContent>
                 </AlertDialog>
               </div>
-              <article>
-                <h3 className="text-2xl font-bold text-primary-text text-left mb-1 ml-3">
-                  {username}
-                </h3>
+
+              <article className="flex flex-col justify-center">
+                {!isEditing && (
+                  <h3 className="text-2xl font-bold text-primary-text text-left mb-1 ml-3">
+                    {username}
+                  </h3>
+                )}
+
                 {/* Completed Stories Tracker */}
                 <div className="flex items-center ml-3 text-secondary-text">
                   <BookOpen size={20} />
@@ -244,26 +259,47 @@ const Profile: React.FC = () => {
               </article>
             </section>
             {/* Bio */}
-            <section className="flex flex-col">
-              <h3 className="text-xl font-bold text-primary-text text-left mb-1 ml-3">
-                About Me
-              </h3>
-              <p className="ml-3 text-secondary-text text-left">
-                {bio.length > 0 ? bio : "No Bio Written"}
-              </p>
-            </section>
+            {!isEditing && (
+              <section className="flex flex-col">
+                <h3 className="text-xl font-bold text-primary-text text-left mb-1 ml-3">
+                  About Me
+                </h3>
+                <p className="ml-3 text-secondary-text text-left">
+                  {bio.length > 0 ? bio : "No Bio Written"}
+                </p>
+              </section>
+            )}
+
+            {!isEditing && (
+              <Button
+                onClick={() => setIsEditing(!isEditing)}
+                className="self-center sm:self-start  mx-auto sm:mx-0 w-[90%] sm:w-[60%] md:w-[50%] lg:w-[90%] lg:self-center mt-6 bg-gray-100 text-black border border-gray-300 hover:bg-gray-200 cursor-pointer"
+              >
+                Edit profile
+              </Button>
+            )}
+            <div className="self-center sm:self-start mx-auto sm:mx-0 w-[90%] sm:w-[60%] lg:w-full">
+              {isEditing && (
+                <ProfileSettings
+                  isEditing={isEditing}
+                  setIsEditing={setIsEditing}
+                  setBio={setBio}
+                  setUsername={setUsername}
+                />
+              )}
+            </div>
           </section>
 
           {/* Profile Content - Main Tabs */}
           <Tabs
             defaultValue="stories"
-            className="relative w-[95%] md:w-[90%] xl:w-[85%] mx-auto mt-5 gap-0"
+            className="relative w-[95%] md:w-[90%] xl:w-[85%] mx-auto mt-5 lg:mt-0 lg:mb-10 gap-0 lg:flex-grow"
           >
-            <TabsList className="p-0 absolute rounded-none rounded-t-lg grid grid-cols-2 bg-gray-300 z-10 h-10 shadow-none text-primary-text border border-b-0 border-primary-border">
+            <TabsList className="p-0 absolute rounded-none rounded-t-lg grid grid-cols-2 bg-gray-300 z-10 h-10 shadow-none text-primary-text border !border-b-0 border-primary-border">
               <TabsTrigger
                 value="stories"
                 className="data-[state=active]:shadow-none border-b data-[state=active]:border-r border-primary-border
- data-[state=active]:text-primary-text data-[state=active]:bg-white cursor-pointer rounded-none rounded-t-lg h-full w-full data-[state=active]:border-b-0"
+ data-[state=active]:text-primary-text data-[state=active]:bg-white cursor-pointer rounded-none rounded-t-lg h-full w-full data-[state=active]:!border-b-0"
               >
                 <div className="flex items-center">
                   <BookOpen className="mr-2" size={18} />
@@ -273,7 +309,7 @@ const Profile: React.FC = () => {
               <TabsTrigger
                 value="gamification"
                 className="data-[state=active]:shadow-none border-b data-[state=active]:border-l border-primary-border
- data-[state=active]:text-primary-text data-[state=active]:bg-white cursor-pointer rounded-none rounded-t-lg h-full w-full data-[state=active]:border-b-0"
+ data-[state=active]:text-primary-text data-[state=active]:bg-white cursor-pointer rounded-none rounded-t-lg h-full w-full data-[state=active]:!border-b-0 "
               >
                 <div className="flex items-center">
                   <Trophy className="mr-2" size={18} />
@@ -284,7 +320,7 @@ const Profile: React.FC = () => {
 
             {/* Your Stories Tab Content */}
             <TabsContent value="stories">
-              <section className="w-full space-y-8 bg-card p-8 mt-[39px] rounded-lg rounded-tl-none border border-primary-border">
+              <section className="w-full lg:min-h-full space-y-8 bg-card p-8 mt-[39px] rounded-lg rounded-tl-none border border-primary-border">
                 <section className="flex flex-col">
                   <div className="flex items-center text-secondary-text">
                     <BookOpen />

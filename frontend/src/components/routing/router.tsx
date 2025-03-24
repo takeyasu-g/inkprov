@@ -34,7 +34,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             window.location.pathname.startsWith("/projects") ||
             window.location.pathname.startsWith("/sessions/create")
           ? "bg-white md:bg-background min-h-screen overflow-x-hidden"
-          : `min-h-screen overflow-x-hidden`
+          : `min-h-screen overflow-x-hidden lg:flex lg:flex-col`
       }
     >
       <Header loggedIn={isAuthenticated} page={window.location.pathname} />

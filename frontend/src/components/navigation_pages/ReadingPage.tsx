@@ -34,6 +34,7 @@ import {
   Heart,
   Sparkles,
   Ghost,
+  ChevronLeft,
 } from "lucide-react";
 
 // Define reaction types
@@ -176,10 +177,11 @@ const ReadingPage: React.FC = () => {
       <div className="bg-white md:bg-background px-5">
         <Button
           variant="outline"
-          onClick={() => navigate("/stories")}
+          onClick={() => navigate(-1)} // go back where came from , so now if came from profile it will go back there
           className="text-sm bg-white md:bg-background"
         >
-          Back to Stories
+          <ChevronLeft />
+          <span>Back</span>
         </Button>
       </div>
       <Card className="border-none shadow-none md:shadow-lg">

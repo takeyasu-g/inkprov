@@ -26,7 +26,6 @@ const loginSchema = z.object({
 const settingsSchema = z.object({
   username: z.string(),
   bio: z.string().max(180, { message: "Bio must be less than 180 characters" }),
-  matureContent: z.boolean(),
 });
 
 export { registerSchema, loginSchema, settingsSchema };

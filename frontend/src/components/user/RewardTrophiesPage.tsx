@@ -437,20 +437,20 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
           >
             {/* Desktop View: Normal Tabs */}
             <ScrollArea type="always">
-              <TabsList className="mb-4 overflow-x-auto flex-nowrap">
-                <TabsTrigger value="all">
+              <TabsList className="mb-4 overflow-x-auto flex-nowrap ">
+                <TabsTrigger value="all" className="cursor-pointer">
                   All ({unlockedCounts.all}/{achievements.length})
                 </TabsTrigger>
-                <TabsTrigger value="writing">
+                <TabsTrigger value="writing" className="cursor-pointer">
                   Writing ({unlockedCounts.writing}/
                   {achievements.filter((a) => a.category === "writing").length})
                 </TabsTrigger>
-                <TabsTrigger value="creation">
+                <TabsTrigger value="creation" className="cursor-pointer">
                   Creation ({unlockedCounts.creation}/
                   {achievements.filter((a) => a.category === "creation").length}
                   )
                 </TabsTrigger>
-                <TabsTrigger value="completion">
+                <TabsTrigger value="completion" className="cursor-pointer">
                   Completion ({unlockedCounts.completion}/
                   {
                     achievements.filter((a) => a.category === "completion")
@@ -458,11 +458,11 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
                   }
                   )
                 </TabsTrigger>
-                <TabsTrigger value="social">
+                <TabsTrigger value="social" className="cursor-pointer">
                   Social ({unlockedCounts.social}/
                   {achievements.filter((a) => a.category === "social").length})
                 </TabsTrigger>
-                <TabsTrigger value="special">
+                <TabsTrigger value="special" className="cursor-pointer">
                   Special ({unlockedCounts.special}/
                   {achievements.filter((a) => a.category === "special").length})
                 </TabsTrigger>

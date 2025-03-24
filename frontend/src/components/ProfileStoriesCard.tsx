@@ -42,7 +42,13 @@ const ProfileStoriesCard: React.FC<ProfileStoriesCardProps> = ({
   return (
     <Card
       className="w-[350px] bg-background-card  flex flex-col cursor-pointer"
-      onClick={() => navigate(`/projects/${storyId}/read`)}
+      onClick={() => {
+        if (currentTab === "Completed") {
+          navigate(`/projects/${storyId}/read`);
+        } else {
+          navigate(`/writing/${storyId}`);
+        }
+      }}
     >
       <CardHeader>
         <div className="flex justify-between items-center">

@@ -35,6 +35,7 @@ import { FormData } from "@/types/global";
 
 // custom hook
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { ChevronLeft } from "lucide-react";
 
 // Defines Project interface
 interface Project {
@@ -202,21 +203,21 @@ const CreateSession: React.FC = () => {
       }
 
       // Check if content is flagged for moderation
-      const moderationResponse = await axios.post(
-        `${API_BASE_URL}/moderation`,
-        {
-          content: title + " " + description + " " + content,
-        }
-      );
+      // const moderationResponse = await axios.post(
+      //   `${API_BASE_URL}/moderation`,
+      //   {
+      //     content: title + " " + description + " " + content,
+      //   }
+      // );
 
-      // If content is flagged, display reason
-      if (moderationResponse.data.flagged) {
-        toast.error(
-          `Content flagged for ${moderationResponse.data.reason}. Please try again.`
-        );
-        setIsLoading(false);
-        return;
-      }
+      // // If content is flagged, display reason
+      // if (moderationResponse.data.flagged) {
+      //   toast.error(
+      //     `Content flagged for ${moderationResponse.data.reason}. Please try again.`
+      //   );
+      //   setIsLoading(false);
+      //   return;
+      // }
 
       const newProject: Project = {
         title,
@@ -304,10 +305,11 @@ const CreateSession: React.FC = () => {
       <div className="px-5 bg-white md:bg-background">
         <Button
           variant="outline"
-          onClick={() => navigate("/sessions")}
+          onClick={() => navigate(-1)}
           className="text-sm bg-white md:bg-background"
         >
-          Back to Sessions
+          <ChevronLeft />
+          <span>Back</span>
         </Button>
       </div>
       <Card className="border-none shadow-none md:shadow-lg">

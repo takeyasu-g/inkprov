@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { Crown, Loader2, Lightbulb, Clock } from "lucide-react";
+import { Crown, Loader2, Lightbulb, Clock, ChevronLeft } from "lucide-react";
 import {
   supabase,
   getCurrentUser,
@@ -106,7 +106,6 @@ const WritingEditor: React.FC = () => {
   const { user } = useAuth();
   const localStorageKey = `draftText_${user?.id}_${projectId}`;
   const [content, setContent] = useLocalStorage(localStorageKey, "");
-
 
   console.log(isContributor);
 
@@ -302,8 +301,6 @@ const WritingEditor: React.FC = () => {
 
         // If locked for more than 10 minutes, force unlock it
         if (timeDiffMinutes >= 10) {
-          console.log("Found stale lock on project, unlocking...");
-
           const { error: unlockError } = await supabase
             .from("projects")
             .update({
@@ -577,21 +574,21 @@ const WritingEditor: React.FC = () => {
       }
       setIsSubmitting(true);
 
-      const moderationResponse = await axios.post(
-        `${API_BASE_URL}/moderation`,
-        {
-          content: content,
-        }
-      );
+      // const moderationResponse = await axios.post(
+      //   `${API_BASE_URL}/moderation`,
+      //   {
+      //     content: content,
+      //   }
+      // );
 
-      // If content is flagged, display reason
-      if (moderationResponse.data.flagged) {
-        toast.error(
-          `Content flagged for ${moderationResponse.data.reason}. Please try again.`
-        );
-        setIsSubmitting(false);
-        return;
-      }
+      // // If content is flagged, display reason
+      // if (moderationResponse.data.flagged) {
+      //   toast.error(
+      //     `Content flagged for ${moderationResponse.data.reason}. Please try again.`
+      //   );
+      //   setIsSubmitting(false);
+      //   return;
+      // }
 
       // Add the snippet
       const { error: snippetError } = await supabase
@@ -642,6 +639,8 @@ const WritingEditor: React.FC = () => {
           console.error("Error adding new contributor:", contributorError);
         }
 
+        // check if the submitted snippet is the max amount of snippets if so then mark project as completed
+
         const { error: updateCountError } = await supabase
           .from("projects")
           .update({
@@ -658,7 +657,7 @@ const WritingEditor: React.FC = () => {
         }
         setIsContributor(true);
       } else {
-        // updatges contribution time for existing contributor
+        // updates contribution time for existing contributor
         const { error: updateError } = await supabase
           .from("project_contributors")
           .update({
@@ -850,7 +849,7 @@ const WritingEditor: React.FC = () => {
     if (isCurrentlyWriting && lockedBy === userData?.auth_id) {
       await handleCancelWriting();
     }
-    navigate("/sessions");
+    navigate(-1);
   };
 
   // Add a cleanup effect to unlock the project when the component unmounts
@@ -869,8 +868,6 @@ const WritingEditor: React.FC = () => {
                 locked_at: null,
               })
               .eq("id", projectId);
-
-            console.log("Project unlocked on component unmount");
           } catch (error) {
             console.error("Error unlocking project on unmount:", error);
           }
@@ -889,7 +886,8 @@ const WritingEditor: React.FC = () => {
           onClick={handleBackClick}
           className="text-sm bg-white md:bg-background"
         >
-          Back to Sessions
+          <ChevronLeft />
+          <span>Back</span>
         </Button>
       </div>
       <Card className="border-none shadow-none md:shadow-lg">

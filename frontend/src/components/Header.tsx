@@ -221,7 +221,7 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
                       <User />
                       <p>Profile</p>
                     </button>
-                    <button
+                    {/* <button
                       onClick={() => {
                         setPopoverOpen(false);
                         navigate("/settings");
@@ -230,7 +230,7 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
                     >
                       <Settings />
                       <p>Settings</p>
-                    </button>
+                    </button> */}
                   </div>
                   <button
                     onClick={handleLogout}
@@ -296,13 +296,13 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
                     <p>Create</p>
                   </a>
 
-                  <a
+                  {/* <a
                     href="/settings"
                     className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover"
                   >
                     <Settings />
                     <p>Settings</p>
-                  </a>
+                  </a> */}
                   <a
                     onClick={handleLogout}
                     className=" w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover"

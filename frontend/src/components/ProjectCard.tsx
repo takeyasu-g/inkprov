@@ -98,7 +98,14 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
   );
 
   return (
-    <Card className="w-[300px] h-[327px] bg-background-card ">
+    <Card
+      className="w-[300px] h-[327px] bg-background-card cursor-pointer"
+      onClick={() =>
+        navigate(`/projects/${projectData.id}/read`, {
+          state: { project: projectData },
+        })
+      }
+    >
       {/* header of card => Genre, Title, Contributors */}
       <CardHeader className="flex-none space-y-3 h-[76px]">
         <CardHeaderWithMature
