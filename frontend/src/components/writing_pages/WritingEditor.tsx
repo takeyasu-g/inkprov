@@ -111,8 +111,6 @@ const WritingEditor: React.FC = () => {
   const [lockSubscription, setLockSubscription] =
     useState<RealtimeChannel | null>(null);
 
-  console.log(isContributor);
-
   // Function to fetch contributors - simplified version
   const fetchContributors = async () => {
     if (!projectId) return;
@@ -141,7 +139,7 @@ const WritingEditor: React.FC = () => {
         }
       }
     } catch (error) {
-      console.error("Failed to load contributors:", error);
+      // Error handling without logging
     } finally {
       setLoadingContributors(false);
     }
@@ -159,7 +157,6 @@ const WritingEditor: React.FC = () => {
         setPreviousSnippets([]);
       }
     } catch (error) {
-      console.error("Error fetching snippets:", error);
       toast.error("Failed to refresh snippets");
       setPreviousSnippets([]);
     } finally {
@@ -258,11 +255,9 @@ const WritingEditor: React.FC = () => {
             .eq("id", projectId);
 
           if (updateError) {
-            console.error("Error marking project as completed:", updateError);
+            // Handle error without logging
           } else {
-            console.log(
-              "Project automatically marked as completed due to max snippets reached"
-            );
+            // Project automatically marked as completed due to max snippets reached
             // Flag that sessions page needs to refresh data
             sessionStorage.setItem("refreshSessions", "true");
           }
@@ -300,7 +295,6 @@ const WritingEditor: React.FC = () => {
         .single();
 
       if (projectError || !currentProject) {
-        console.error("Error fetching project for lock check:", projectError);
         return;
       }
 
@@ -322,7 +316,6 @@ const WritingEditor: React.FC = () => {
             .eq("id", projectId);
 
           if (unlockError) {
-            console.error("Error unlocking stale project:", unlockError);
             return;
           }
 
@@ -339,7 +332,7 @@ const WritingEditor: React.FC = () => {
         }
       }
     } catch (error) {
-      console.error("Error in checkForStaleLocks:", error);
+      // Error handling without console log
     }
   };
 
@@ -353,7 +346,7 @@ const WritingEditor: React.FC = () => {
         .single();
 
       if (error) {
-        console.error("Error fetching project data:", error);
+        // Handle error without logging
         return;
       }
 
@@ -363,7 +356,7 @@ const WritingEditor: React.FC = () => {
         setLockedBy(projectData.locked_by || null);
       }
     } catch (error) {
-      console.error("Error in fetchProject:", error);
+      // Handle error without logging
     }
   };
 
@@ -388,8 +381,6 @@ const WritingEditor: React.FC = () => {
   useEffect(() => {
     if (!projectId) return;
 
-    console.log(`Setting up real-time subscription for project ${projectId}`);
-
     // Subscribe to project lock changes
     const subscription = supabase
       .channel(`project-lock-${projectId}`)
@@ -402,20 +393,9 @@ const WritingEditor: React.FC = () => {
           filter: `id=eq.${projectId}`,
         },
         (payload) => {
-          console.log("Received real-time update:", {
-            old: payload.old,
-            new: payload.new,
-            event: payload.eventType,
-          });
-
           // Only process updates (not deletes or inserts)
           if (payload.eventType === "UPDATE") {
             const updatedProject = payload.new as any;
-            console.log("Updating local state with new project data:", {
-              is_locked: updatedProject.is_locked,
-              locked_by: updatedProject.locked_by,
-              iam: userData?.auth_id,
-            });
 
             setProjectLocked(updatedProject.is_locked || false);
             setLockedBy(updatedProject.locked_by || null);
@@ -431,16 +411,13 @@ const WritingEditor: React.FC = () => {
           }
         }
       )
-      .subscribe((status) => {
-        console.log("Subscription status:", status);
-      });
+      .subscribe();
 
     setLockSubscription(subscription);
 
     // Cleanup subscription on unmount
     return () => {
       if (subscription) {
-        console.log("Cleaning up subscription for project:", projectId);
         subscription.unsubscribe();
       }
     };
@@ -454,16 +431,6 @@ const WritingEditor: React.FC = () => {
         toast.error("Please log in to contribute to this project");
         return;
       }
-
-      console.log("Starting contribution process:", {
-        projectId,
-        userId: user.id,
-        currentLockStatus: {
-          isLocked: project?.is_locked,
-          lockedBy: project?.locked_by,
-          lockedAt: project?.locked_at,
-        },
-      });
 
       if (project?.is_completed) {
         toast.error("This project is already completed");
@@ -486,7 +453,6 @@ const WritingEditor: React.FC = () => {
         .single();
 
       if (checkError) {
-        console.error("Error verifying project:", checkError);
         toast.error("Error verifying project status. Please try again.");
         return;
       }
@@ -497,10 +463,6 @@ const WritingEditor: React.FC = () => {
       }
 
       if (projectCheck.is_locked) {
-        console.log("Project is already locked:", {
-          lockedBy: projectCheck.locked_by,
-          lockedAt: projectCheck.locked_at,
-        });
         toast.error(
           `Someone else is currently writing. Please try again later.`
         );
@@ -512,7 +474,6 @@ const WritingEditor: React.FC = () => {
       setLockedBy(user.id);
       setIsCurrentlyWriting(true);
 
-      console.log("Attempting to lock project in database");
       // Attempt to lock the project - no .single() or additional conditions
       const { data: lockResult, error: lockError } = await supabase
         .from("projects")
@@ -524,7 +485,6 @@ const WritingEditor: React.FC = () => {
         .eq("id", projectId);
 
       if (lockError) {
-        console.error("Failed to lock project:", lockError);
         // Revert optimistic update if lock fails
         setProjectLocked(false);
         setLockedBy(null);
@@ -532,8 +492,6 @@ const WritingEditor: React.FC = () => {
         toast.error("Failed to start contribution. Please try again.");
         return;
       }
-
-      console.log("Successfully locked project");
 
       // Start the timer when contribution begins
       setTimeRemaining(600); // Reset to 10 minutes
@@ -547,7 +505,6 @@ const WritingEditor: React.FC = () => {
       setProjectLocked(false);
       setLockedBy(null);
       setIsCurrentlyWriting(false);
-      console.error("Start contribution error:", error);
       toast.error(
         `Failed to start contribution: ${error.message || "Unknown error"}`
       );
@@ -617,11 +574,9 @@ const WritingEditor: React.FC = () => {
               .eq("id", projectId);
 
             if (updateError) {
-              console.error("Error completing project:", updateError);
+              // Handle error without logging
             } else {
-              console.log(
-                "Project automatically marked as completed due to max snippets reached"
-              );
+              // Project automatically marked as completed
               toast.success(
                 "Project completed - maximum contributions reached!"
               );
@@ -639,7 +594,7 @@ const WritingEditor: React.FC = () => {
               .eq("id", projectId);
 
             if (error) {
-              console.error("Error unlocking project:", error);
+              // Handle error without logging
             }
           }
         } else {
@@ -654,7 +609,7 @@ const WritingEditor: React.FC = () => {
             .eq("id", projectId);
 
           if (error) {
-            console.error("Error unlocking project:", error);
+            // Handle error without logging
           }
         }
 
@@ -662,7 +617,7 @@ const WritingEditor: React.FC = () => {
         setLockedBy(null);
       }
     } catch (error) {
-      console.error("Error in handleTimerExpired:", error);
+      // Handle error without logging
     }
   };
 
@@ -682,7 +637,7 @@ const WritingEditor: React.FC = () => {
       });
       setWritingIdeas(response.data);
     } catch (error) {
-      console.error("Error fetching writing ideas:", error);
+      // Handle error without logging
     }
   };
 
@@ -691,21 +646,8 @@ const WritingEditor: React.FC = () => {
     if (!projectId) return;
 
     try {
-      console.log("Starting unlock process:", {
-        projectId,
-        currentUserId: userData?.auth_id,
-        currentLockStatus: {
-          isLocked: project?.is_locked,
-          lockedBy: project?.locked_by,
-          lockedAt: project?.locked_at,
-        },
-      });
-
       // Only attempt to unlock if the current user is the one who locked it
       if (lockedBy !== userData?.auth_id) {
-        console.log(
-          "Not unlocking project - current user is not the lock owner"
-        );
         return;
       }
 
@@ -717,16 +659,12 @@ const WritingEditor: React.FC = () => {
         .single();
 
       if (fetchError) {
-        console.error("Error fetching latest project data:", fetchError);
         return;
       }
 
       if (!latestProject) {
-        console.error("Project not found during unlock");
         return;
       }
-
-      console.log("Latest project data:", latestProject);
 
       // Get the latest snippet count from the database
       const { data: snippetsData, error: snippetsError } = await supabase
@@ -735,7 +673,6 @@ const WritingEditor: React.FC = () => {
         .eq("project_id", projectId);
 
       if (snippetsError) {
-        console.error("Error fetching snippets:", snippetsError);
         return;
       }
 
@@ -747,7 +684,6 @@ const WritingEditor: React.FC = () => {
         currentSnippetCount >= latestProject.max_snippets &&
         !latestProject.is_completed
       ) {
-        console.log("Project reached max snippets, marking as completed");
         // Mark project as completed
         const { error: completedError } = await supabase
           .from("projects")
@@ -760,14 +696,12 @@ const WritingEditor: React.FC = () => {
           .eq("id", projectId);
 
         if (completedError) {
-          console.error("Error marking project as completed:", completedError);
+          // Handle error but don't log it
         } else {
-          console.log("Successfully marked project as completed");
           toast.success("Project completed! This was the final contribution.");
           sessionStorage.setItem("refreshSessions", "true");
         }
       } else {
-        console.log("Unlocking project without marking as completed");
         // Just unlock the project
         const { error } = await supabase
           .from("projects")
@@ -779,11 +713,8 @@ const WritingEditor: React.FC = () => {
           .eq("id", projectId);
 
         if (error) {
-          console.error("Error unlocking project:", error);
           return;
         }
-
-        console.log("Successfully unlocked project");
       }
 
       // Update local state - don't rely solely on real-time updates
@@ -791,7 +722,6 @@ const WritingEditor: React.FC = () => {
       setLockedBy(null);
       setIsCurrentlyWriting(false);
     } catch (error) {
-      console.error("Error in unlockProject:", error);
       // Try a final fallback unlock if all else fails
       try {
         await supabase
@@ -807,7 +737,7 @@ const WritingEditor: React.FC = () => {
         setLockedBy(null);
         setIsCurrentlyWriting(false);
       } catch (finalError) {
-        console.error("Final fallback unlock failed:", finalError);
+        // Handle error but don't log it
       }
     }
   };
@@ -826,22 +756,6 @@ const WritingEditor: React.FC = () => {
       }
       setIsSubmitting(true);
 
-      // const moderationResponse = await axios.post(
-      //   `${API_BASE_URL}/moderation`,
-      //   {
-      //     content: content,
-      //   }
-      // );
-
-      // // If content is flagged, display reason
-      // if (moderationResponse.data.flagged) {
-      //   toast.error(
-      //     `Content flagged for ${moderationResponse.data.reason}. Please try again.`
-      //   );
-      //   setIsSubmitting(false);
-      //   return;
-      // }
-
       // Add the snippet
       const { error: snippetError } = await supabase
         .from("project_snippets")
@@ -855,7 +769,6 @@ const WritingEditor: React.FC = () => {
         });
 
       if (snippetError) {
-        console.error("Error adding new snippet:", snippetError);
         toast.error(`Failed to submit contribution: ${snippetError.message}`);
         setIsSubmitting(false);
         return;
@@ -869,10 +782,7 @@ const WritingEditor: React.FC = () => {
           .eq("project_id", projectId);
 
       if (snippetsCountError) {
-        console.error(
-          "Error fetching current snippets count:",
-          snippetsCountError
-        );
+        // Handle error without console log
       } else {
         const snippetCount = currentSnippets?.length || 0;
 
@@ -882,9 +792,6 @@ const WritingEditor: React.FC = () => {
           snippetCount >= project.max_snippets &&
           !project.is_completed
         ) {
-          console.log(
-            `Project has reached max snippets (${snippetCount}/${project.max_snippets}). Marking as completed.`
-          );
           // We'll mark the project as completed later in unlockProject()
           // This serves as an additional check
         }
@@ -924,7 +831,6 @@ const WritingEditor: React.FC = () => {
 
       setIsSubmitting(false);
     } catch (error: any) {
-      console.error("Submit contribution error:", error);
       toast.error(
         `Failed to submit contribution: ${error.message || "Unknown error"}`
       );
@@ -960,7 +866,6 @@ const WritingEditor: React.FC = () => {
           .eq("id", projectId);
 
         if (error) {
-          console.error("Error unlocking project:", error);
           return;
         }
 
@@ -968,7 +873,7 @@ const WritingEditor: React.FC = () => {
         setLockedBy(null);
       }
     } catch (error) {
-      console.error("Error in handleCancelWriting:", error);
+      // Error handling without console log
     }
 
     // clear localStorage on cancel
@@ -989,7 +894,7 @@ const WritingEditor: React.FC = () => {
         .single();
 
       if (error) {
-        console.error("Error refreshing project data:", error);
+        // Handle error without logging
         return;
       }
 
@@ -1005,7 +910,7 @@ const WritingEditor: React.FC = () => {
         }
       }
     } catch (error) {
-      console.error("Error during manual refresh:", error);
+      // Handle error without logging
     }
   };
 
@@ -1094,7 +999,7 @@ const WritingEditor: React.FC = () => {
               })
               .eq("id", projectId);
           } catch (error) {
-            console.error("Error unlocking project on unmount:", error);
+            // Handle error without logging
           }
         };
 
