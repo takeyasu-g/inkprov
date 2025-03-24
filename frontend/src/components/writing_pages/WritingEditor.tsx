@@ -27,6 +27,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ProjectSnippet } from "@/types/global";
 import { useAuth } from "@/contexts/AuthContext";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { RealtimeChannel } from "@supabase/supabase-js";
 
 // Basic interfaces for our data
 interface Project {
@@ -106,6 +107,9 @@ const WritingEditor: React.FC = () => {
   const { user } = useAuth();
   const localStorageKey = `draftText_${user?.id}_${projectId}`;
   const [content, setContent] = useLocalStorage(localStorageKey, "");
+
+  const [lockSubscription, setLockSubscription] =
+    useState<RealtimeChannel | null>(null);
 
   console.log(isContributor);
 
@@ -380,7 +384,69 @@ const WritingEditor: React.FC = () => {
     };
   }, [projectId, userData]);
 
-  // This block now handles making a contribution
+  // Set up real-time subscription for project lock changes
+  useEffect(() => {
+    if (!projectId) return;
+
+    console.log(`Setting up real-time subscription for project ${projectId}`);
+
+    // Subscribe to project lock changes
+    const subscription = supabase
+      .channel(`project-lock-${projectId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*", // Listen for all events (INSERT, UPDATE, DELETE)
+          schema: "public",
+          table: "projects",
+          filter: `id=eq.${projectId}`,
+        },
+        (payload) => {
+          console.log("Received real-time update:", {
+            old: payload.old,
+            new: payload.new,
+            event: payload.eventType,
+          });
+
+          // Only process updates (not deletes or inserts)
+          if (payload.eventType === "UPDATE") {
+            const updatedProject = payload.new as any;
+            console.log("Updating local state with new project data:", {
+              is_locked: updatedProject.is_locked,
+              locked_by: updatedProject.locked_by,
+              iam: userData?.auth_id,
+            });
+
+            setProjectLocked(updatedProject.is_locked || false);
+            setLockedBy(updatedProject.locked_by || null);
+            setIsCurrentlyWriting(
+              (updatedProject.locked_by || null) === userData?.auth_id
+            );
+
+            // Update project object too
+            setProject((prev) => {
+              if (!prev) return updatedProject;
+              return { ...prev, ...updatedProject };
+            });
+          }
+        }
+      )
+      .subscribe((status) => {
+        console.log("Subscription status:", status);
+      });
+
+    setLockSubscription(subscription);
+
+    // Cleanup subscription on unmount
+    return () => {
+      if (subscription) {
+        console.log("Cleaning up subscription for project:", projectId);
+        subscription.unsubscribe();
+      }
+    };
+  }, [projectId, userData?.auth_id]);
+
+  // Modify handleStartContribution to use optimistic updates
   const handleStartContribution = async () => {
     try {
       const user = await getCurrentUser();
@@ -388,6 +454,16 @@ const WritingEditor: React.FC = () => {
         toast.error("Please log in to contribute to this project");
         return;
       }
+
+      console.log("Starting contribution process:", {
+        projectId,
+        userId: user.id,
+        currentLockStatus: {
+          isLocked: project?.is_locked,
+          lockedBy: project?.locked_by,
+          lockedAt: project?.locked_at,
+        },
+      });
 
       if (project?.is_completed) {
         toast.error("This project is already completed");
@@ -402,14 +478,43 @@ const WritingEditor: React.FC = () => {
         return;
       }
 
-      if (project?.is_locked) {
+      // First, verify project exists and is not already locked
+      const { data: projectCheck, error: checkError } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("id", projectId)
+        .single();
+
+      if (checkError) {
+        console.error("Error verifying project:", checkError);
+        toast.error("Error verifying project status. Please try again.");
+        return;
+      }
+
+      if (!projectCheck) {
+        toast.error("Project not found");
+        return;
+      }
+
+      if (projectCheck.is_locked) {
+        console.log("Project is already locked:", {
+          lockedBy: projectCheck.locked_by,
+          lockedAt: projectCheck.locked_at,
+        });
         toast.error(
           `Someone else is currently writing. Please try again later.`
         );
         return;
       }
 
-      const { error: lockError } = await supabase
+      // Optimistically update local state
+      setProjectLocked(true);
+      setLockedBy(user.id);
+      setIsCurrentlyWriting(true);
+
+      console.log("Attempting to lock project in database");
+      // Attempt to lock the project - no .single() or additional conditions
+      const { data: lockResult, error: lockError } = await supabase
         .from("projects")
         .update({
           is_locked: true,
@@ -419,14 +524,17 @@ const WritingEditor: React.FC = () => {
         .eq("id", projectId);
 
       if (lockError) {
-        console.error("Error locking project:", lockError);
+        console.error("Failed to lock project:", lockError);
+        // Revert optimistic update if lock fails
+        setProjectLocked(false);
+        setLockedBy(null);
+        setIsCurrentlyWriting(false);
         toast.error("Failed to start contribution. Please try again.");
         return;
       }
 
-      setProjectLocked(true);
-      setLockedBy(user.id);
-      setIsCurrentlyWriting(true);
+      console.log("Successfully locked project");
+
       // Start the timer when contribution begins
       setTimeRemaining(600); // Reset to 10 minutes
       setTimerActive(true);
@@ -435,6 +543,10 @@ const WritingEditor: React.FC = () => {
         "You can now write your contribution! You have 10 minutes to submit."
       );
     } catch (error: any) {
+      // Revert optimistic updates on any error
+      setProjectLocked(false);
+      setLockedBy(null);
+      setIsCurrentlyWriting(false);
       console.error("Start contribution error:", error);
       toast.error(
         `Failed to start contribution: ${error.message || "Unknown error"}`
@@ -579,6 +691,24 @@ const WritingEditor: React.FC = () => {
     if (!projectId) return;
 
     try {
+      console.log("Starting unlock process:", {
+        projectId,
+        currentUserId: userData?.auth_id,
+        currentLockStatus: {
+          isLocked: project?.is_locked,
+          lockedBy: project?.locked_by,
+          lockedAt: project?.locked_at,
+        },
+      });
+
+      // Only attempt to unlock if the current user is the one who locked it
+      if (lockedBy !== userData?.auth_id) {
+        console.log(
+          "Not unlocking project - current user is not the lock owner"
+        );
+        return;
+      }
+
       // Fetch the latest project data to ensure accurate check
       const { data: latestProject, error: fetchError } = await supabase
         .from("projects")
@@ -590,6 +720,13 @@ const WritingEditor: React.FC = () => {
         console.error("Error fetching latest project data:", fetchError);
         return;
       }
+
+      if (!latestProject) {
+        console.error("Project not found during unlock");
+        return;
+      }
+
+      console.log("Latest project data:", latestProject);
 
       // Get the latest snippet count from the database
       const { data: snippetsData, error: snippetsError } = await supabase
@@ -610,6 +747,7 @@ const WritingEditor: React.FC = () => {
         currentSnippetCount >= latestProject.max_snippets &&
         !latestProject.is_completed
       ) {
+        console.log("Project reached max snippets, marking as completed");
         // Mark project as completed
         const { error: completedError } = await supabase
           .from("projects")
@@ -624,20 +762,12 @@ const WritingEditor: React.FC = () => {
         if (completedError) {
           console.error("Error marking project as completed:", completedError);
         } else {
+          console.log("Successfully marked project as completed");
           toast.success("Project completed! This was the final contribution.");
-          // Flags that sessions page needs to refresh data
           sessionStorage.setItem("refreshSessions", "true");
-
-          // Update local state
-          setProject({
-            ...project!,
-            is_completed: true,
-            is_locked: false,
-            locked_by: null as any,
-            locked_at: null as any,
-          });
         }
       } else {
+        console.log("Unlocking project without marking as completed");
         // Just unlock the project
         const { error } = await supabase
           .from("projects")
@@ -652,12 +782,33 @@ const WritingEditor: React.FC = () => {
           console.error("Error unlocking project:", error);
           return;
         }
+
+        console.log("Successfully unlocked project");
       }
 
+      // Update local state - don't rely solely on real-time updates
       setProjectLocked(false);
       setLockedBy(null);
+      setIsCurrentlyWriting(false);
     } catch (error) {
       console.error("Error in unlockProject:", error);
+      // Try a final fallback unlock if all else fails
+      try {
+        await supabase
+          .from("projects")
+          .update({
+            is_locked: false,
+            locked_by: null,
+            locked_at: null,
+          })
+          .eq("id", projectId);
+
+        setProjectLocked(false);
+        setLockedBy(null);
+        setIsCurrentlyWriting(false);
+      } catch (finalError) {
+        console.error("Final fallback unlock failed:", finalError);
+      }
     }
   };
 

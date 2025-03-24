@@ -63,4 +63,15 @@ CREATE POLICY "Only allow reactions to completed projects"
             WHERE id = project_id 
             AND is_completed = true
         )
-    ); 
+    );
+
+-- Add locking fields to projects table
+ALTER TABLE public.projects
+ADD COLUMN IF NOT EXISTS is_locked BOOLEAN DEFAULT FALSE,
+ADD COLUMN IF NOT EXISTS locked_by UUID REFERENCES auth.users(id),
+ADD COLUMN IF NOT EXISTS locked_at TIMESTAMP WITH TIME ZONE;
+
+-- Add comment to explain the locking fields
+COMMENT ON COLUMN public.projects.is_locked IS 'Indicates if the project is currently locked for writing';
+COMMENT ON COLUMN public.projects.locked_by IS 'References the user who currently has the project locked';
+COMMENT ON COLUMN public.projects.locked_at IS 'Timestamp when the project was locked'; 

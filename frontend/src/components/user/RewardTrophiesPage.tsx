@@ -290,6 +290,17 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
         progress: 0,
         color: "#FBBF24", // amber
       },
+      {
+        id: "cc_instructor",
+        name: "Code Chrysalis Instructor",
+        description: "Instructor at Code Chrysalis",
+        icon: faSchool,
+        category: "special",
+        requiredValue: 1,
+        isUnlocked: stats.attended_cc_instructor >= 1,
+        progress: Math.min(stats.attended_cc_instructor, 1) * 100,
+        color: "#facc7d", // volt
+      },
     ];
 
     const unlockedCount = allAchievements.filter(
