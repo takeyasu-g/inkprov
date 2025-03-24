@@ -7,6 +7,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { UserProfilePopUp } from "@/types/global";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faJedi } from "@fortawesome/free-solid-svg-icons";
 
 interface ContributorPopupProps {
   profile: UserProfilePopUp;
@@ -45,12 +47,21 @@ const ContributorPopup: React.FC<ContributorPopupProps> = ({ profile }) => {
           </Avatar>
           {/* Would be nice to add maybe more things here , maybe the acheivments */}
           <div className="overflow-hidde max-w-40">
-            <p
-              className="font-bold cursor-pointer truncate w-full hover:underline"
-              onClick={() => navigate(`/profile/${profile.id}`)}
-            >
-              {profile.user_profile_name || "Unkown"}
-            </p>
+            <div className="flex items-center gap-1">
+              <p
+                className="font-bold cursor-pointer truncate w-full hover:underline"
+                onClick={() => navigate(`/profile/${profile.id}`)}
+              >
+                {profile.user_profile_name || "Unknown"}
+              </p>
+              {!!profile.is_instructor && (
+                <FontAwesomeIcon
+                  icon={faJedi}
+                  className="text-yellow-500"
+                  size="sm"
+                />
+              )}
+            </div>
             <p className="text-xs text-gray-500 truncate w-full">
               {profile.user_email || "No email"}
             </p>

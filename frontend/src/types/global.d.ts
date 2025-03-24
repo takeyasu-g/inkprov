@@ -11,6 +11,7 @@ interface UserProfilePopUp {
   user_profile_name: string;
   profile_pic_url?: string;
   user_email: string;
+  is_instructor?: boolean;
 }
 
 interface ProjectContributor {
@@ -65,6 +66,7 @@ export interface ProjectSnippet {
   created_at: Date | string;
   creator?: {
     user_profile_name: string;
+    is_instructor?: boolean;
   };
 }
 

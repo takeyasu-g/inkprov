@@ -16,6 +16,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { Crown, Loader2, Lightbulb, Clock, ChevronLeft } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faJedi } from "@fortawesome/free-solid-svg-icons";
 import {
   supabase,
   getCurrentUser,
@@ -66,6 +68,7 @@ interface Contributor {
     id: string;
     user_profile_name: string;
     avatar_url?: string;
+    is_instructor?: boolean;
   };
   user_is_project_creator: boolean;
 }
@@ -960,6 +963,13 @@ const WritingEditor: React.FC = () => {
     return sortedContributors.map((contributor) => (
       <div key={contributor.id} className="flex items-center gap-2">
         {contributor.user_is_project_creator && <Crown className="text-gold" />}
+        {contributor.user?.is_instructor && (
+          <FontAwesomeIcon
+            icon={faJedi}
+            className="text-yellow-500"
+            size="sm"
+          />
+        )}
         <span
           className={`text-sm font-medium px-3 py-1 rounded-full ${
             contributor.user_is_project_creator
@@ -1095,9 +1105,16 @@ const WritingEditor: React.FC = () => {
                     <p className="text-justify lg:text-left">
                       {snippet.content}
                     </p>
-                    <p className="text-sm text-secondary-text mt-2">
+                    <p className="text-sm text-secondary-text mt-2 flex items-center gap-1">
                       Contribution #{snippet.sequence_number} by{" "}
                       {snippet.creator?.user_profile_name || "Unknown"}
+                      {snippet.creator?.is_instructor && (
+                        <FontAwesomeIcon
+                          icon={faJedi}
+                          className="text-yellow-500"
+                          size="sm"
+                        />
+                      )}
                     </p>
                   </div>
                 ))}
@@ -1110,9 +1127,16 @@ const WritingEditor: React.FC = () => {
                   className="p-4 bg-secondary rounded-lg"
                 >
                   <p className="text-justify lg:text-left">{snippet.content}</p>
-                  <p className="text-sm text-secondary-text mt-2">
+                  <p className="text-sm text-secondary-text mt-2 flex items-center gap-1">
                     Contribution #{snippet.sequence_number} by{" "}
                     {snippet.creator?.user_profile_name || "Unknown"}
+                    {snippet.creator?.is_instructor && (
+                      <FontAwesomeIcon
+                        icon={faJedi}
+                        className="text-yellow-500"
+                        size="sm"
+                      />
+                    )}
                   </p>
                 </div>
               ))
