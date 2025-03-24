@@ -8,28 +8,30 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useTranslation } from "react-i18next";
 
 // hard coded some genres here
 const genres: string[] = [
-  "All",
-  "Adventure",
-  "Comedy",
-  "Crime",
-  "Fantasy",
-  "History",
-  "Horror",
-  "Mystery",
-  "Paranormal",
-  "Romance",
-  "Sci-Fi",
-  "Thriller",
-  "Western",
+  "all",
+  "adventure",
+  "comedy",
+  "crime",
+  "fantasy",
+  "history",
+  "horror",
+  "mystery",
+  "paranormal",
+  "romance",
+  "scifi",
+  "thriller",
+  "western",
 ];
 interface GenreFilterProps {
   onSelect: (genre: string) => void;
 }
 
 const GenreFilter: React.FC<GenreFilterProps> = ({ onSelect }) => {
+  const { t } = useTranslation();
   const [selectedGenre, setSelectedGenre] = useState<string>("All");
 
   // this handler sends filter selected to SessionsPage to render filter
@@ -54,11 +56,11 @@ const GenreFilter: React.FC<GenreFilterProps> = ({ onSelect }) => {
             <button
               className={`px-4 py-2 text-white ${`genre-${selectedGenre.toLowerCase()}`} cursor-pointer rounded-lg w-auto text-left`}
             >
-              {selectedGenre} <span className="ml-2">▼</span>
+              {selectedGenre.toLowerCase() === "all" ? t("all") : t(`genres.${selectedGenre.toLocaleLowerCase()}`)} <span className="ml-2">▼</span>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-fit bg-white">
-            <DropdownMenuLabel>Genres</DropdownMenuLabel>
+            <DropdownMenuLabel>{t("genresTitle")}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {genres.map((genre) => (
               <DropdownMenuItem
@@ -66,7 +68,7 @@ const GenreFilter: React.FC<GenreFilterProps> = ({ onSelect }) => {
                 onClick={() => handleSelectFilter(genre)}
                 className="cursor-pointer px-4 py-2 text-sm hover:bg-amber-600 rounded-lg"
               >
-                {genre}
+                {genre === "all" ? t("all") : t(`genres.${genre}`)}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
@@ -76,7 +78,7 @@ const GenreFilter: React.FC<GenreFilterProps> = ({ onSelect }) => {
       <ToggleGroup
         className="hidden xl:flex gap-1 bg-secondary-background text-[var(--filter-btn-text)]"
         type="single"
-        value={selectedGenre}
+        value={selectedGenre.toLowerCase() === "all" ? t("all") : t(`genres.${selectedGenre.toLowerCase}`)}
         onValueChange={handleSelectFilter}
       >
         {/* map through hard coded genres */}
@@ -84,9 +86,9 @@ const GenreFilter: React.FC<GenreFilterProps> = ({ onSelect }) => {
           <ToggleGroupItem
             className="px-4 min-w-auto  hover:bg-amber-600 rounded-lg not-data-[state=on]:hover:text-white data-[state=on]:text-white data-[state=on]:bg-amber-700 data-[state=on]:rounded-lg cursor-pointer"
             key={genre}
-            value={genre}
+            value={genre === "all" ? t("all") : t(`genres.${genre}`)}
           >
-            {genre}
+            {genre === "all" ? t("all") : t(`genres.${genre}`)}
           </ToggleGroupItem>
         ))}
       </ToggleGroup>

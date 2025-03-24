@@ -36,6 +36,7 @@ import {
   Ghost,
   ChevronLeft,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 // Define reaction types
 const reactionTypes = [
@@ -58,6 +59,7 @@ const reactionTypes = [
 ];
 
 const ReadingPage: React.FC = () => {
+  const { t } = useTranslation();
   const { projectId } = useParams();
 
   // this gets the passed state from the projectCard => projectData
@@ -151,15 +153,15 @@ const ReadingPage: React.FC = () => {
 
         toast.success(
           newReaction
-            ? `Marked this story as ${reactionLabel}`
-            : "Reaction removed"
+            ? `${t("toasts.reactionAdded")} ${t(`readingView.reactions.${reactionLabel.toLowerCase()}`)}`
+            : `${t("toasts.reactionRemoved")}`
         );
       } else {
-        toast.error("Couldn't update your reaction");
+        toast.error(t("toasts.reactionError"));
       }
     } catch (error) {
       console.error("Error updating reaction:", error);
-      toast.error("Something went wrong");
+      toast.error(t("toasts.reactionError"));
     } finally {
       setIsLoading(false);
     }
@@ -181,7 +183,7 @@ const ReadingPage: React.FC = () => {
           className="text-sm bg-white md:bg-background"
         >
           <ChevronLeft />
-          <span>Back</span>
+          <span>{t("readingView.header.backtoStories")}</span>
         </Button>
       </div>
       <Card className="border-none shadow-none md:shadow-lg">
@@ -196,16 +198,16 @@ const ReadingPage: React.FC = () => {
               }`}
             >
               {projectData?.project_genre ||
-                project?.project_genre ||
-                "Unknown"}
+                t(`genres.${project?.project_genre ||
+                "unknown".toLowerCase()}`)} 
             </Badge>
             <span className="text-secondary-text">
-              Completed:{" "}
+              {t("completed")}{" "}
               {project?.updated_at || projectData?.updated_at
                 ? new Date(
                     project?.updated_at || projectData?.updated_at
                   ).toDateString()
-                : "No date found"}
+                : t("noDate")}
             </span>
           </div>
         </CardHeader>
@@ -241,7 +243,7 @@ const ReadingPage: React.FC = () => {
           {projectData?.is_completed && (
             <div className="mt-8 border-t pt-4">
               <h3 className="text-primary-text text-center font-medium my-3">
-                How did this story make you feel?
+                {t("readingView.reactionTitle")}
               </h3>
               <div className="flex flex-wrap gap-4 justify-center">
                 <TooltipProvider>
@@ -261,7 +263,7 @@ const ReadingPage: React.FC = () => {
                                 : "hover:bg-gray-50 dark:hover:bg-gray-800"
                             }`}
                             disabled={isLoading}
-                            aria-label={`React with ${reaction.label}`}
+                            aria-label={`${t("readingView.reactionAria")} ${t(reaction.label)}`}
                           >
                             <div className="flex items-center justify-center h-7 w-full mt-2">
                               <Icon
@@ -282,8 +284,8 @@ const ReadingPage: React.FC = () => {
                         <TooltipContent side="bottom">
                           <p>
                             {isSelected
-                              ? "Remove reaction"
-                              : `Mark as ${reaction.label}`}
+                              ? t("readingView.removeReaction")
+                              : `${t("readingView.reactionTooltip")} ${t(reaction.label)}`}
                           </p>
                         </TooltipContent>
                       </Tooltip>

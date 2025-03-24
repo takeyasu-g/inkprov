@@ -4,8 +4,10 @@ import SearchBar from "../SearchBar";
 import GenreFilter from "../GenreFilter";
 import { CompletedStoriesData } from "@/types/global";
 import { getAllStoriesWithProfileName } from "@/utils/supabase";
+import { useTranslation } from "react-i18next";
 
 const ProjectsPage: React.FC = () => {
+  const { t } = useTranslation();
   const [genreFilter, setGenreFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [allProjects, setAllProjects] = useState<CompletedStoriesData[]>([]);
@@ -36,13 +38,13 @@ const ProjectsPage: React.FC = () => {
   }, []);
 
   // handler to change assign filters
-  const handleGenreFilter = (genre: string = "All") => setGenreFilter(genre);
+  const handleGenreFilter = (genre: string = t("all")) => setGenreFilter(genre);
   const handleSearch = (query: string) => setSearchQuery(query);
 
   // Make filteredProjects[] based on both searchQuery and genreFilter
   const filteredProjects = allProjects.filter((project) => {
     const matchesGenre =
-      genreFilter === "All" || project.project_genre === genreFilter;
+      genreFilter === t("all") || project.project_genre === genreFilter;
     const words = searchQuery.toLowerCase().split(" ");
     const matchesSearch =
       searchQuery.trim() === "" ||
@@ -55,10 +57,10 @@ const ProjectsPage: React.FC = () => {
       <header className="flex justify-between">
         <div className="mb-8 text-left">
           <h1 className="text-3xl font-bold text-primary-text">
-            Completed Stories
+            {t("stories.header.title")}
           </h1>
           <p className="text-secondary-text mt-2">
-            Browse and read collaborative stories created by our community
+            {t("stories.header.subtitle")}
           </p>
         </div>
 
@@ -93,7 +95,7 @@ const ProjectsPage: React.FC = () => {
           ))
         ) : (
           <div className="col-span-full text-center py-8 text-secondary-text">
-            No stories found matching your criteria
+            {t("noStories")}
           </div>
         )}
       </div>

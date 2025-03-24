@@ -12,7 +12,9 @@ import {
 import CardHeaderWithMature from "@/components/ui/CardHeaderWithMature";
 import { ProjectsData } from "@/types/global";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatDistanceToNow } from "date-fns";
+import { formatRelative } from "date-fns";
+import { enUS, ja } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 
 interface SessionCardDataProp {
   sessionData: ProjectsData;
@@ -59,13 +61,14 @@ export const SessionCardSkeleton: React.FC = () => {
 const SessionCard: React.FC<SessionCardDataProp> = ({
   sessionData,
 }): React.ReactElement => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const contributors = sessionData.project_contributors || [];
   const maxSnippets = sessionData.max_snippets;
   const currentUser = sessionData.creator;
 
   const formattedDate = sessionData.created_at
-    ? `Created ${formatDistanceToNow(new Date(sessionData.created_at))} ago`
+    ? `${t("openSessions.card.time.created")} ${formatRelative(new Date(sessionData.created_at), new Date(), { locale: sessionStorage.getItem("lang") === "ja" ? ja : enUS })}`
     : "";
 
   const isUserContributor =
@@ -108,7 +111,7 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
             <div className="flex items-center gap-2">
               <span className="text-sm text-secondary-text">Started by: </span>
               <span className="text-sm font-medium">
-                {sessionData.creator?.user_profile_name || "Anonymous"}
+                {sessionData.creator?.user_profile_name || t("anonymous")}
               </span>
             </div>
           </div>
@@ -125,7 +128,7 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
           className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
           onClick={() => navigate(`/writing/${sessionData.id}`)}
         >
-          View Session
+          {t("openSessions.card.viewSession")}
         </Button>
       </CardFooter>
     </Card>
