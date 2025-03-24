@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import ProfileSettings from "../ProfileSettings";
 import UserSettings from "../UserSettings";
+import RedeemCode from "@/components/user/reward_subpages/RedeemCode";
 
 const Profile: React.FC = () => {
   const { user } = useAuth();
@@ -52,8 +53,9 @@ const Profile: React.FC = () => {
   // maybe future add also private toggle
   const [userPreference, setUserPreference] = useState<boolean>(false);
 
-  // state isEditing
+  // toggles between Edit Profile and and Redeem Code views on user info display card
   const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isRedeeming, setIsRedeeming] = useState<boolean>(false);
 
   const ITEMS_PER_PAGE = 6;
 
@@ -275,9 +277,10 @@ const Profile: React.FC = () => {
                 onClick={() => setIsEditing(!isEditing)}
                 className="self-center sm:self-start  mx-auto sm:mx-0 w-[90%] sm:w-[60%] md:w-[50%] lg:w-[90%] lg:self-center mt-6 bg-gray-100 text-black border border-gray-300 hover:bg-gray-200 cursor-pointer"
               >
-                Edit profile
+                Edit Profile
               </Button>
             )}
+            {/* handles displaying editing pane */}
             <div className="self-center sm:self-start mx-auto sm:mx-0 w-[90%] sm:w-[60%] lg:w-full">
               {isEditing && (
                 <ProfileSettings
@@ -285,6 +288,24 @@ const Profile: React.FC = () => {
                   setIsEditing={setIsEditing}
                   setBio={setBio}
                   setUsername={setUsername}
+                />
+              )}
+            </div>
+
+            {!isRedeeming && (
+              <Button
+                onClick={() => setIsRedeeming(!isRedeeming)}
+                className="self-center sm:self-start  mx-auto sm:mx-0 w-[90%] sm:w-[60%] md:w-[50%] lg:w-[90%] lg:self-center mt-6 bg-gray-100 text-black border border-gray-300 hover:bg-gray-200 cursor-pointer"
+              >
+                Redeem Code
+              </Button>
+            )}
+            {/* handles displaying redemption pane */}
+            <div className="self-center sm:self-start mx-auto sm:mx-0 w-[90%] sm:w-[60%] lg:w-full">
+              {isRedeeming && (
+                <RedeemCode
+                  isRedeeming={isRedeeming}
+                  setIsRedeeming={setIsRedeeming}
                 />
               )}
             </div>

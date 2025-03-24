@@ -13,6 +13,7 @@ import {
   faFire,
   faHeart,
   faUser,
+  faSchool,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   Card,
@@ -137,6 +138,17 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
   const calculateAchievements = (stats: any) => {
     const allAchievements: Achievement[] = [
       // Writing achievements
+      {
+        id: "demo_champion",
+        name: "Demo Day Darling",
+        description: "Attended Inkprov's Demo Event!",
+        icon: faSchool,
+        category: "special",
+        requiredValue: 1,
+        isUnlocked: stats.attended_demo_day >= 1,
+        progress: Math.min(stats.attended_demo_day, 1) * 100,
+        color: "#facc7d", // volt
+      },
       {
         id: "first_contribution",
         name: "First Contribution",
@@ -274,7 +286,6 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
         icon: faAward,
         category: "special",
         requiredValue: 5,
-        // We'll calculate this after setting all other achievements
         isUnlocked: false,
         progress: 0,
         color: "#FBBF24", // amber
