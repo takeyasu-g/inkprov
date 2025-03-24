@@ -173,7 +173,12 @@
         "inProgressStories": "In Progress Stories",
         "profilePictureChange": "Change",
         "aboutMe": "About Me",
-        "editProfile": "Edit Profile"
+        "editProfile": "Edit Profile",
+        "redeemCode": "Redeem Code",
+        "redeemCodeDescription": "Enter your redemption code to unlock exclusive content and rewards.",
+        "redeemCodePlaceholder": "Enter your code",
+        "redeemCodeLoading": "Redeeming Code",
+        "redeem": "Redeem"
       },
       "changeProfilePictureAlert": {
         "header": {
@@ -383,6 +388,9 @@
       "inactivity": "Project was automatically unlocked after 10 minutes of inactivity.",
       "timerExpired": "Time's up! The project has been unlocked.",
       "deleteAccountError": "Failed to delete account.",
+      "codeRedemptionError1": "Please enter a redemption code.",
+      "codeRedemptionError2": "Failed to redeem code. Please try again.",
+      "codeRedemptionSuccess": "Successfully redeemed code. Reward unlocked.",
 
       "authRequired": {
         "title": "Authentication Required",

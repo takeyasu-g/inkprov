@@ -173,7 +173,12 @@
       "inProgressStories": "進行中のストーリー",
       "profilePictureChange": "変更",
       "aboutMe": "自己紹介",
-      "editProfile": "プロフィール編集"
+      "editProfile": "プロフィール編集",
+      "redeemCode": "コード入力",
+      "redeemCodeDescription": "引き換えコードを入力すると、限定コンテンツと特典がアンロックされます。",
+      "redeemCodePlaceholder": "コードを入力",
+      "redeemCodeLoading": "引き換えコード",
+      "redeem": "引き換え"
     },
     "changeProfilePictureAlert": {
       "header": {
@@ -380,6 +385,9 @@
     "inactivity": "10分間の非アクティブ状態の後、プロジェクトは自動的にロック解除されました。",
     "timerExpired": "時間切れです！プロジェクトはロック解除されました。",
     "deleteAccountError": "アカウントの削除に失敗しました。",
+    "codeRedemptionError1": "引き換えコードを入力してください。",
+    "codeRedemptionError2": "引き換えコードを正しく入力してください。",
+    "codeRedemptionSuccess": "引き換えコードを正常に使用しました。報酬が解除されました。",
     "authRequired": {
       "title": "認証が必要です",
       "description": "このページにアクセスするにはログインが必要です。"

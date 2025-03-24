@@ -327,7 +327,7 @@ const Profile: React.FC = () => {
                 onClick={() => setIsRedeeming(!isRedeeming)}
                 className="self-center sm:self-start  mx-auto sm:mx-0 w-[90%] sm:w-[60%] md:w-[50%] lg:w-[90%] lg:self-center mt-6 bg-gray-100 text-black border border-gray-300 hover:bg-gray-200 cursor-pointer"
               >
-                Redeem Code
+                {t("profile.header.redeemCode")}
               </Button>
             )}
             {/* handles displaying redemption pane */}
