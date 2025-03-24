@@ -12,6 +12,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { useAuth } from "@/contexts/AuthContext";
 import { BookOpen, Loader2 } from "lucide-react";
 import { supabase } from "@/utils/supabase";
+import { useTranslation } from "react-i18next";
 
 import {
   Form,
@@ -24,6 +25,7 @@ import {
 
 // The LoginPage component
 export default function LoginPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { setIsAuthenticated, setUser } = useAuth();
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -64,12 +66,12 @@ export default function LoginPage() {
 
         setIsAuthenticated(true);
         setUser(data.user);
-        toast.success("Successfully logged in!");
+        toast.success(t("toasts.signInSuccess"));
         navigate("/sessions");
       }
     } catch (dataError: any) {
       setIsLoading(false);
-      toast.error(dataError.message || "An dataError occurred during login");
+      toast.error(dataError.message || t("toasts.signInError"));
     } finally {
       setIsLoading(false);
     }
@@ -93,7 +95,7 @@ export default function LoginPage() {
         throw error;
       }
     } catch (error: any) {
-      toast.error(error.message || "An error occurred during Google sign in");
+      toast.error(error.message || t("toasts.signInError"));
     } finally {
       setIsLoading(false);
     }
@@ -111,21 +113,19 @@ export default function LoginPage() {
             <div className="p-4">
               <BookOpen size={44} />
               <h1 className="text-2xl font-bold text-primary-text text-center mt-2">
-                Join our writing community
+                {t("auth.signIn.leftSection.title")}
               </h1>
               <p className="text-sm text-secondary-text text-left mt-2">
-                "The act of writing is an act of optimism. You would not take
-                the trouble to do it if you felt it didn"t matter."
+                {t("auth.signIn.leftSection.quote")}
               </p>
               <p className="text-sm text-tertiary-text text text-right mt-2">
-                - Edwared Albee
+                {t("auth.signIn.leftSection.quoteAuthor")}
               </p>
               <div className="mt-3 flex justify-center">
                 <div className="h-px w-16 my-2 bg-tertiary-background"></div>
               </div>
               <p className="text-sm text-tertiary-text text-left my-3">
-                Inkprov brings writers together in a cozy, collaborative
-                environment where creaativity flows freely.
+                {t("auth.signIn.leftSection.bottomSubtitle")}
               </p>
             </div>
           </div>
@@ -137,10 +137,10 @@ export default function LoginPage() {
         <div className="w-full max-w-md space-y-8 bg-background rounded-lg">
           <div>
             <h2 className="text-3xl font-bold text-primary-text text-center">
-              Welcome back
+              {t("auth.signIn.rightSection.title")}
             </h2>
             <p className="mt-2 text-center text-secondary-text">
-              Sign in to continue your writing journey
+              {t("auth.signIn.rightSection.subtitle")}
             </p>
           </div>
 
@@ -159,7 +159,7 @@ export default function LoginPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="block text-sm font-medium text-primary-text text-left">
-                          Email Address
+                          {t("auth.form.email")}
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -186,7 +186,7 @@ export default function LoginPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="block text-sm font-medium text-primary-text text-left">
-                          Password
+                          {t("auth.form.password")}
                         </FormLabel>
                         <FormControl>
                           <div className="relative">
@@ -231,7 +231,7 @@ export default function LoginPage() {
                               className="h-4 w-4 rounded border border-primary-button focus:ring-ring cursor-pointer accent-primary-button-hover"
                             />
                             <FormLabel className="text-sm font-medium text-primary-text">
-                              Remember me
+                              {t("auth.signIn.rightSection.form.rememberMe")}
                             </FormLabel>
                           </div>
                         </FormControl>
@@ -251,7 +251,7 @@ export default function LoginPage() {
                   onClick={() => navigate("/reset-password")}
                   className="text-primary-text hover:text-hover-text font-medium no-underline hover:no-underline cursor-pointer"
                 >
-                  Forgot password?
+                  {t("auth.signIn.rightSection.form.forgotPassword")}
                 </Button>
               </div>
 
@@ -264,10 +264,10 @@ export default function LoginPage() {
                 >
                   {isLoading ? (
                     <>
-                      <Loader2 className="animate-spin" /> Signing in
+                      <Loader2 className="animate-spin" /> {t("auth.signIn.rightSection.form.signInLoading")}
                     </>
                   ) : (
-                    "Sign in"
+                    t("auth.signIn.rightSection.form.signIn")
                   )}
                 </Button>
 
@@ -277,7 +277,7 @@ export default function LoginPage() {
                   </div>
                   <div className="relative flex justify-center text-sm">
                     <span className="px-2 bg-background text-secondary-text">
-                      Or
+                    {t("auth.continueWith.subtitle")}
                     </span>
                   </div>
                 </div>
@@ -316,19 +316,19 @@ export default function LoginPage() {
                   />
                 </g>
               </svg>
-              Continue with Google
+              {t("auth.continueWith.google")}
             </Button>
           </div>
 
           <p className="text-center text-sm text-secondary-text">
-            Don't have an account?
+            {t("auth.signIn.rightSection.noAccount")}
             <Button
               type="button"
               variant="link"
               onClick={() => navigate("/register")}
               className="text-primary-text hover:text-hover-text font-medium no-underline hover:no-underline cursor-pointer"
             >
-              Sign up
+              {t("auth.signIn.rightSection.signUp")}
             </Button>
           </p>
         </div>

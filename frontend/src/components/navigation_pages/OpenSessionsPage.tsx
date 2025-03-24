@@ -14,9 +14,11 @@ import {
 } from "lucide-react";
 import { getSessions } from "@/utils/supabase";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 
 const OpenSessionsPage: React.FC = () => {
-  const [genreFilter, setGenreFilter] = useState<string>("All");
+  const { t } = useTranslation();
+  const [genreFilter, setGenreFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [allSessions, setAllSessions] = useState<ProjectsData[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -85,7 +87,7 @@ const OpenSessionsPage: React.FC = () => {
   }, [location.pathname, handleFetchAllSessions]);
 
   // Memoize filter functions
-  const handleGenreFilter = useCallback((genre: string = "All") => {
+  const handleGenreFilter = useCallback((genre: string = t("all")) => {
     setGenreFilter(genre);
     setCurrentPage(1); // Dump back to first page when filter changes
   }, []);
@@ -108,12 +110,12 @@ const OpenSessionsPage: React.FC = () => {
     return allSessions
       .filter((session) => {
         // Only filter if we have filters applied
-        if (genreFilter === "All" && searchQuery.trim() === "") {
+        if (genreFilter === "all" && searchQuery.trim() === "") {
           return true;
         }
 
         const matchesGenre =
-          genreFilter === "All" || session.project_genre === genreFilter;
+          genreFilter === t("all") || session.project_genre.toLowerCase() === genreFilter;
 
         // Only perform search filtering if there's a search query
         if (searchQuery.trim() === "") {
@@ -167,10 +169,10 @@ const OpenSessionsPage: React.FC = () => {
       <header className="flex flex-col md:flex-row md:justify-between">
         <div className="mb-8 text-center md:text-left">
           <h1 className="text-3xl font-bold text-primary-text">
-            Open Writing Sessions
+            {t("openSessions.header.title")}
           </h1>
           <p className="text-secondary-text mt-2">
-            Join an existing session or create your own!
+            {t("openSessions.header.subtitle")}
           </p>
         </div>
 
@@ -184,12 +186,12 @@ const OpenSessionsPage: React.FC = () => {
             {isLoading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Refreshing...
+                {t("openSessions.header.refreshLoading")}
               </>
             ) : (
               <>
                 <RefreshCw className="h-4 w-4" />
-                Refresh
+                {t("refresh")}
               </>
             )}
           </Button>
@@ -199,7 +201,7 @@ const OpenSessionsPage: React.FC = () => {
             onClick={handleCreateSession}
           >
             <BookPlus />
-            <span>Create Session</span>
+            <span>{t("createSession")}</span>
           </Button>
         </div>
       </header>
@@ -216,12 +218,12 @@ const OpenSessionsPage: React.FC = () => {
             {isLoading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Refreshing...
+                {t("openSessions.header.refreshLoading")}
               </>
             ) : (
               <>
                 <RefreshCw className="h-4 w-4" />
-                Refresh
+                {t("refresh")}
               </>
             )}
           </Button>
@@ -231,12 +233,12 @@ const OpenSessionsPage: React.FC = () => {
             onClick={handleCreateSession}
           >
             <BookPlus />
-            <span className="hidden md:block">Create Session</span>
+            <span className="hidden md:block">{t("createSession")}</span>
           </Button>
         </div>
       </nav>
 
-      {error && <div className="text-red-500 mb-4">Error: {error}</div>}
+      {error && <div className="text-red-500 mb-4">{t("error")}: {error}</div>}
 
       <div className="mb-6">
         <section className="grid grid-cols-1 place-items-center sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -250,7 +252,7 @@ const OpenSessionsPage: React.FC = () => {
             ))
           ) : (
             <p className="text-center col-span-full text-gray-500">
-              {error ? "Failed to load sessions" : "No sessions found."}
+              {error ? t("loadSessionError") : t("noSessions")}
             </p>
           )}
         </section>
@@ -266,11 +268,11 @@ const OpenSessionsPage: React.FC = () => {
             className="h-10 px-4"
           >
             <ChevronLeft className="h-4 w-4 mr-1" />
-            Previous
+            {t("pagination.previous")}
           </Button>
 
           <div className="text-sm text-secondary-text">
-            Page {currentPage} of {totalPages}
+            {t("pagination.page")} {currentPage} {t("of")} {totalPages}
           </div>
 
           <Button
@@ -279,7 +281,7 @@ const OpenSessionsPage: React.FC = () => {
             disabled={currentPage === totalPages}
             className="h-10 px-4"
           >
-            Next
+            {t("pagination.next")}
             <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
         </div>

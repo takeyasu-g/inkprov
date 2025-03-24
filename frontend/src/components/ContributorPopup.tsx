@@ -9,12 +9,14 @@ import {
 import { UserProfilePopUp } from "@/types/global";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChalkboard } from "@fortawesome/free-solid-svg-icons";
+import { useTranslation } from "react-i18next";
 
 interface ContributorPopupProps {
   profile: UserProfilePopUp;
 }
 
 const ContributorPopup: React.FC<ContributorPopupProps> = ({ profile }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   // Ensure the avatar image is never an empty string
@@ -52,7 +54,7 @@ const ContributorPopup: React.FC<ContributorPopupProps> = ({ profile }) => {
                 className="font-bold cursor-pointer truncate w-full hover:underline"
                 onClick={() => navigate(`/profile/${profile.id}`)}
               >
-                {profile.user_profile_name || "Unknown"}
+                {profile.user_profile_name || t("unknnown")}
               </p>
               {!!profile.is_instructor && (
                 <FontAwesomeIcon
@@ -63,7 +65,7 @@ const ContributorPopup: React.FC<ContributorPopupProps> = ({ profile }) => {
               )}
             </div>
             <p className="text-xs text-gray-500 truncate w-full">
-              {profile.user_email || "No email"}
+              {profile.user_email || t("noEmail")}
             </p>
           </div>
         </div>

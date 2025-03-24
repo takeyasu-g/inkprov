@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 import axios from "axios";
 const API_BASE_URL =
   (import.meta.env.VITE_BACKEND_URL as string) || "http://localhost:8080";
@@ -63,19 +64,19 @@ interface ProjectSnippet {
 
 // hard coded some genres here
 const genres: string[] = [
-  "All",
-  "Adventure",
-  "Comedy",
-  "Crime",
-  "Fantasy",
-  "History",
-  "Horror",
-  "Mystery",
-  "Paranormal",
-  "Romance",
-  "Sci-Fi",
-  "Thriller",
-  "Western",
+  "all",
+  "adventure",
+  "comedy",
+  "crime",
+  "fantasy",
+  "history",
+  "horror",
+  "mystery",
+  "paranormal",
+  "romance",
+  "scifi",
+  "thriller",
+  "western",
 ];
 
 // initlial data for useLocalStorage
@@ -90,6 +91,7 @@ const initialFormData: FormData = {
 };
 
 const CreateSession: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { isAuthenticated, user: authUser } = useAuth();
   const localStorageKey = `draftText_${authUser?.id}_session_create`;
@@ -158,40 +160,40 @@ const CreateSession: React.FC = () => {
     } = formData;
 
     if (!title.trim()) {
-      toast.error("Title Required", {
-        description: "Please provide a title for your project.",
+      toast.error(t("toasts.titleRequired.title"), {
+        description: t("toasts.titleRequired.description"),
       });
       setIsLoading(false);
       return;
     }
 
     if (!description.trim()) {
-      toast.error("Description Required", {
-        description: "Please provide a description for your project.",
+      toast.error(t("toasts.descriptionRequired.title"), {
+        description: t("toasts.descriptionRequired.description"),
       });
       setIsLoading(false);
       return;
     }
 
     if (!genre.trim()) {
-      toast.error("Genre Required", {
-        description: "Please select a genre for your project.",
+      toast.error(t("toasts.genreRequired.title"), {
+        description: t("toasts.genreRequired.description"),
       });
       setIsLoading(false);
       return;
     }
 
     if (wordCount < 50 || wordCount > 100) {
-      toast.error("Invalid Word Count", {
-        description: `Please write between 50 to 100 words. Current count: ${wordCount}`,
+      toast.error(t("toasts.wordCountError.title"), {
+        description: `${t("toasts.wordCountError.description")} ${wordCount}`,
       });
       setIsLoading(false);
       return;
     }
 
     if (!authUser) {
-      toast.error("Authentication Required", {
-        description: "You must be logged in to create a new session.",
+      toast.error(t("toasts.authRequired.title"), {
+        description: t("toasts.authRequired.description"),
       });
       setIsLoading(false);
       return;
@@ -199,7 +201,7 @@ const CreateSession: React.FC = () => {
 
     try {
       if (!authUser?.id) {
-        throw new Error("User ID not found");
+        throw new Error(t("userIdError"));
       }
 
       // Check if content is flagged for moderation
@@ -213,7 +215,7 @@ const CreateSession: React.FC = () => {
       // If content is flagged, display reason
       if (moderationResponse.data.flagged) {
         toast.error(
-          `Content flagged for ${moderationResponse.data.reason}. Please try again.`
+          `${t("moderation.flagged")} ${t(moderationResponse.data.reason)}`
         );
         setIsLoading(false);
         return;
@@ -276,15 +278,15 @@ const CreateSession: React.FC = () => {
       // We don't want next create session to get last saved localStorage data
       localStorage.removeItem(localStorageKey);
 
-      toast.success("Session Created", {
-        description: "Your writing session has been created successfully!",
+      toast.success(t("toasts.sessionCreated.title"), {
+        description: t("toasts.sessionCreated.description"),
       });
 
       navigate("/sessions");
     } catch (error: any) {
-      toast.error("Creation Failed", {
+      toast.error(t("toasts.sessionCreationError.title"), {
         description:
-          error.message || "Failed to create session. Please try again.",
+          error.message || t("toasts.sessionCreationError.description"),
       });
     } finally {
       setIsLoading(false);
@@ -309,29 +311,27 @@ const CreateSession: React.FC = () => {
           className="text-sm bg-white md:bg-background"
         >
           <ChevronLeft />
-          <span>Back</span>
+          <span>{t("back")}</span>
         </Button>
       </div>
       <Card className="border-none shadow-none md:shadow-lg">
         <CardHeader>
-          <CardTitle>Create New Writing Session</CardTitle>
+          <CardTitle>{t("create.header.title")}</CardTitle>
           <CardDescription className="text-left">
-            Start a new collaborative writing session. Each contributor adds
-            50-100 words per snippet. Set how many total contributions you want
-            for your story.
+            {t("create.header.description")}
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <label htmlFor="title" className="text-sm font-medium">
-                Session Title
+                {t("create.form.titleField.title")}
               </label>
               <Input
                 id="title"
                 value={formData.title}
                 onChange={(e) => handleChange("title", e.target.value)}
-                placeholder="Enter session title"
+                placeholder={t("create.form.titleField.placeholder")}
                 maxLength={MAX_TITLE_LENGTH}
                 required
               />
@@ -343,20 +343,20 @@ const CreateSession: React.FC = () => {
                       : "text-secondary-text"
                   }
                 >
-                  {formData.title.length}/{MAX_TITLE_LENGTH} characters
+                  {formData.title.length}/{MAX_TITLE_LENGTH} {t("characters")}
                 </span>
               </div>
             </div>
 
             <div className="space-y-2">
               <label htmlFor="description" className="text-sm font-medium">
-                Description
+                {t("create.form.descriptionField.title")}
               </label>
               <Textarea
                 id="description"
                 value={formData.description || initialFormData.description}
                 onChange={(e) => handleChange("description", e.target.value)}
-                placeholder="Describe what this writing session is about..."
+                placeholder={t("create.form.descriptionField.placeholder")}
                 className="min-h-[100px] text-justify lg:text-left"
                 maxLength={MAX_DESCRIPTION_LENGTH}
                 required
@@ -370,14 +370,14 @@ const CreateSession: React.FC = () => {
                   }
                 >
                   {formData.description.length}/{MAX_DESCRIPTION_LENGTH}{" "}
-                  characters
+                  {t("characters")}
                 </span>
               </div>
             </div>
 
             <div className="space-y-2">
               <label htmlFor="genre" className="text-sm font-medium">
-                Genre
+                {t("create.form.genreField.title")}
               </label>
 
               <Select
@@ -385,12 +385,12 @@ const CreateSession: React.FC = () => {
                 onValueChange={(value) => handleChange("genre", value)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a genre" />
+                  <SelectValue placeholder={t("create.form.genreField.placeholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   {genres.map((genre) => (
                     <SelectItem key={genre} value={genre}>
-                      {genre}
+                      {genre === "all" ? t("all") : t(`genres.${genre}`)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -398,7 +398,7 @@ const CreateSession: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="maxSnippets">Maximum Number of Snippets</Label>
+              <Label htmlFor="maxSnippets">{t("create.form.snippetsField.title")}</Label>
 
               <Select
                 value={formData.maxSnippets.toString()}
@@ -412,14 +412,14 @@ const CreateSession: React.FC = () => {
                 <SelectContent>
                   {[3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((num) => (
                     <SelectItem key={num} value={num.toString()}>
-                      {num} snippets
+                      {num} {t("create.form.snippetsField.snippets")}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground mt-1">
-                Each snippet is 50-100 words. Estimated total story length:{" "}
-                {formData.maxSnippets * 50}-{formData.maxSnippets * 100} words
+                {t("create.form.snippetsField.subtitle")}{" "}
+                {formData.maxSnippets * 50}-{formData.maxSnippets * 100} {t("words")}
               </p>
             </div>
 
@@ -432,7 +432,7 @@ const CreateSession: React.FC = () => {
                     handleChange("isPublic", checked)
                   }
                 />
-                <Label htmlFor="public">Public Session</Label>
+                <Label htmlFor="public">{t("create.form.publicSession")}</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <Switch
@@ -442,19 +442,19 @@ const CreateSession: React.FC = () => {
                     handleChange("isMature", checked)
                   }
                 />
-                <Label htmlFor="mature">Mature Content</Label>
+                <Label htmlFor="mature">{t("matureContent")}</Label>
               </div>
             </div>
 
             <div className="space-y-2">
               <label htmlFor="content" className="text-sm font-medium">
-                Your Contribution (50-100 words)
+                {t("create.form.contributionField.title")}
               </label>
               <Textarea
                 id="content"
                 value={formData.content}
                 onChange={(e) => handleChange("content", e.target.value)}
-                placeholder="Start the story here..."
+                placeholder={t("create.form.contributionField.placeholder")}
                 className="min-h-[200px] text-justify lg:text-left"
                 required
               />
@@ -466,7 +466,7 @@ const CreateSession: React.FC = () => {
                       : ""
                   }
                 >
-                  {wordCount}/100 words
+                  {wordCount}/100 {t("words")}
                 </span>
               </div>
             </div>
@@ -479,7 +479,7 @@ const CreateSession: React.FC = () => {
               onClick={handleCancel}
               disabled={isLoading}
             >
-              Cancel
+              {t("cancel")}
             </Button>
             <Button
               type="submit"
@@ -492,7 +492,7 @@ const CreateSession: React.FC = () => {
                 !formData.genre
               }
             >
-              {isLoading ? "Creating..." : "Create Session"}
+              {isLoading ? t("createSessionLoading") : t("createSession")}
             </Button>
           </CardFooter>
         </form>

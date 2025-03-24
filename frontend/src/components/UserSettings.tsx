@@ -17,12 +17,14 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog"; // Import shadcn AlertDialog components
+import { useTranslation } from "react-i18next";
 
 interface UserSettingsProps {
   userPreference: boolean;
 }
 
 const UserSettings: React.FC<UserSettingsProps> = ({ userPreference }) => {
+  const { t } = useTranslation();
   // Setting states
   const [isDeletingAccount, setIsDeletingAccount] = useState<boolean>(false);
   const [matureContent, setMatureContent] = useState<boolean>(userPreference);
@@ -36,7 +38,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ userPreference }) => {
     try {
       await updateMatureContent(checked);
       toast.success(
-        checked ? "Mature content enabled" : "Mature content disabled"
+        checked ? t("toasts.matureContentEnabled") : t("toasts.matureContentDisabled")
       );
     } catch (error: any) {
       toast.error(`${error.message}`);
@@ -60,7 +62,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ userPreference }) => {
       }
     } catch (error: any) {
       console.error(error);
-      toast.error("Failed to delete account. Please try again.");
+      toast.error(t("toasts.deleteAccountError"));
     } finally {
       setIsDeletingAccount(false);
     }
@@ -79,9 +81,9 @@ const UserSettings: React.FC<UserSettingsProps> = ({ userPreference }) => {
         {/* AlertDialog Content */}
         <AlertDialogContent className="bg-white">
           <AlertDialogHeader>
-            <AlertDialogTitle>User Settings</AlertDialogTitle>
+            <AlertDialogTitle>{t("settings.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Manage your preferences and account settings.
+              {t("settings.subtitle")}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -91,7 +93,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ userPreference }) => {
               htmlFor="mature-content-toggle"
               className="text-sm font-medium"
             >
-              Allow Mature Content
+              {t("settings.rightSection.toggle.matureContentTitle")}
             </label>
             <Switch
               id="mature-content-toggle"
@@ -103,9 +105,9 @@ const UserSettings: React.FC<UserSettingsProps> = ({ userPreference }) => {
 
           {/* Danger Zone: Delete Account */}
           <div className="border-t pt-4">
-            <h4 className="text-lg font-medium mb-3">Danger Zone</h4>
+            <h4 className="text-lg font-medium mb-3">{t("settings.dangerZone.title")}</h4>
             <p className="text-sm text-tertiary-text mb-4">
-              Delete user account and information from Inkprov
+              {t("settings.dangerZone.deleteAccountMessage")}
             </p>
             <Button
               variant="destructive"
@@ -116,12 +118,12 @@ const UserSettings: React.FC<UserSettingsProps> = ({ userPreference }) => {
               {isDeletingAccount ? (
                 <>
                   <Loader2 className="h-5 w-5 animate-spin" />
-                  Deleting Account...
+                  {t("settings.dangerZone.deleteAccountLoading")}
                 </>
               ) : (
                 <>
                   <AlertTriangle className="h-5 w-5 " />
-                  Delete Account
+                  {t("settings.dangerZone.deleteAccount")}
                 </>
               )}
             </Button>
@@ -130,7 +132,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ userPreference }) => {
           {/* AlertDialog Footer */}
           <AlertDialogFooter>
             <AlertDialogCancel className="bg-white w-25 cursor-pointer">
-              Close
+              {t("close")}
             </AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
