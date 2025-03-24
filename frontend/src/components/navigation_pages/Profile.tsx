@@ -135,7 +135,7 @@ const Profile: React.FC = () => {
         <ProfileSkeleton />
       ) : (
         <div className=" mb-5 lg:flex lg:gap-2 lg:p-4 ">
-          <section className="flex flex-col lg:h-150 w-[95%] md:w-[90%] lg:w-100 mx-auto bg-card rounded-lg border border-primary-border p-4">
+          <section className="flex flex-col lg:h-full lg:min-h-140 w-[95%] md:w-[90%] lg:w-100 mx-auto bg-card rounded-lg border border-primary-border p-4">
             {/* Only display settings when currentUser === to the profile you are viewing */}
             {currentUser.id === (profileUserId || currentUser.id) && (
               <div className="ml-auto ">
@@ -358,14 +358,15 @@ const Profile: React.FC = () => {
                 )}
             </div>
 
-            {!isRedeeming && (
-              <Button
-                onClick={() => setIsRedeeming(!isRedeeming)}
-                className="self-center sm:self-start  mx-auto sm:mx-0 w-[90%] sm:w-[60%] md:w-[50%] lg:w-[90%] lg:self-center mt-6 bg-gray-100 text-black border border-gray-300 hover:bg-gray-200 cursor-pointer"
-              >
-                {t("profile.header.redeemCode")}
-              </Button>
-            )}
+            {currentUser.id === (profileUserId || currentUser.id) &&
+              !isRedeeming && (
+                <Button
+                  onClick={() => setIsRedeeming(!isRedeeming)}
+                  className="self-center sm:self-start  mx-auto sm:mx-0 w-[90%] sm:w-[60%] md:w-[50%] lg:w-[90%] lg:self-center mt-6 bg-gray-100 text-black border border-gray-300 hover:bg-gray-200 cursor-pointer"
+                >
+                  {t("profile.header.redeemCode")}
+                </Button>
+              )}
             {/* handles displaying redemption pane */}
             <div className="self-center sm:self-start mx-auto sm:mx-0 w-[90%] sm:w-[60%] lg:w-full">
               {isRedeeming && (

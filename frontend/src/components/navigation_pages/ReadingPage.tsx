@@ -42,7 +42,7 @@ import { useTranslation } from "react-i18next";
 const reactionTypes = [
   { type: "cool", icon: ThumbsUp, color: "#3b82f6", label: "Cool" },
   { type: "funny", icon: Laugh, color: "#f59e0b", label: "Funny" },
-  { type: "sad", icon: HeartCrack, color: "#6b7280", label: "Sad" },
+  { type: "sad", icon: HeartCrack, color: "#713600", label: "Sad" },
   {
     type: "heartwarming",
     icon: Heart,
@@ -268,8 +268,8 @@ const ReadingPage: React.FC = () => {
                             <div className="flex items-center justify-center h-7 w-full mt-2">
                               <Icon
                                 size={20}
-                                color={isSelected ? reaction.color : "#6b7280"}
-                                fill={isSelected ? reaction.color : "none"}
+                                stroke={isSelected ? reaction.color : "#6b7280"}
+                                // fill={isSelected ? reaction.color : "none"}
                                 strokeWidth={isSelected ? 2.5 : 2}
                                 className="transition-all"
                               />

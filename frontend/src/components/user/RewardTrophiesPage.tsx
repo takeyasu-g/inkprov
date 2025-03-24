@@ -381,7 +381,7 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
                   width: `${achievement.progress}%`,
                   backgroundColor: achievement.isUnlocked
                     ? achievement.color
-                    : "#9CA3AF",
+                    : "#e5e7eb",
                 }}
               />
             </div>
