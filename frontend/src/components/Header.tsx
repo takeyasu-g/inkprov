@@ -10,7 +10,7 @@ import {
   Globe,
   // GitBranchPlus,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { supabase, getProfilesByUserIdsForPopUp } from "@/utils/supabase";
@@ -255,10 +255,11 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
                   </div>
                   <div>
                     <button
-                      onClick={() => {
-                        setAccountPopOpen(false);
-                        navigate("/profile");
-                      }}
+                      onClick={() =>
+                        navigate(`/profile`, {
+                          state: { userId: user.id },
+                        })
+                      }
                       className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover"
                     >
                       <User />
@@ -310,13 +311,14 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
                       </AvatarFallback>
                     </Avatar>
                   </div>
-                  <a
-                    href="/profile"
-                    className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover "
+                  <Link
+                    to="/profile"
+                    state={{ userId: user.id }}
+                    className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover"
                   >
                     <User />
                     <p>{t("header.accountPopover.profile")}</p>
-                  </a>
+                  </Link>
                   <a
                     href="/sessions"
                     className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover "

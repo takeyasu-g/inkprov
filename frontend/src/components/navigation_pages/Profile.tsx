@@ -444,13 +444,16 @@ const Profile: React.FC = () => {
                           <p className="text-secondary-text font-medium mb-2">
                             {t("profile.empty.noCompleted")}
                           </p>
-                          <Button
-                            className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
-                            variant="default"
-                            onClick={() => navigate("/sessions/create")}
-                          >
-                            {t("startCreating")}
-                          </Button>
+                          {currentUser.id ===
+                            (profileUserId || currentUser.id) && (
+                            <Button
+                              className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
+                              variant="default"
+                              onClick={() => navigate("/sessions/create")}
+                            >
+                              {t("startCreating")}
+                            </Button>
+                          )}
                         </div>
                       ) : (
                         // Completed Stories Cards
@@ -480,13 +483,16 @@ const Profile: React.FC = () => {
                           <p className="text-secondary-text font-medium mb-2">
                             {t("profile.empty.noInProgress")}
                           </p>
-                          <Button
-                            className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
-                            variant="default"
-                            onClick={() => navigate("/sessions/create")}
-                          >
-                            {t("startCreating")}
-                          </Button>
+                          {currentUser.id ===
+                            (profileUserId || currentUser.id) && (
+                            <Button
+                              className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
+                              variant="default"
+                              onClick={() => navigate("/sessions/create")}
+                            >
+                              {t("startCreating")}
+                            </Button>
+                          )}
                         </div>
                       ) : (
                         // In Progress Stories Cards
