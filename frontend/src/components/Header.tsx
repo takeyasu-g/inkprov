@@ -5,7 +5,6 @@ import {
   BookOpen,
   PenTool,
   User,
-  Settings,
   LogOut,
   PanelRightOpen,
   // GitBranchPlus,
