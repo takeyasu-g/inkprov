@@ -17,7 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { Crown, Loader2, Lightbulb, Clock, ChevronLeft } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faJedi } from "@fortawesome/free-solid-svg-icons";
+import { faChalkboard } from "@fortawesome/free-solid-svg-icons";
 import {
   supabase,
   getCurrentUser,
@@ -965,9 +965,9 @@ const WritingEditor: React.FC = () => {
         {contributor.user_is_project_creator && <Crown className="text-gold" />}
         {contributor.user?.is_instructor && (
           <FontAwesomeIcon
-            icon={faJedi}
+            icon={faChalkboard}
             className="text-yellow-500"
-            size="sm"
+            size="lg"
           />
         )}
         <span
@@ -1110,9 +1110,9 @@ const WritingEditor: React.FC = () => {
                       {snippet.creator?.user_profile_name || "Unknown"}
                       {snippet.creator?.is_instructor && (
                         <FontAwesomeIcon
-                          icon={faJedi}
+                          icon={faChalkboard}
                           className="text-yellow-500"
-                          size="sm"
+                          size="lg"
                         />
                       )}
                     </p>
@@ -1132,9 +1132,9 @@ const WritingEditor: React.FC = () => {
                     {snippet.creator?.user_profile_name || "Unknown"}
                     {snippet.creator?.is_instructor && (
                       <FontAwesomeIcon
-                        icon={faJedi}
+                        icon={faChalkboard}
                         className="text-yellow-500"
-                        size="sm"
+                        size="lg"
                       />
                     )}
                   </p>

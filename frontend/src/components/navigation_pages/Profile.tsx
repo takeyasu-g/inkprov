@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { BookOpen, PenTool, Trophy } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faJedi } from "@fortawesome/free-solid-svg-icons";
+import { faChalkboard } from "@fortawesome/free-solid-svg-icons";
 import ProfileStoriesCard from "../ProfileStoriesCard";
 import ProfileSkeleton from "../ProfileSkeleton";
 import RewardTrophiesPage from "../user/RewardTrophiesPage";
@@ -74,11 +74,12 @@ const Profile: React.FC = () => {
         const userData = await getUserProfileData();
 
         // Process username
-        const user = userData.username.split("@")[0];
-        const username = user[0].toUpperCase() + user.substring(1);
+        const userNameParts = userData.username.split("@")[0];
+        const formattedUsername =
+          userNameParts[0].toUpperCase() + userNameParts.substring(1);
 
         // Update all state
-        setUsername(username);
+        setUsername(formattedUsername);
         setBio(userData.bio || "");
         setCurrentProfilePicture(userData.profilePicture);
         setProfilePictureOptions(userData.profilePictureOptions);
@@ -87,7 +88,7 @@ const Profile: React.FC = () => {
         setUserPreference(userData.matureContentEnabled);
 
         // Get instructor status
-        if (user) {
+        if (user && user.id) {
           const { data: stats } = await supabase
             .from("user_gamification_stats")
             .select("is_cc_instructor")
@@ -104,7 +105,7 @@ const Profile: React.FC = () => {
     };
 
     fetchProfileData();
-  }, []);
+  }, [user]);
 
   const getInitials = () => {
     if (!user?.email) return "?";
@@ -263,9 +264,9 @@ const Profile: React.FC = () => {
                     </h1>
                     {isInstructor && (
                       <FontAwesomeIcon
-                        icon={faJedi}
+                        icon={faChalkboard}
                         className="text-yellow-500"
-                        size="sm"
+                        size="lg"
                       />
                     )}
                   </div>

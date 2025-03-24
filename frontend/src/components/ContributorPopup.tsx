@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/popover";
 import { UserProfilePopUp } from "@/types/global";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faJedi } from "@fortawesome/free-solid-svg-icons";
+import { faChalkboard } from "@fortawesome/free-solid-svg-icons";
 
 interface ContributorPopupProps {
   profile: UserProfilePopUp;
@@ -56,9 +56,9 @@ const ContributorPopup: React.FC<ContributorPopupProps> = ({ profile }) => {
               </p>
               {!!profile.is_instructor && (
                 <FontAwesomeIcon
-                  icon={faJedi}
+                  icon={faChalkboard}
                   className="text-yellow-500"
-                  size="sm"
+                  size="lg"
                 />
               )}
             </div>
