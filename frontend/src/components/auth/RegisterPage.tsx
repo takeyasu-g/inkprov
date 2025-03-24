@@ -56,9 +56,7 @@ export default function RegisterPage() {
         throw response.error;
       }
 
-      toast.success(
-        "Registration successful! Please check your email to confirm your account."
-      );
+      toast.success("Registration successful! Logging in...");
 
       // Redirect to sessions page after successful registration
       setTimeout(() => {
