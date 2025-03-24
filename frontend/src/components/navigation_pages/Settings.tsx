@@ -94,7 +94,7 @@
 //         values.matureContent !== matureContent
 //       ) {
 //         const moderationResponse = await axios.post(
-//           `${API_BASE_URL}/moderation`,
+//           `${API_BASE_URL}moderation`,
 //           {
 //             content: values.username + " " + values.bio,
 //           }

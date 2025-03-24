@@ -204,7 +204,7 @@ const CreateSession: React.FC = () => {
 
       // Check if content is flagged for moderation
       const moderationResponse = await axios.post(
-        `${API_BASE_URL}/moderation`,
+        `${API_BASE_URL}moderation`,
         {
           content: title + " " + description + " " + content,
         }
