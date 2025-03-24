@@ -675,21 +675,21 @@ const WritingEditor: React.FC = () => {
       }
       setIsSubmitting(true);
 
-      // const moderationResponse = await axios.post(
-      //   `${API_BASE_URL}/moderation`,
-      //   {
-      //     content: content,
-      //   }
-      // );
+      const moderationResponse = await axios.post(
+        `${API_BASE_URL}/moderation`,
+        {
+          content: content,
+        }
+      );
 
-      // // If content is flagged, display reason
-      // if (moderationResponse.data.flagged) {
-      //   toast.error(
-      //     `Content flagged for ${moderationResponse.data.reason}. Please try again.`
-      //   );
-      //   setIsSubmitting(false);
-      //   return;
-      // }
+      // If content is flagged, display reason
+      if (moderationResponse.data.flagged) {
+        toast.error(
+          `Content flagged for ${moderationResponse.data.reason}. Please try again.`
+        );
+        setIsSubmitting(false);
+        return;
+      }
 
       // Add the snippet
       const { error: snippetError } = await supabase
@@ -739,11 +739,11 @@ const WritingEditor: React.FC = () => {
         }
       }
 
-      const { data: existingContributor } = await supabase
-        .from("project_contributors")
-        .select("id")
-        .eq("project_id", projectId)
-        .eq("user_id", userData.auth_id);
+      // const { data: existingContributor } = await supabase
+      //   .from("project_contributors")
+      //   .select("id")
+      //   .eq("project_id", projectId)
+      //   .eq("user_id", userData.auth_id);
 
       // Stop the timer and reset writing fields
       setTimerActive(false);
