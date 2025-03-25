@@ -74,6 +74,13 @@ interface Contributor {
   user_is_project_creator: boolean;
 }
 
+// to log errors without showing in console in production
+export const logDevError = (error: unknown) => {
+  if (import.meta.env.DEV) {
+    console.error("[DEV]", error);
+  }
+};
+
 const WritingEditor: React.FC = () => {
   const { t } = useTranslation();
   const { projectId } = useParams();
@@ -81,7 +88,6 @@ const WritingEditor: React.FC = () => {
 
   // State management
   const [project, setProject] = useState<Project | null>(null);
-  const [isContributor, setIsContributor] = useState(false);
   const [isCurrentlyWriting, setIsCurrentlyWriting] = useState(false);
   const [wordCount, setWordCount] = useState(0);
   const [previousSnippets, setPreviousSnippets] = useState<ProjectSnippet[]>(
@@ -113,9 +119,6 @@ const WritingEditor: React.FC = () => {
   const localStorageKey = `draftText_${user?.id}_${projectId}`;
   const [content, setContent] = useLocalStorage(localStorageKey, "");
 
-  const [lockSubscription, setLockSubscription] =
-    useState<RealtimeChannel | null>(null);
-
   // Function to fetch contributors - simplified version
   const fetchContributors = async () => {
     if (!projectId) return;
@@ -139,12 +142,12 @@ const WritingEditor: React.FC = () => {
           (c) => c.user_id === userData.auth_id
         );
         if (myStatus) {
-          setIsContributor(true);
           setIsProjectCreator(myStatus.user_is_project_creator || false);
         }
       }
     } catch (error) {
       // Error handling without logging
+      logDevError(error); // Only shows in dev
     } finally {
       setLoadingContributors(false);
     }
@@ -187,17 +190,9 @@ const WritingEditor: React.FC = () => {
         setUserData({ auth_id: user.id });
 
         // Fetch all data in parallel for better performance
-        const [projectResult, contributorData, snippets] = await Promise.all([
+        const [projectResult, snippets] = await Promise.all([
           // Fetch project details
           supabase.from("projects").select("*").eq("id", projectId).single(),
-
-          // Check if user is a contributor
-          supabase
-            .from("project_contributors")
-            .select("*, user:user_id(*)")
-            .eq("project_id", projectId)
-            .eq("user_id", user.id)
-            .single(),
 
           // Fetch project snippets
           getProjectSnippets(projectId || ""),
@@ -221,24 +216,6 @@ const WritingEditor: React.FC = () => {
         setProjectLocked(cappedProjectData.is_locked || false);
         setLockedBy(cappedProjectData.locked_by || null);
         setIsCurrentlyWriting(cappedProjectData.locked_by === user.id);
-
-        // Set contributor status
-        setIsContributor(!!contributorData.data);
-        setIsProjectCreator(
-          contributorData.data?.user_is_project_creator || false
-        );
-
-        // Fetch project contributors (moved to supabase.tsx)
-        const contributorsData = await getProjectContributors(projectId);
-
-        // Sort contributors by joined_at to ensure consistent display order
-        const sortedContributors = [...contributorsData].sort(
-          (a, b) =>
-            new Date(a.joined_at || "").getTime() -
-            new Date(b.joined_at || "").getTime()
-        );
-
-        setContributors(sortedContributors);
 
         // Process snippets
         if (snippets) {
@@ -335,7 +312,8 @@ const WritingEditor: React.FC = () => {
         }
       }
     } catch (error) {
-      // Error handling without console log
+      // Error handling without console lo
+      logDevError(error); // Only shows in dev
     }
   };
 
@@ -360,6 +338,7 @@ const WritingEditor: React.FC = () => {
       }
     } catch (error) {
       // Handle error without logging
+      logDevError(error); // Only shows in dev
     }
   };
 
@@ -415,8 +394,6 @@ const WritingEditor: React.FC = () => {
         }
       )
       .subscribe();
-
-    setLockSubscription(subscription);
 
     // Cleanup subscription on unmount
     return () => {
@@ -505,7 +482,9 @@ const WritingEditor: React.FC = () => {
       setLockedBy(null);
       setIsCurrentlyWriting(false);
       toast.error(
-        `${t("toasts.collaborationError")}: ${error.message || t("unknownError")}`
+        `${t("toasts.collaborationError")}: ${
+          error.message || t("unknownError")
+        }`
       );
     }
   };
@@ -614,6 +593,7 @@ const WritingEditor: React.FC = () => {
       }
     } catch (error) {
       // Handle error without logging
+      logDevError(error); // Only shows in dev
     }
   };
 
@@ -634,6 +614,7 @@ const WritingEditor: React.FC = () => {
       setWritingIdeas(response.data);
     } catch (error) {
       // Handle error without logging
+      logDevError(error); // Only shows in dev
     }
   };
 
@@ -720,6 +701,7 @@ const WritingEditor: React.FC = () => {
       setIsCurrentlyWriting(false);
     } catch (error) {
       // Try a final fallback unlock if all else fails
+      logDevError(error); // Only shows in dev
       try {
         await supabase
           .from("projects")
@@ -735,6 +717,7 @@ const WritingEditor: React.FC = () => {
         setIsCurrentlyWriting(false);
       } catch (finalError) {
         // Handle error but don't log it
+        logDevError(finalError); // Only shows in dev
       }
     }
   };
@@ -763,7 +746,9 @@ const WritingEditor: React.FC = () => {
       // If content is flagged, display reason
       if (moderationResponse.data.flagged) {
         toast.error(
-          `${t("moderation.flagged")} ${moderationResponse.data.reason.toLowerCase()}`
+          `${t(
+            "moderation.flagged"
+          )} ${moderationResponse.data.reason.toLowerCase()}`
         );
         setIsSubmitting(false);
         return;
@@ -783,7 +768,9 @@ const WritingEditor: React.FC = () => {
 
       if (snippetError) {
         console.error("Error adding new snippet:", snippetError);
-        toast.error(`${t("toasts.contributionSubmitError")} ${snippetError.message}`);
+        toast.error(
+          `${t("toasts.contributionSubmitError")} ${snippetError.message}`
+        );
         setIsSubmitting(false);
         return;
       }
@@ -814,12 +801,6 @@ const WritingEditor: React.FC = () => {
         }
       }
 
-      // const { data: existingContributor } = await supabase
-      //   .from("project_contributors")
-      //   .select("id")
-      //   .eq("project_id", projectId)
-      //   .eq("user_id", userData.auth_id);
-
       // Stop the timer and reset writing fields
       setTimerActive(false);
       setTimeRemaining(600);
@@ -848,9 +829,7 @@ const WritingEditor: React.FC = () => {
 
       setIsSubmitting(false);
     } catch (error: any) {
-      toast.error(
-        `t("writingSession.content.submitError") ${error}`
-      );
+      toast.error(`t("writingSession.content.submitError") ${error}`);
       setIsSubmitting(false);
     }
     // when on Submit is clear localStorage
@@ -891,6 +870,7 @@ const WritingEditor: React.FC = () => {
       }
     } catch (error) {
       // Error handling without console log
+      logDevError(error); // Only shows in dev
     }
 
     // clear localStorage on cancel
@@ -928,6 +908,7 @@ const WritingEditor: React.FC = () => {
       }
     } catch (error) {
       // Handle error without logging
+      logDevError(error); // Only shows in dev
     }
   };
 
@@ -939,11 +920,7 @@ const WritingEditor: React.FC = () => {
   };
 
   const handleDeleteProject = async () => {
-    if (
-      !window.confirm(
-        t("writingSession.content.deleteProjectConfirm")
-      )
-    ) {
+    if (!window.confirm(t("writingSession.content.deleteProjectConfirm"))) {
       return;
     }
 
@@ -1024,6 +1001,7 @@ const WritingEditor: React.FC = () => {
               .eq("id", projectId);
           } catch (error) {
             // Handle error without logging
+            logDevError(error); // Only shows in dev
           }
         };
 
@@ -1035,7 +1013,7 @@ const WritingEditor: React.FC = () => {
   return (
     <div className="h-full md:flex md:flex-col md:gap-5 py-6 mb-15 md:px-4 md:mx-auto md:max-w-[800px] bg-white md:bg-background">
       <div className="bg-white md:bg-background px-5 text-secondary-text">
-        <Button 
+        <Button
           variant="outline"
           onClick={handleBackClick}
           className="text-sm bg-white md:bg-background hover:text-secondary-text cursor-pointer"
@@ -1083,8 +1061,9 @@ const WritingEditor: React.FC = () => {
                       {t("writingSession.header.subtitle1")}
                     </p>
                     <p className="text-xs text-secondary-text">
-                      {t("writingSession.header.subtitle2")} {project.max_snippets * 50}-
-                      {project.max_snippets * 100} {t("words")}
+                      {t("writingSession.header.subtitle2")}{" "}
+                      {project.max_snippets * 50}-{project.max_snippets * 100}{" "}
+                      {t("words")}
                     </p>
                     <p className="text-xs text-secondary-text mt-1 italic">
                       {t("writingSession.header.note")}
@@ -1103,7 +1082,9 @@ const WritingEditor: React.FC = () => {
           </div>
 
           <div className="mb-6 space-y-4">
-            <h3 className="text-lg font-semibold text-primary-text">{t("writingSession.content.title")}</h3>
+            <h3 className="text-lg font-semibold text-primary-text">
+              {t("writingSession.content.title")}
+            </h3>
             {isLoading ? (
               <>
                 <SnippetSkeleton />
@@ -1120,7 +1101,8 @@ const WritingEditor: React.FC = () => {
                       {snippet.content}
                     </p>
                     <p className="text-sm text-secondary-text mt-2 flex items-center gap-1">
-                      {t("writingSession.content.contribution")} #{snippet.sequence_number} {t("by")}{" "}
+                      {t("writingSession.content.contribution")} #
+                      {snippet.sequence_number} {t("by")}{" "}
                       {snippet.creator?.user_profile_name || t("unknown")}
                       {snippet.creator?.is_instructor && (
                         <FontAwesomeIcon
@@ -1142,7 +1124,8 @@ const WritingEditor: React.FC = () => {
                 >
                   <p className="text-justify lg:text-left">{snippet.content}</p>
                   <p className="text-sm text-secondary-text mt-2 flex items-center gap-1">
-                    {t("writingSession.content.contribution")} #{snippet.sequence_number} {t("by")}{" "}
+                    {t("writingSession.content.contribution")} #
+                    {snippet.sequence_number} {t("by")}{" "}
                     {snippet.creator?.user_profile_name || t("unknown")}
                     {snippet.creator?.is_instructor && (
                       <FontAwesomeIcon
@@ -1158,7 +1141,9 @@ const WritingEditor: React.FC = () => {
           </div>
 
           <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-3 text-primary-text">{t("writingSession.content.form.contributors")}</h3>
+            <h3 className="text-lg font-semibold mb-3 text-primary-text">
+              {t("writingSession.content.form.contributors")}
+            </h3>
             {loadingContributors ? (
               <div className="flex gap-2">
                 <Skeleton className="h-8 w-24 rounded-full" />
@@ -1183,14 +1168,18 @@ const WritingEditor: React.FC = () => {
                 >
                   <Clock size={18} />
                   <span className="font-mono">{formatTimeRemaining()}</span>
-                  <span className="text-sm">{t("writingSession.content.form.textarea.timeRemaining")}</span>
+                  <span className="text-sm">
+                    {t("writingSession.content.form.textarea.timeRemaining")}
+                  </span>
                 </div>
               </div>
 
               <Textarea
                 value={content}
                 onChange={handleContentChange}
-                placeholder={t("writingSession.content.form.textarea.placeholder")}
+                placeholder={t(
+                  "writingSession.content.form.textarea.placeholder"
+                )}
                 className="min-h-[200px] mb-2"
                 disabled={isSubmitting}
               />
@@ -1208,7 +1197,9 @@ const WritingEditor: React.FC = () => {
                   className="flex justify-end text-secondary-text cursor-pointer my-3"
                 >
                   <Lightbulb />
-                  <p className="text-sm font-medium mt-1">{t("writingSession.content.writersBlock")}</p>
+                  <p className="text-sm font-medium mt-1">
+                    {t("writingSession.content.writersBlock")}
+                  </p>
                 </div>
                 {showWritersBlockIdeas ? (
                   <div className="mb-3 rounded-lg">
@@ -1229,7 +1220,9 @@ const WritingEditor: React.FC = () => {
               <div className="flex justify-between items-center">
                 <span
                   className={
-                    wordCount > 100 || wordCount < 50 ? "text-red-500" : "text-secondary-text"
+                    wordCount > 100 || wordCount < 50
+                      ? "text-red-500"
+                      : "text-secondary-text"
                   }
                 >
                   {wordCount} {t("words")}
