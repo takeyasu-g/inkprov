@@ -260,7 +260,7 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
                         navigate(`/profile`, {
                           state: { userId: user.id },
                         });
-                        setPopoverOpen(false);
+                        setAccountPopOpen(false);
                       }}
                       className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover"
                     >
@@ -288,7 +288,7 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
               </SheetTrigger>
 
               {/* Side Menu Content */}
-              <SheetContent side="right" className="w-40 overflow-y-auto">
+              <SheetContent side="right" className="w-45 overflow-y-auto">
                 <SheetHeader className="gap-0 p-0">
                   <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                   {/* sr-only hides it visually but keeps it for screen readers */}
