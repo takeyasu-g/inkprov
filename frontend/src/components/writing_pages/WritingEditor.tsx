@@ -30,7 +30,6 @@ import { ProjectSnippet } from "@/types/global";
 import { useAuth } from "@/contexts/AuthContext";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { useTranslation } from "react-i18next";
-import { RealtimeChannel } from "@supabase/supabase-js";
 
 // Basic interfaces for our data
 interface Project {
@@ -461,6 +460,8 @@ const WritingEditor: React.FC = () => {
           locked_at: new Date().toISOString(),
         })
         .eq("id", projectId);
+
+      console.log(lockResult);
 
       if (lockError) {
         // Revert optimistic update if lock fails
