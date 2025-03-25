@@ -357,6 +357,34 @@
         "userWaiting": "Someone is currently writing"
       }
     },
+    "about": {
+      "title": "About Inkprov",
+      "subtitle": "Collaborative storytelling for creative minds",
+      "mission": {
+        "title": "Our Mission",
+        "description": "Inkprov is a platform designed to bring writers together in a unique collaborative environment. We believe that the best stories are often told through multiple perspectives, and our platform makes it possible for writers to create together in real-time."
+      },
+      "howItWorks": {
+        "title": "How It Works",
+        "step1": "Create a writing session and set your parameters.",
+        "step2": "Write your initial contribution (50-100 words).",
+        "step3": "Share your session with other writers.",
+        "step4": "Watch as your story grows with each contribution."
+      },
+      "community": {
+        "title": "Community Guidelines",
+        "description": "We strive to maintain a respectful and creative environment. All contributors are expected to:",
+        "rule1": "Respect other writers' creative choices.",
+        "rule2": "Mark mature content appropriately.",
+        "rule3": "Provide constructive feedback.",
+        "rule4": "Follow the word count guidelines."
+      },
+      "contact": {
+        "title": "Contact Us",
+        "description": "Have questions or suggestions? We'd love to hear from you. Reach out to our team at",
+        "email": "support@inkprov.net"
+      }
+    },
     "toasts": {
       "logoutSuccess": "Successfully logged out",
       "logoutError": "Error logging out. Please try again.",
