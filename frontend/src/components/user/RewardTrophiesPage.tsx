@@ -24,10 +24,11 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase, getCurrentUser } from "@/utils/supabase";
+import { supabase } from "@/utils/supabase";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Achievement {
   id: string;
@@ -51,30 +52,24 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [userStats, setUserStats] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<string>("all");
+  //  useAuth user will be used if no userId prop was given
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         setLoading(true);
 
-        // Get the current user if userId is not provided
-        let targetUserId = userId;
-        if (!targetUserId) {
-          const currentUser = await getCurrentUser();
-          if (!currentUser) return;
-          targetUserId = currentUser.id;
-        }
-
         // Fetch user stats from the database - using the correct table name
         const { data: stats, error } = await supabase
           .from("user_gamification_stats") // Changed from "user_stats" to "user_gamification_stats" to match current supabase titling
           .select("*")
-          .eq("user_id", targetUserId)
+          .eq("user_id", userId || user.id)
           .single();
 
         // Create default stats object
         const defaultStats = {
-          user_id: targetUserId,
+          user_id: userId || user.id,
           user_total_projects_created: 0,
           user_total_contribution: 0,
           projects_completed: 0,
@@ -86,10 +81,12 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
           user_total_invites: 0,
           user_total_score: 0,
           user_total_logins: 0,
+          attended_demo_day: 0,
+          is_cc_instructor: 0,
         };
 
-        // If no record exists for this user, create one
-        if (!stats && !error) {
+        // If no record exists for this user, create one, only if currentUser is the porfiles user
+        if (!stats && userId === user.id) {
           // Insert default stats for this user
           const { data: insertedStats, error: insertError } = await supabase
             .from("user_gamification_stats")
@@ -113,7 +110,7 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
         // Function to calculate which achievements are unlocked
         calculateAchievements(
           stats || {
-            user_id: targetUserId,
+            user_id: userId || user.id,
             user_total_projects_created: 0,
             user_total_contribution: 0,
             projects_completed: 0,
@@ -135,7 +132,7 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
     };
 
     fetchUserData();
-  }, [userId]);
+  }, [userId, user]);
 
   const calculateAchievements = (stats: any) => {
     const allAchievements: Achievement[] = [
@@ -381,7 +378,7 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
                   width: `${achievement.progress}%`,
                   backgroundColor: achievement.isUnlocked
                     ? achievement.color
-                    : "#9CA3AF",
+                    : "#e5e7eb",
                 }}
               />
             </div>
@@ -428,25 +425,33 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
         <CardContent>
           <div className="achievement-stats mb-6 grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="stat-card bg-blue-50 p-3 rounded-lg">
-              <p className="text-sm text-secondary-text">{t("contributions")}</p>
+              <p className="text-sm text-secondary-text">
+                {t("contributions")}
+              </p>
               <p className="text-2xl font-bold">
                 {userStats?.user_total_contribution || 0}
               </p>
             </div>
             <div className="stat-card bg-purple-50 p-3 rounded-lg">
-              <p className="text-sm text-secondary-text">{t("profile.achievements.stats.projectsCreated")}</p>
+              <p className="text-sm text-secondary-text">
+                {t("profile.achievements.stats.projectsCreated")}
+              </p>
               <p className="text-2xl font-bold">
                 {userStats?.user_total_projects_created || 0}
               </p>
             </div>
             <div className="stat-card bg-amber-50 p-3 rounded-lg">
-              <p className="text-sm text-secondary-text">{t("profile.achievements.stats.projectsCompleted")}</p>
+              <p className="text-sm text-secondary-text">
+                {t("profile.achievements.stats.projectsCompleted")}
+              </p>
               <p className="text-2xl font-bold">
                 {userStats?.projects_completed || 0}
               </p>
             </div>
             <div className="stat-card bg-green-50 p-3 rounded-lg">
-              <p className="text-sm text-secondary-text">{t("profile.achievements.stats.wordsWritten")}</p>
+              <p className="text-sm text-secondary-text">
+                {t("profile.achievements.stats.wordsWritten")}
+              </p>
               <p className="text-2xl font-bold">
                 {userStats?.user_total_wordcount || 0}
               </p>
@@ -465,16 +470,19 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
                   {t("all")} ({unlockedCounts.all}/{achievements.length})
                 </TabsTrigger>
                 <TabsTrigger value="writing" className="cursor-pointer">
-                  {t("profile.achievements.stats.tabs.writing")} ({unlockedCounts.writing}/
+                  {t("profile.achievements.stats.tabs.writing")} (
+                  {unlockedCounts.writing}/
                   {achievements.filter((a) => a.category === "writing").length})
                 </TabsTrigger>
                 <TabsTrigger value="creation" className="cursor-pointer">
-                  {t("profile.achievements.stats.tabs.creation")} ({unlockedCounts.creation}/
+                  {t("profile.achievements.stats.tabs.creation")} (
+                  {unlockedCounts.creation}/
                   {achievements.filter((a) => a.category === "creation").length}
                   )
                 </TabsTrigger>
                 <TabsTrigger value="completion" className="cursor-pointer">
-                  {t("profile.achievements.stats.tabs.completion")} ({unlockedCounts.completion}/
+                  {t("profile.achievements.stats.tabs.completion")} (
+                  {unlockedCounts.completion}/
                   {
                     achievements.filter((a) => a.category === "completion")
                       .length
@@ -482,11 +490,13 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
                   )
                 </TabsTrigger>
                 <TabsTrigger value="social" className="cursor-pointer">
-                  {t("profile.achievements.stats.tabs.social")} ({unlockedCounts.social}/
+                  {t("profile.achievements.stats.tabs.social")} (
+                  {unlockedCounts.social}/
                   {achievements.filter((a) => a.category === "social").length})
                 </TabsTrigger>
                 <TabsTrigger value="special" className="cursor-pointer">
-                  {t("profile.achievements.stats.tabs.special")} ({unlockedCounts.special}/
+                  {t("profile.achievements.stats.tabs.special")} (
+                  {unlockedCounts.special}/
                   {achievements.filter((a) => a.category === "special").length})
                 </TabsTrigger>
               </TabsList>

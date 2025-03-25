@@ -144,13 +144,22 @@ export const getSessions = async () => {
   try {
     // Get the current user's mature content preference
     const user = await getCurrentUser();
-    if (!user) return null;
+    let maturePrefs;
 
-    const { data: userPrefs } = await supabase
-      .from("users_ext")
-      .select("user_profile_mature_enabled")
-      .eq("auth_id", user.id)
-      .single();
+    // if logged in then get currentUsers preference , else default to false mature toggle
+    if (user) {
+      const { data: userPrefs } = await supabase
+        .from("users_ext")
+        .select("user_profile_mature_enabled")
+        .eq("auth_id", user.id)
+        .single();
+
+      maturePrefs = userPrefs;
+    } else {
+      maturePrefs = {
+        user_profile_mature_enabled: false,
+      };
+    }
 
     // Get projects that are not completed (i.e., active sessions)
     const { data: projects, error } = await supabase
@@ -167,7 +176,7 @@ export const getSessions = async () => {
       .eq("is_completed", false)
       // Only show mature content if user has enabled it
       .or(
-        userPrefs?.user_profile_mature_enabled
+        maturePrefs?.user_profile_mature_enabled
           ? "is_mature_content.eq.true,is_mature_content.eq.false"
           : "is_mature_content.eq.false"
       );
@@ -748,12 +757,10 @@ export const getProjectReactionCounts = async (
 };
 
 // Get all user profile data in a single function to reduce API calls
-export const getUserProfileData = async (): Promise<any> => {
+export const getUserProfileData = async (profileId: string): Promise<any> => {
   try {
-    const currentUser: User | null = await getCurrentUser();
-
-    if (!currentUser) {
-      throw new Error("User not authenticated");
+    if (!profileId) {
+      throw new Error("User does not exist");
     }
 
     // Make parallel API calls for all user data
@@ -763,23 +770,23 @@ export const getUserProfileData = async (): Promise<any> => {
         supabase
           .from("users_ext")
           .select(
-            "user_profile_name, user_profile_bio, profile_pic_url, user_profile_mature_enabled"
+            "user_profile_name, user_profile_bio, profile_pic_url, user_profile_mature_enabled, user_email"
           )
-          .eq("auth_id", currentUser.id)
+          .eq("auth_id", profileId)
           .single(),
 
         // Get completed projects
         supabase
           .from("projects")
           .select("*")
-          .eq("creator_id", currentUser.id)
+          .eq("creator_id", profileId)
           .eq("is_completed", true),
 
         // Get in-progress projects
         supabase
           .from("projects")
           .select("*")
-          .eq("creator_id", currentUser.id)
+          .eq("creator_id", profileId)
           .eq("is_completed", false),
       ]);
 
@@ -794,6 +801,7 @@ export const getUserProfileData = async (): Promise<any> => {
     return {
       userData: userExtData.data,
       username: userExtData.data?.user_profile_name,
+      email: userExtData.data?.user_email,
       bio: userExtData.data?.user_profile_bio,
       profilePicture: userExtData.data?.profile_pic_url,
       matureContentEnabled: userExtData.data?.user_profile_mature_enabled,

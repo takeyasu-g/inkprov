@@ -24,7 +24,7 @@ const LandingPage: React.FC = () => {
       {/* Hero Section */}
       <section className="flex flex-col">
         <header className="text-center flex flex-col items-center ">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mt-8 text-primary-text">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mt-10 lg:mt-8 text-primary-text">
             {t("landing.topSection.title1")}
           </h1>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 text-primary-text ">
@@ -34,7 +34,7 @@ const LandingPage: React.FC = () => {
             {t("landing.topSection.subtitle")}
           </p>
         </header>
-        <section className="flex gap-4 mb-8 justify-center">
+        <section className="flex gap-4 mb-12 justify-center">
           <Button
             className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
             variant="default"
@@ -56,14 +56,18 @@ const LandingPage: React.FC = () => {
   before:absolute before:bottom-0 before:left- before:-translate-x-1/2 before:w-screen before:h-px before:bg-accent 
   after:absolute after:inset-y-0 after:left-1/2 after:-translate-x-1/2 after:w-screen after:-z-10 after:bg-accent"
       >
-        <h2 className="text-3xl font-bold mt-9 mb-9">{t("landing.middleSection.title")}</h2>
+        <h2 className="text-3xl font-bold mt-9 mb-9">
+          {t("landing.middleSection.title")}
+        </h2>
         <section className="w-full flex flex-col md:flex-row md:justify-around md:max-w-screen-xl mb-8">
           {/* Join a Session */}
           <article className="flex flex-col items-center gap-4 mb-8 ">
             <div className="rounded-full bg-tertiary-background p-4">
               <Users />
             </div>
-            <p className="text-lg font-bold">{t("landing.middleSection.action1.title")}</p>
+            <p className="text-lg font-bold">
+              {t("landing.middleSection.action1.title")}
+            </p>
             <p className="text-md text-center w-[80%]">
               {t("landing.middleSection.action1.description")}
             </p>
@@ -72,7 +76,9 @@ const LandingPage: React.FC = () => {
             <div className="rounded-full bg-tertiary-background p-4">
               <Feather />
             </div>
-            <p className="text-lg font-bold">{t("landing.middleSection.action2.title")}</p>
+            <p className="text-lg font-bold">
+              {t("landing.middleSection.action2.title")}
+            </p>
             <p className="text-md text-center w-[80%]">
               {t("landing.middleSection.action2.description")}
             </p>
@@ -81,7 +87,9 @@ const LandingPage: React.FC = () => {
             <div className="rounded-full bg-tertiary-background p-4">
               <BookOpen />
             </div>
-            <p className="text-lg font-bold">{t("landing.middleSection.action3.title")}</p>
+            <p className="text-lg font-bold">
+              {t("landing.middleSection.action3.title")}
+            </p>
             <p className="text-md text-center w-[80%]">
               {t("landing.middleSection.action3.description")}
             </p>
@@ -91,14 +99,14 @@ const LandingPage: React.FC = () => {
       {/* Bottom Hero Section */}
       <section className="flex flex-col items-center lg:flex-row justify-around w-[90%] text-left mb-20">
         {/* Feature Description */}
-        <article className="w-[80%] md:w-[70%] lg:w-[30vw] text-center">
+        <article className="w-[80%] md:w-[70%] lg:w-[30vw] text-center flex flex-col ">
           <h2 className="text-3xl font-bold mt-9 mb-9 text-primary-text">
             {t("landing.bottomSection.title")}
           </h2>
-          <p className="text-lg mb-8 text-secondary-text ">
+          <p className="text-lg mb-8 text-secondary-text lg:text-left">
             {t("landing.bottomSection.description")}
           </p>
-          <ul className="list-disc list-inside marker:text-amber-500">
+          <ul className="list-disc list-inside marker:text-amber-500 lg:text-left">
             <li className="text-secondary-text">
               {t("landing.bottomSection.bulletPoints.point1")}
             </li>

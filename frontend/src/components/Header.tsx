@@ -7,10 +7,10 @@ import {
   User,
   LogOut,
   PanelRightOpen,
-  Globe
+  Globe,
   // GitBranchPlus,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { supabase, getProfilesByUserIdsForPopUp } from "@/utils/supabase";
@@ -28,7 +28,15 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/contexts/LangContext";
 import "/node_modules/flag-icons/css/flag-icons.min.css";
@@ -87,6 +95,10 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
   const handleLogout = async () => {
     try {
       setAccountPopOpen(false);
+
+      // Small delay for smooth sheet closing
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
 
@@ -127,18 +139,9 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
             className="text-primary-text text-xl font-bold pl-2 hover:no-underline cursor-pointer"
             variant="link"
             onClick={handleLoggedInHomepage}
-          >{t("header.appName")}</Button>
-
-          {/* Development Mode Indicator */}
-          {/* {isDevelopment && (
-          <div
-            className="ml-2 relative px-2 py-1 rounded-md bg-amber-100 border border-amber-300 flex items-center"
-            title="Development Environment"
           >
-            <GitBranchPlus className="h-4 w-4 text-amber-600" />
-            <span className="ml-1 text-xs font-medium text-amber-700">DEV</span>
-          </div>
-        )} */}
+            {t("header.appName")}
+          </Button>
         </div>
       </div>
       {page === "/login" || page === "/register" ? null : loggedIn ? (
@@ -189,11 +192,11 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
           </NavigationMenu>
           {/* Profile Picture Account Menu */}
           <div className="hidden md:flex md:gap-4 md:items-center md:justify-self-end">
-          <Popover open={langPopOpen} onOpenChange={setLangPopOpen}>
+            <Popover open={langPopOpen} onOpenChange={setLangPopOpen}>
               <PopoverTrigger asChild>
-              <div className="flex flex-col items-center cursor-pointer text-primary-text">
-                <Globe size={25}/>
-              </div>
+                <div className="flex flex-col items-center cursor-pointer text-primary-text">
+                  <Globe size={25} />
+                </div>
               </PopoverTrigger>
               <PopoverContent
                 className="w-full p-0 bg-background"
@@ -254,24 +257,16 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
                   <div>
                     <button
                       onClick={() => {
+                        navigate(`/profile`, {
+                          state: { userId: user.id },
+                        });
                         setAccountPopOpen(false);
-                        navigate("/profile");
                       }}
                       className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover"
                     >
                       <User />
                       <p>{t("header.accountPopover.profile")}</p>
                     </button>
-                    {/* <button
-                      onClick={() => {
-                        setAccountPopOpen(false);
-                        navigate("/settings");
-                      }}
-                      className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover"
-                    >
-                      <Settings />
-                      <p>Settings</p>
-                    </button> */}
                   </div>
                   <button
                     onClick={handleLogout}
@@ -293,7 +288,14 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
               </SheetTrigger>
 
               {/* Side Menu Content */}
-              <SheetContent side="right" className="w-40 overflow-y-auto">
+              <SheetContent side="right" className="w-45 overflow-y-auto">
+                <SheetHeader className="gap-0 p-0">
+                  <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                  {/* sr-only hides it visually but keeps it for screen readers */}
+                  <SheetDescription className="sr-only">
+                    Main navigation links for the application
+                  </SheetDescription>
+                </SheetHeader>
                 <div className="p-4 flex flex-col space-y-4">
                   <div className="pb-3 border-b border-primary-border">
                     <Avatar className="w-10 h-10 ">
@@ -308,49 +310,61 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
                       </AvatarFallback>
                     </Avatar>
                   </div>
-                  <a
-                    href="/profile"
-                    className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover "
-                  >
-                    <User />
-                    <p>{t("header.accountPopover.profile")}</p>
-                  </a>
-                  <a
-                    href="/sessions"
-                    className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover "
-                  >
-                    <House />
-                    <p>{t("header.navbar.sessions")}</p>
-                  </a>
-                  <a
-                    href="/stories"
-                    className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover "
-                  >
-                    <BookOpen />
-                    <p>{t("header.navbar.stories")}</p>
-                  </a>
-                  <a
-                    href="/sessions/create"
-                    className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover "
-                  >
-                    <PenTool />
-                    <p>{t("header.navbar.create")}</p>
-                  </a>
+                  {/* Profile Link */}
+                  <SheetClose asChild>
+                    <Link
+                      to="/profile"
+                      state={{ userId: user.id }}
+                      className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover"
+                    >
+                      <User />
+                      <p>{t("header.accountPopover.profile")}</p>
+                    </Link>
+                  </SheetClose>
 
-                  {/* <a
-                    href="/settings"
-                    className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover"
-                  >
-                    <Settings />
-                    <p>Settings</p>
-                  </a> */}
-                  <a
-                    onClick={handleLogout}
-                    className=" w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover"
-                  >
-                    <LogOut />
-                    <p>{t("header.accountPopover.logout")}</p>
-                  </a>
+                  {/* Sessions Link */}
+                  <SheetClose asChild>
+                    <Link
+                      to="/sessions"
+                      className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover"
+                    >
+                      <House />
+                      <p>{t("header.navbar.sessions")}</p>
+                    </Link>
+                  </SheetClose>
+
+                  {/* Stories Link */}
+                  <SheetClose asChild>
+                    <Link
+                      to="/stories"
+                      className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover"
+                    >
+                      <BookOpen />
+                      <p>{t("header.navbar.stories")}</p>
+                    </Link>
+                  </SheetClose>
+
+                  {/* Create Link */}
+                  <SheetClose asChild>
+                    <Link
+                      to="/sessions/create"
+                      className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover"
+                    >
+                      <PenTool />
+                      <p>{t("header.navbar.create")}</p>
+                    </Link>
+                  </SheetClose>
+
+                  {/* Logout Button */}
+                  <SheetClose asChild>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover"
+                    >
+                      <LogOut />
+                      <p>{t("header.accountPopover.logout")}</p>
+                    </button>
+                  </SheetClose>
                   <a
                     onClick={() => {
                       setLang("en");
@@ -380,9 +394,9 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
           <div className="hidden md:flex md:gap-4 md:items-center md:justify-self-end">
             <Popover open={langPopOpen} onOpenChange={setLangPopOpen}>
               <PopoverTrigger asChild>
-              <div className="flex flex-col items-center cursor-pointer text-primary-text">
-              <Globe size={25}/>
-              </div>
+                <div className="flex flex-col items-center cursor-pointer text-primary-text">
+                  <Globe size={25} />
+                </div>
               </PopoverTrigger>
               <PopoverContent
                 className="w-full p-0 bg-background"
