@@ -55,13 +55,10 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
   //  useAuth user will be used if no userId prop was given
   const { user } = useAuth();
 
-  console.log(userId, user);
-
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         setLoading(true);
-        console.log(userId);
 
         // Fetch user stats from the database - using the correct table name
         const { data: stats, error } = await supabase
@@ -69,8 +66,6 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
           .select("*")
           .eq("user_id", userId || user.id)
           .single();
-
-        console.log(stats);
 
         // Create default stats object
         const defaultStats = {
@@ -90,8 +85,8 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
           is_cc_instructor: 0,
         };
 
-        // If no record exists for this user, create one
-        if (!stats && !error) {
+        // If no record exists for this user, create one, only if currentUser is the porfiles user
+        if (!stats && userId === user.id) {
           // Insert default stats for this user
           const { data: insertedStats, error: insertError } = await supabase
             .from("user_gamification_stats")
