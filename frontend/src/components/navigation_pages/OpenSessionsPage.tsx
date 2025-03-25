@@ -181,7 +181,7 @@ const OpenSessionsPage: React.FC = () => {
             variant="outline"
             onClick={handleManualRefresh}
             disabled={isLoading}
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 cursor-pointer"
           >
             {isLoading ? (
               <>

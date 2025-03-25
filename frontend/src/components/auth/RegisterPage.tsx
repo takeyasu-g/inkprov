@@ -144,7 +144,7 @@ export default function RegisterPage() {
       </div>
 
       {/* Right Column */}
-      <div className="w-full px-8 flex justify-center order-1 lg:order-2 py-15">
+      <div className="w-full px-8 flex justify-center order-1 lg:order-2 py-5">
         <div className="w-full max-w-md space-y-8 bg-background rounded-lg">
           <div>
             <h2 className="text-3xl font-bold text-primary-text text-center">

@@ -39,7 +39,9 @@ const UserSettings: React.FC<UserSettingsProps> = ({ userPreference }) => {
     try {
       await updateMatureContent(checked);
       toast.success(
-        checked ? t("toasts.matureContentEnabled") : t("toasts.matureContentDisabled")
+        checked
+          ? t("toasts.matureContentEnabled")
+          : t("toasts.matureContentDisabled")
       );
     } catch (error: any) {
       toast.error(`${error.message}`);
@@ -82,8 +84,10 @@ const UserSettings: React.FC<UserSettingsProps> = ({ userPreference }) => {
         {/* AlertDialog Content */}
         <AlertDialogContent className="bg-white">
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("settings.title")}</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-lg font-semibold text-primary-text">
+              {t("settings.title")}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-tertiary-text">
               {t("settings.subtitle")}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -92,7 +96,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ userPreference }) => {
           <div className="flex items-center space-x-2 mb-4">
             <label
               htmlFor="mature-content-toggle"
-              className="text-sm font-medium"
+              className="text-sm font-medium text-primary-text"
             >
               {t("settings.rightSection.toggle.matureContentTitle")}
             </label>
@@ -100,13 +104,15 @@ const UserSettings: React.FC<UserSettingsProps> = ({ userPreference }) => {
               id="mature-content-toggle"
               checked={matureContent}
               onCheckedChange={handleMatureToggle}
-              className="cursor-pointer"
+              className="data-[state=checked]:bg-primary-button-hover cursor-pointer"
             />
           </div>
 
           {/* Danger Zone: Delete Account */}
           <div className="border-t pt-4">
-            <h4 className="text-lg font-medium mb-3">{t("settings.dangerZone.title")}</h4>
+            <h4 className="text-lg font-medium mb-3 text-primary-text">
+              {t("settings.dangerZone.title")}
+            </h4>
             <p className="text-sm text-tertiary-text mb-4">
               {t("settings.dangerZone.deleteAccountMessage")}
             </p>
@@ -132,7 +138,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ userPreference }) => {
 
           {/* AlertDialog Footer */}
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-white w-25 cursor-pointer">
+            <AlertDialogCancel className="w-auto text-primary-text hover:bg-secondary-button-hover hover:text-primary-text cursor-pointer">
               {t("close")}
             </AlertDialogCancel>
           </AlertDialogFooter>

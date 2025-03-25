@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { ProjectSnippet, ProjectsData, UserProfilePopUp } from "@/types/global";
+import { format } from "date-fns";
+import { useLanguage } from "@/contexts/LangContext";
+import { enUS, ja } from "date-fns/locale";
 import {
   getProjectOfId,
   getProjectSnippets,
@@ -38,6 +41,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+
 // Define reaction types
 const reactionTypes = [
   { type: "cool", icon: ThumbsUp, color: "#3b82f6", label: "Cool" },
@@ -59,6 +63,7 @@ const reactionTypes = [
 ];
 
 const ReadingPage: React.FC = () => {
+  const { lang } = useLanguage();
   const { t } = useTranslation();
   const { projectId } = useParams();
 
@@ -176,11 +181,11 @@ const ReadingPage: React.FC = () => {
 
   return (
     <main className="h-full md:flex md:flex-col md:gap-5 py-6 lg:mb-15 md:px-4 md:mx-auto md:max-w-[800px] bg-white md:bg-background">
-      <div className="bg-white md:bg-background px-5">
+      <div className="bg-white md:bg-background px-5 text-secondary-text">
         <Button
           variant="outline"
           onClick={() => navigate(-1)} // go back where came from , so now if came from profile it will go back there
-          className="text-sm bg-white md:bg-background"
+          className="text-sm bg-white md:bg-background hover:text-secondary-text cursor-pointer "
         >
           <ChevronLeft />
           <span>{t("back")}</span>
@@ -204,9 +209,11 @@ const ReadingPage: React.FC = () => {
             <span className="text-secondary-text">
               {t("completed")}{" "}
               {project?.updated_at || projectData?.updated_at
-                ? new Date(
+                ? format(new Date(
                     project?.updated_at || projectData?.updated_at
-                  ).toDateString()
+                  ).toDateString(), lang === "ja" ? "yyyy年M月d日" : "MMMM d yyyy", {
+                    locale: lang === "ja" ? ja : enUS,
+                  })
                 : t("noDate")}
             </span>
           </div>
@@ -257,10 +264,10 @@ const ReadingPage: React.FC = () => {
                         <TooltipTrigger asChild>
                           <button
                             onClick={() => handleReactionClick(reaction.type)}
-                            className={`reaction-btn flex flex-col items-center w-14 h-16 rounded-lg transition-all ${
+                            className={`reaction-btn flex flex-col items-center w-14 h-12 rounded-lg transition-all cursor-pointer ${
                               isSelected
                                 ? "bg-gray-100 dark:bg-gray-800 shadow-sm"
-                                : "hover:bg-gray-50 dark:hover:bg-gray-800"
+                                : "hover:bg-accent"
                             }`}
                             disabled={isLoading}
                             aria-label={`${t("readingView.reactionAria")} ${t(`readingView.reactions.${reaction.label.toLowerCase()}`)}`}

@@ -1034,11 +1034,11 @@ const WritingEditor: React.FC = () => {
 
   return (
     <div className="h-full md:flex md:flex-col md:gap-5 py-6 mb-15 md:px-4 md:mx-auto md:max-w-[800px] bg-white md:bg-background">
-      <div className="bg-white md:bg-background px-5">
+      <div className="bg-white md:bg-background px-5 text-secondary-text">
         <Button 
           variant="outline"
           onClick={handleBackClick}
-          className="text-sm bg-white md:bg-background"
+          className="text-sm bg-white md:bg-background hover:text-secondary-text cursor-pointer"
         >
           <ChevronLeft />
           <span>{t("back")}</span>
@@ -1046,14 +1046,14 @@ const WritingEditor: React.FC = () => {
       </div>
       <Card className="border-none shadow-none md:shadow-lg">
         <CardHeader>
-          <CardTitle className="flex justify-between items-center">
+          <CardTitle className="flex justify-between items-center text-primary-text font-bold">
             <span className="text-lg">{project?.title || t("loading")}</span>
             <Button
               variant="outline"
               size="sm"
               onClick={handleManualRefresh}
               disabled={isSubmitting || isRefreshing || loadingContributors}
-              className="ml-2"
+              className="ml-2 text-secondary-text hover:text-secondary-text cursor-pointer"
             >
               {isRefreshing || loadingContributors ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -1103,7 +1103,7 @@ const WritingEditor: React.FC = () => {
           </div>
 
           <div className="mb-6 space-y-4">
-            <h3 className="text-lg font-semibold">{t("writingSession.content.title")}</h3>
+            <h3 className="text-lg font-semibold text-primary-text">{t("writingSession.content.title")}</h3>
             {isLoading ? (
               <>
                 <SnippetSkeleton />
@@ -1158,7 +1158,7 @@ const WritingEditor: React.FC = () => {
           </div>
 
           <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-3">{t("writingSession.content.form.contributors")}</h3>
+            <h3 className="text-lg font-semibold mb-3 text-primary-text">{t("writingSession.content.form.contributors")}</h3>
             {loadingContributors ? (
               <div className="flex gap-2">
                 <Skeleton className="h-8 w-24 rounded-full" />
@@ -1229,7 +1229,7 @@ const WritingEditor: React.FC = () => {
               <div className="flex justify-between items-center">
                 <span
                   className={
-                    wordCount > 100 || wordCount < 50 ? "text-red-500" : ""
+                    wordCount > 100 || wordCount < 50 ? "text-red-500" : "text-secondary-text"
                   }
                 >
                   {wordCount} {t("words")}
@@ -1239,12 +1239,14 @@ const WritingEditor: React.FC = () => {
                     variant="outline"
                     onClick={handleCancelWriting}
                     disabled={isSubmitting}
+                    className="text-primary-button hover:text-primary-button-hover cursor-pointer"
                   >
                     {t("cancel")}
                   </Button>
                   <Button
                     onClick={handleSubmit}
                     disabled={wordCount > 100 || wordCount < 50 || isSubmitting}
+                    className="bg-primary-button hover:bg-primary-button-hover text-white cursor-pointer"
                   >
                     {isSubmitting ? (
                       <>
@@ -1262,7 +1264,7 @@ const WritingEditor: React.FC = () => {
             <div className="flex justify-center">
               <Button
                 onClick={handleStartContribution}
-                className="w-full max-w-md"
+                className="w-full max-w-md bg-primary-button hover:bg-primary-button-hover text-white cursor-pointer"
                 disabled={
                   isLoading ||
                   projectLocked ||

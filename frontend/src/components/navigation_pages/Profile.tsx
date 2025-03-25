@@ -340,9 +340,9 @@ const Profile: React.FC = () => {
               !isEditing && (
                 <Button
                   onClick={() => setIsEditing(!isEditing)}
-                  className="self-center sm:self-start  mx-auto sm:mx-0 w-[90%] sm:w-[60%] md:w-[50%] lg:w-[90%] lg:self-center mt-6 bg-gray-100 text-black border border-gray-300 hover:bg-gray-200 cursor-pointer"
+                  className="self-center sm:self-start  mx-auto sm:mx-0 w-[90%] sm:w-[60%] md:w-[50%] lg:w-[90%] lg:self-center mt-6 bg-primary-button hover:bg-primary-button-hover cursor-pointer"
                 >
-                  {t("profile.header.editprofile")}
+                  {t("profile.header.editProfile")}
                 </Button>
               )}
             <div className="self-center sm:self-start mx-auto sm:mx-0 w-[90%] sm:w-[60%] lg:w-full">
@@ -362,7 +362,7 @@ const Profile: React.FC = () => {
               !isRedeeming && (
                 <Button
                   onClick={() => setIsRedeeming(!isRedeeming)}
-                  className="self-center sm:self-start  mx-auto sm:mx-0 w-[90%] sm:w-[60%] md:w-[50%] lg:w-[90%] lg:self-center mt-6 bg-gray-100 text-black border border-gray-300 hover:bg-gray-200 cursor-pointer"
+                  className="self-center sm:self-start  mx-auto sm:mx-0 w-[90%] sm:w-[60%] md:w-[50%] lg:w-[90%] lg:self-center mt-6 bg-primary-button hover:bg-primary-button-hover cursor-pointer"
                 >
                   {t("profile.header.redeemCode")}
                 </Button>
