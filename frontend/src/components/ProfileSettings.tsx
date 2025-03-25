@@ -225,9 +225,10 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
               )}
             </Button>
             <Button
-              variant={"outline"}
+              type="button"
+              variant="outline"
               onClick={() => setIsEditing(!isEditing)}
-              className="w-auto text-primary-text bg-secondary-button hover:bg-secondary-button-hover hover:text-primary-text cursor-pointer"
+              className="w-auto text-primary-text hover:bg-secondary-button-hover hover:text-primary-text cursor-pointer"
             >
               {t("cancel")}
             </Button>
