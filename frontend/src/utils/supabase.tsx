@@ -144,13 +144,22 @@ export const getSessions = async () => {
   try {
     // Get the current user's mature content preference
     const user = await getCurrentUser();
-    if (!user) return null;
+    let maturePrefs;
 
-    const { data: userPrefs } = await supabase
-      .from("users_ext")
-      .select("user_profile_mature_enabled")
-      .eq("auth_id", user.id)
-      .single();
+    // if logged in then get currentUsers preference , else default to false mature toggle
+    if (user) {
+      const { data: userPrefs } = await supabase
+        .from("users_ext")
+        .select("user_profile_mature_enabled")
+        .eq("auth_id", user.id)
+        .single();
+
+      maturePrefs = userPrefs;
+    } else {
+      maturePrefs = {
+        user_profile_mature_enabled: false,
+      };
+    }
 
     // Get projects that are not completed (i.e., active sessions)
     const { data: projects, error } = await supabase
@@ -167,7 +176,7 @@ export const getSessions = async () => {
       .eq("is_completed", false)
       // Only show mature content if user has enabled it
       .or(
-        userPrefs?.user_profile_mature_enabled
+        maturePrefs?.user_profile_mature_enabled
           ? "is_mature_content.eq.true,is_mature_content.eq.false"
           : "is_mature_content.eq.false"
       );

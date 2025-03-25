@@ -65,7 +65,7 @@ const ProtectedRoute: React.FC<{ element: React.ReactNode }> = ({
     );
   }
 
-  return isAuthenticated ? element : <Navigate to="/login" replace />;
+  return isAuthenticated ? element : <Navigate to="/" replace />;
 };
 
 // Create the router configuration
@@ -102,7 +102,7 @@ const router = createBrowserRouter([
     element: (
       <>
         <Layout>
-          <ProtectedRoute element={<OpenSessionsPage />} />
+          <OpenSessionsPage />
         </Layout>
         <Footer />
       </>
@@ -146,7 +146,7 @@ const router = createBrowserRouter([
     element: (
       <>
         <Layout>
-          <ProtectedRoute element={<WritingEditor />} />
+          <WritingEditor />
         </Layout>
         <Footer />
       </>

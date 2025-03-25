@@ -24,7 +24,7 @@ const LandingPage: React.FC = () => {
       {/* Hero Section */}
       <section className="flex flex-col">
         <header className="text-center flex flex-col items-center ">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mt-8 text-primary-text">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mt-10 lg:mt-8 text-primary-text">
             {t("landing.topSection.title1")}
           </h1>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 text-primary-text ">
@@ -34,7 +34,7 @@ const LandingPage: React.FC = () => {
             {t("landing.topSection.subtitle")}
           </p>
         </header>
-        <section className="flex gap-4 mb-8 justify-center">
+        <section className="flex gap-4 mb-12 justify-center">
           <Button
             className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
             variant="default"
