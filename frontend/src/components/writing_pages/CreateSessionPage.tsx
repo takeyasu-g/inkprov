@@ -304,11 +304,11 @@ const CreateSession: React.FC = () => {
 
   return (
     <div className="h-full md:flex md:flex-col md:gap-5 py-6 mb-15 md:px-4 md:mx-auto md:max-w-[800px] bg-white md:bg-background">
-      <div className="px-5 bg-white md:bg-background">
+      <div className="px-5 bg-white md:bg-background text-primary-text">
         <Button
           variant="outline"
           onClick={() => navigate(-1)}
-          className="text-sm bg-white md:bg-background"
+          className="text-sm bg-white md:bg-background cursor-pointer hover:text-primary-text"
         >
           <ChevronLeft />
           <span>{t("back")}</span>
@@ -316,26 +316,27 @@ const CreateSession: React.FC = () => {
       </div>
       <Card className="border-none shadow-none md:shadow-lg">
         <CardHeader>
-          <CardTitle>{t("create.header.title")}</CardTitle>
-          <CardDescription className="text-left">
+          <CardTitle className="text-primary-text text-2xl font-bold">{t("create.header.title")}</CardTitle>
+          <CardDescription className="text-left text-secondary-text">
             {t("create.header.description")}
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="title" className="text-sm font-medium">
+              <label htmlFor="title" className="text-sm font-medium text-primary-text">
                 {t("create.form.titleField.title")}
               </label>
               <Input
                 id="title"
                 value={formData.title}
                 onChange={(e) => handleChange("title", e.target.value)}
+                className="mt-1 block w-full rounded-md border border-primary-border bg-white px-4 py-2 text-primary-text shadow-sm focus:outline-none focus-visible:ring-1 focus-visible:ring-input-focus focus-visible:border-input-focus sm:text-sm"
                 placeholder={t("create.form.titleField.placeholder")}
                 maxLength={MAX_TITLE_LENGTH}
                 required
               />
-              <div className="text-sm text-right">
+              <div className="text-sm text-right font-semibold">
                 <span
                   className={
                     formData.title.length === MAX_TITLE_LENGTH
@@ -349,7 +350,7 @@ const CreateSession: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="description" className="text-sm font-medium">
+              <label htmlFor="description" className="text-sm font-medium text-primary-text">
                 {t("create.form.descriptionField.title")}
               </label>
               <Textarea
@@ -357,11 +358,11 @@ const CreateSession: React.FC = () => {
                 value={formData.description || initialFormData.description}
                 onChange={(e) => handleChange("description", e.target.value)}
                 placeholder={t("create.form.descriptionField.placeholder")}
-                className="min-h-[100px] text-justify lg:text-left"
+                className="min-h-[100px] text-justify lg:text-left mt-1 block w-full rounded-md border border-primary-border bg-white px-4 py-2 text-primary-text shadow-sm focus:outline-none focus-visible:ring-1 focus-visible:ring-input-focus focus-visible:border-input-focus sm:text-sm"
                 maxLength={MAX_DESCRIPTION_LENGTH}
                 required
               />
-              <div className="text-sm text-right">
+              <div className="text-sm text-right font-semibold">
                 <span
                   className={
                     formData.description.length === MAX_DESCRIPTION_LENGTH
@@ -376,7 +377,7 @@ const CreateSession: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="genre" className="text-sm font-medium">
+              <label htmlFor="genre" className="text-sm font-medium text-primary-text">
                 {t("create.form.genreField.title")}
               </label>
 
@@ -384,10 +385,10 @@ const CreateSession: React.FC = () => {
                 value={formData.genre}
                 onValueChange={(value) => handleChange("genre", value)}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder={t("create.form.genreField.placeholder")} />
+                <SelectTrigger className="mt-1 rounded-md border border-primary-border bg-white px-4 py-2 text-primary-text shadow-sm focus:outline-none focus-visible:ring-1 focus-visible:ring-input-focus focus-visible:border-input-focus sm:text-sm">
+                  <SelectValue className="text-secondary-text" placeholder={t("create.form.genreField.placeholder")}  />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="text-primary-text">
                   {genres.map((genre) => (
                     <SelectItem key={genre} value={genre}>
                       {genre === "all" ? t("all") : t(`genres.${genre}`)}
@@ -398,7 +399,7 @@ const CreateSession: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="maxSnippets">{t("create.form.snippetsField.title")}</Label>
+              <Label htmlFor="maxSnippets" className="text-sm font-medium text-primary-text">{t("create.form.snippetsField.title")}</Label>
 
               <Select
                 value={formData.maxSnippets.toString()}
@@ -406,10 +407,10 @@ const CreateSession: React.FC = () => {
                   handleChange("maxSnippets", Number(value))
                 }
               >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select snippet count" />
+                <SelectTrigger className="mt-1 rounded-md border border-primary-border bg-white px-4 py-2 text-primary-text shadow-sm focus:outline-none focus-visible:ring-1 focus-visible:ring-input-focus focus-visible:border-input-focus sm:text-sm">
+                  <SelectValue className="text-secondary-text" placeholder="Select snippet count" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="text-secondary-text">
                   {[3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((num) => (
                     <SelectItem key={num} value={num.toString()}>
                       {num} {t("create.form.snippetsField.snippets")}
@@ -417,7 +418,7 @@ const CreateSession: React.FC = () => {
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs mt-1 text-secondary-text">
                 {t("create.form.snippetsField.subtitle")}{" "}
                 {formData.maxSnippets * 50}-{formData.maxSnippets * 100} {t("words")}
               </p>
@@ -427,27 +428,29 @@ const CreateSession: React.FC = () => {
               <div className="flex items-center space-x-2">
                 <Switch
                   id="public"
+                  className="data-[state=checked]:bg-primary-button-hover cursor-pointer"
                   checked={formData.isPublic}
                   onCheckedChange={(checked) =>
                     handleChange("isPublic", checked)
                   }
                 />
-                <Label htmlFor="public">{t("create.form.publicSession")}</Label>
+                <Label htmlFor="public" className="text-sm font-medium text-primary-text">{t("create.form.publicSession")}</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <Switch
                   id="mature"
+                  className="data-[state=checked]:bg-primary-button-hover cursor-pointer"
                   checked={formData.isMature}
                   onCheckedChange={(checked) =>
                     handleChange("isMature", checked)
                   }
                 />
-                <Label htmlFor="mature">{t("matureContent")}</Label>
+                <Label htmlFor="mature" className="text-sm font-medium text-primary-text">{t("matureContent")}</Label>
               </div>
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="content" className="text-sm font-medium">
+              <label htmlFor="content" className="text-sm font-medium text-primary-text">
                 {t("create.form.contributionField.title")}
               </label>
               <Textarea
@@ -455,15 +458,15 @@ const CreateSession: React.FC = () => {
                 value={formData.content}
                 onChange={(e) => handleChange("content", e.target.value)}
                 placeholder={t("create.form.contributionField.placeholder")}
-                className="min-h-[200px] text-justify lg:text-left"
+                className="min-h-[200px] text-justify lg:text-left mt-1 block w-full rounded-md border border-primary-border bg-white px-4 py-2 text-primary-text shadow-sm focus:outline-none focus-visible:ring-1 focus-visible:ring-input-focus focus-visible:border-input-focus sm:text-sm"
                 required
               />
               <div className="text-sm text-right">
                 <span
                   className={
                     wordCount > 100 || wordCount < 50
-                      ? "text-red-500 font-bold"
-                      : ""
+                      ? "text-red-500 font-semibold"
+                      : "text-tertiary-text font-semibold"
                   }
                 >
                   {wordCount}/100 {t("words")}
@@ -477,12 +480,14 @@ const CreateSession: React.FC = () => {
               type="button"
               variant="outline"
               onClick={handleCancel}
+              className="text-primary-text hover:text-primary-text cursor-pointer"
               disabled={isLoading}
             >
               {t("cancel")}
             </Button>
             <Button
               type="submit"
+              className="bg-primary-button hover:bg-primary-button-hover cursor-pointer mt-2"
               disabled={
                 isLoading ||
                 wordCount > 100 ||
