@@ -101,13 +101,12 @@ const Profile: React.FC = () => {
         setUserPreference(userData.matureContentEnabled);
         setUserEmail(userData.email);
 
-
         // Get instructor and demo day status
-        if (user && user.id) {
+        if (currentUser && currentUser.id) {
           const { data: stats } = await supabase
             .from("user_gamification_stats")
             .select("is_cc_instructor, attended_demo_day")
-            .eq("user_id", user.id)
+            .eq("user_id", currentUser.id)
 
             .single();
 
