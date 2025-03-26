@@ -263,6 +263,7 @@ const CreateSession: React.FC = () => {
             project_id: projectData.id,
             user_id: authUser.id,
             user_is_project_creator: true,
+            user_made_contribution: true,
             joined_at: new Date().toISOString(),
           },
         ]);

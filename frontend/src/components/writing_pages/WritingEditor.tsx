@@ -133,6 +133,8 @@ const WritingEditor: React.FC = () => {
           new Date(b.joined_at || "").getTime()
       );
 
+      console.log(sortedContributors);
+
       setContributors(sortedContributors);
 
       // Check if current user is a contributor
@@ -243,6 +245,8 @@ const WritingEditor: React.FC = () => {
             sessionStorage.setItem("refreshSessions", "true");
           }
         }
+
+        await fetchContributors();
       } catch (error) {
         toast.error(`${error}`);
       } finally {
@@ -736,19 +740,32 @@ const WritingEditor: React.FC = () => {
       }
       setIsSubmitting(true);
 
-      const moderationResponse = await axios.post(`${API_BASE_URL}moderation`, {
-        content: content,
-      });
+      // const moderationResponse = await axios.post(`${API_BASE_URL}moderation`, {
+      //   content: content,
+      // });
 
-      // If content is flagged, display reason
-      if (moderationResponse.data.flagged) {
-        toast.error(
-          `${t(
-            "moderation.flagged"
-          )} ${moderationResponse.data.reason.toLowerCase()}`
-        );
-        setIsSubmitting(false);
-        return;
+      // // If content is flagged, display reason
+      // if (moderationResponse.data.flagged) {
+      //   toast.error(
+      //     `${t(
+      //       "moderation.flagged"
+      //     )} ${moderationResponse.data.reason.toLowerCase()}`
+      //   );
+      //   setIsSubmitting(false);
+      //   return;
+      // }
+      // insert project conribution
+      const { error: contributionError } = await supabase
+        .from("project_contributors")
+        .insert({
+          project_id: projectId,
+          user_id: userData.auth_id,
+          last_contribution_at: new Date().toISOString(),
+          user_made_contribution: true,
+        });
+
+      if (contributionError) {
+        throw contributionError;
       }
 
       // Add the snippet
