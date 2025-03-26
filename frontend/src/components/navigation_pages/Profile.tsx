@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { BookOpen, PenTool, Trophy } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChalkboard } from "@fortawesome/free-solid-svg-icons";
+import { faChalkboard, faSchool } from "@fortawesome/free-solid-svg-icons";
 import ProfileStoriesCard from "../ProfileStoriesCard";
 import ProfileSkeleton from "../ProfileSkeleton";
 import RewardTrophiesPage from "../user/RewardTrophiesPage";
@@ -56,6 +56,7 @@ const Profile: React.FC = () => {
   >([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [isInstructor, setIsInstructor] = useState<boolean>(false);
+  const [attendedDemoDay, setAttendedDemoDay] = useState<boolean>(false);
 
   // maybe future add also private toggle
   const [userPreference, setUserPreference] = useState<boolean>(false);
@@ -87,15 +88,16 @@ const Profile: React.FC = () => {
         setStoriesInprogress(userData.inProgressProjects);
         setUserPreference(userData.matureContentEnabled);
 
-        // Get instructor status
+        // Get instructor and demo day status
         if (user && user.id) {
           const { data: stats } = await supabase
             .from("user_gamification_stats")
-            .select("is_cc_instructor")
+            .select("is_cc_instructor, attended_demo_day")
             .eq("user_id", user.id)
             .single();
 
           setIsInstructor(!!stats?.is_cc_instructor);
+          setAttendedDemoDay(!!stats?.attended_demo_day);
         }
       } catch (error) {
         console.error("Error fetching profile data:", error);
@@ -266,6 +268,13 @@ const Profile: React.FC = () => {
                       <FontAwesomeIcon
                         icon={faChalkboard}
                         className="text-yellow-500"
+                        size="lg"
+                      />
+                    )}
+                    {attendedDemoDay && (
+                      <FontAwesomeIcon
+                        icon={faSchool}
+                        className="text-blue-500"
                         size="lg"
                       />
                     )}
