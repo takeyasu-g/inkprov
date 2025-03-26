@@ -30,6 +30,7 @@ import {
 import ProfileSettings from "../ProfileSettings";
 import UserSettings from "../UserSettings";
 import RedeemCode from "@/components/user/reward_subpages/RedeemCode";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Profile: React.FC = () => {
   const { user } = useAuth();
@@ -66,10 +67,12 @@ const Profile: React.FC = () => {
   const [isRedeeming, setIsRedeeming] = useState<boolean>(false);
 
   const ITEMS_PER_PAGE = 6;
+  const [isLoadingPictures, setIsLoadingPictures] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchProfileData = async () => {
       setIsLoading(true);
+      setIsLoadingPictures(true);
       try {
         // Single API call to get all user data
         const userData = await getUserProfileData();
@@ -103,6 +106,7 @@ const Profile: React.FC = () => {
         console.error("Error fetching profile data:", error);
       } finally {
         setIsLoading(false);
+        setIsLoadingPictures(false);
       }
     };
 
@@ -158,75 +162,91 @@ const Profile: React.FC = () => {
                       </AlertDialogTitle>
                       <AlertDialogDescription className="flex flex-col gap-4">
                         <div className="flex flex-wrap gap-4 justify-center">
-                          {profilepictureOptions
-                            .slice(
-                              currentPage * ITEMS_PER_PAGE,
-                              (currentPage + 1) * ITEMS_PER_PAGE
-                            )
-                            .map((url, index) => {
-                              const actualIndex =
-                                currentPage * ITEMS_PER_PAGE + index;
-                              return (
-                                <img
-                                  key={actualIndex}
-                                  src={url}
-                                  alt={url.substring(url.lastIndexOf("/") + 1)}
-                                  className={`w-32 h-32 rounded-full cursor-pointer transition-transform hover:scale-105 ${
-                                    selectedProfilePicture === actualIndex
-                                      ? "border-4 border-primary-button"
-                                      : "border-2 border-transparent hover:border-primary-button/50"
-                                  }`}
-                                  onClick={() =>
-                                    setSelectedProfilePicture(actualIndex)
-                                  }
-                                />
-                              );
-                            })}
-                        </div>
-                        {profilepictureOptions.length > ITEMS_PER_PAGE && (
-                          <div className="flex justify-between items-center pt-4 border-t border-primary-border">
-                            <Button
-                              onClick={() =>
-                                setCurrentPage((prev) => Math.max(0, prev - 1))
-                              }
-                              disabled={currentPage === 0}
-                              variant="outline"
-                              className="text-primary-text"
-                            >
-                              Previous
-                            </Button>
-                            <span className="text-sm text-primary-text">
-                              Page {currentPage + 1} of{" "}
-                              {Math.ceil(
-                                profilepictureOptions.length / ITEMS_PER_PAGE
-                              )}
-                            </span>
-                            <Button
-                              onClick={() =>
-                                setCurrentPage((prev) =>
-                                  Math.min(
-                                    Math.ceil(
-                                      profilepictureOptions.length /
-                                        ITEMS_PER_PAGE
-                                    ) - 1,
-                                    prev + 1
-                                  )
+                          {isLoadingPictures
+                            ? // Loading placeholders
+                              Array(ITEMS_PER_PAGE)
+                                .fill(0)
+                                .map((_, index) => (
+                                  <Skeleton
+                                    key={index}
+                                    className="w-32 h-32 rounded-full"
+                                  />
+                                ))
+                            : profilepictureOptions
+                                .slice(
+                                  currentPage * ITEMS_PER_PAGE,
+                                  (currentPage + 1) * ITEMS_PER_PAGE
                                 )
-                              }
-                              disabled={
-                                currentPage >=
-                                Math.ceil(
+                                .map((url, index) => {
+                                  const actualIndex =
+                                    currentPage * ITEMS_PER_PAGE + index;
+                                  return (
+                                    <img
+                                      key={actualIndex}
+                                      src={url}
+                                      alt={url.substring(
+                                        url.lastIndexOf("/") + 1
+                                      )}
+                                      className={`w-32 h-32 rounded-full cursor-pointer transition-transform hover:scale-105 ${
+                                        selectedProfilePicture === actualIndex
+                                          ? "border-4 border-primary-button"
+                                          : "border-2 border-transparent hover:border-primary-button/50"
+                                      }`}
+                                      onClick={() =>
+                                        setSelectedProfilePicture(actualIndex)
+                                      }
+                                    />
+                                  );
+                                })}
+                        </div>
+                        {!isLoadingPictures &&
+                          profilepictureOptions.length > ITEMS_PER_PAGE && (
+                            <div className="flex justify-between items-center pt-4 border-t border-primary-border">
+                              <Button
+                                onClick={() =>
+                                  setCurrentPage((prev) =>
+                                    Math.max(0, prev - 1)
+                                  )
+                                }
+                                disabled={currentPage === 0}
+                                variant="outline"
+                                className="text-primary-text"
+                              >
+                                Previous
+                              </Button>
+                              <span className="text-sm text-primary-text">
+                                Page {currentPage + 1} of{" "}
+                                {Math.ceil(
                                   profilepictureOptions.length / ITEMS_PER_PAGE
-                                ) -
-                                  1
-                              }
-                              variant="outline"
-                              className="text-primary-text"
-                            >
-                              Next
-                            </Button>
-                          </div>
-                        )}
+                                )}
+                              </span>
+                              <Button
+                                onClick={() =>
+                                  setCurrentPage((prev) =>
+                                    Math.min(
+                                      Math.ceil(
+                                        profilepictureOptions.length /
+                                          ITEMS_PER_PAGE
+                                      ) - 1,
+                                      prev + 1
+                                    )
+                                  )
+                                }
+                                disabled={
+                                  currentPage >=
+                                  Math.ceil(
+                                    profilepictureOptions.length /
+                                      ITEMS_PER_PAGE
+                                  ) -
+                                    1
+                                }
+                                variant="outline"
+                                className="text-primary-text"
+                              >
+                                Next
+                              </Button>
+                            </div>
+                          )}
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -237,7 +257,9 @@ const Profile: React.FC = () => {
                         Cancel
                       </AlertDialogCancel>
                       <AlertDialogAction
-                        disabled={selectedProfilePicture === null}
+                        disabled={
+                          selectedProfilePicture === null || isLoadingPictures
+                        }
                         onClick={() => {
                           if (selectedProfilePicture !== null) {
                             setCurrentProfilePicture(
@@ -249,9 +271,8 @@ const Profile: React.FC = () => {
                             );
                           }
                         }}
-                        className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
                       >
-                        Select
+                        Save
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
