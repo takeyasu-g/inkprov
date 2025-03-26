@@ -31,6 +31,7 @@ import ProfileSettings from "../ProfileSettings";
 import UserSettings from "../UserSettings";
 import { useTranslation } from "react-i18next";
 import RedeemCode from "@/components/user/reward_subpages/RedeemCode";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Profile: React.FC = () => {
   const { t } = useTranslation();
@@ -78,8 +79,6 @@ const Profile: React.FC = () => {
   useEffect(() => {
     const fetchProfileData = async () => {
       setIsLoading(true);
-      // go back where you cam from, id the param is null/undefined
-
       try {
         // Single API call to get all user data
         const userData = await getUserProfileData(
@@ -117,6 +116,7 @@ const Profile: React.FC = () => {
         console.error("Error fetching profile data:", error);
       } finally {
         setIsLoading(false);
+        setIsLoadingPictures(false);
       }
     };
 

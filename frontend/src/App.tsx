@@ -8,7 +8,7 @@ import router from "./components/routing/router";
 const App: React.FC = () => {
   return (
     <AuthProvider>
-      <Toaster position="top-right" duration={2000} theme="light" richColors />
+      <Toaster position="top-right" duration={2000} theme="light" richColors closeButton />
       <RouterProvider router={router} />
     </AuthProvider>
   );
