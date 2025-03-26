@@ -452,7 +452,7 @@
         "title": "Session Created",
         "description": "Session created successfully"
       },
-      "sessionCreatedError": {
+      "sessionCreationError": {
         "title": "Error Creating Session",
         "description": "Error creating session. Please try again."
       }
