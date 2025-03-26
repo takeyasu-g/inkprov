@@ -8,8 +8,10 @@ import {
   CardDescription,
   CardFooter,
 } from "@/components/ui/card";
+import { useTranslation } from "react-i18next";
 
 const ProfileSkeleton: React.FC = () => {
+  const { t } = useTranslation();
   const renderSkeletons = () => {
     return Array(3)
       .fill(0)
@@ -51,14 +53,14 @@ const ProfileSkeleton: React.FC = () => {
               value="completed"
               className="data-[state=active]:text-white data-[state=active]:bg-tab-active cursor-pointer"
             >
-              Completed
+              {t("completed")}
             </TabsTrigger>
             <TabsTrigger
               disabled={true}
               value="in-progress"
               className="data-[state=active]:text-white data-[state=active]:bg-tab-active cursor-pointer"
             >
-              In progress
+              {t("inProgress")}
             </TabsTrigger>
           </TabsList>
           {/* Completed Stories */}

@@ -8,8 +8,10 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Users, FileText, Clock, VenetianMask } from "lucide-react";
-import { format, formatDistanceToNow } from "date-fns";
+import { formatRelative, formatDistanceToNow } from "date-fns";
+import { enUS, ja } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 interface ProfileStoriesCardProps {
   selectedTab: string;
@@ -34,9 +36,10 @@ const ProfileStoriesCard: React.FC<ProfileStoriesCardProps> = ({
   publicStory,
   storyId,
 }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const currentTab = selectedTab[0].toUpperCase() + selectedTab.substring(1);
-  const formattedCreationDate = format(new Date(creationDate), "MMM dd, yyyy");
+  const formattedCreationDate = formatRelative(new Date(creationDate), new Date(), { locale: sessionStorage.getItem("lang") === "ja" ? ja : enUS });
   const formattedLastUpdatedDate = formatDistanceToNow(new Date(lastUpdated));
 
   return (
@@ -53,7 +56,7 @@ const ProfileStoriesCard: React.FC<ProfileStoriesCardProps> = ({
       <CardHeader>
         <div className="flex justify-between items-center">
           <Badge variant="default" className={`genre-${genre.toLowerCase()}`}>
-            {genre}
+            {t(`genres.${genre.toLowerCase()}`)}
           </Badge>
           <div className="flex items-center gap-1 text-secondary-text">
             <Calendar size={18} />
@@ -69,27 +72,27 @@ const ProfileStoriesCard: React.FC<ProfileStoriesCardProps> = ({
           <div className="flex items-center gap-1 text-secondary-text mb-2">
             <Users size={18} />
             <p className="text-secondary-text text-sm">
-              Collaborators: {collaborators}
+              {t("profile.card.collaborators") }: {collaborators}
             </p>
           </div>
           <div className="flex items-center gap-1 text-secondary-text mb-2">
             <FileText size={18} />
             <p className="text-secondary-text text-sm">
-              Word Count: {wordCount}
+              {t("profile.card.wordCount") }: {wordCount}
             </p>
           </div>
           {selectedTab === "in-progress" ? (
             <div className="flex items-center gap-1 text-secondary-text mb-2">
               <Clock size={18} />
               <p className="text-secondary-text text-sm">
-                Last Active: {formattedLastUpdatedDate} ago
+                {t("profile.card.lastUpdated")} {formattedLastUpdatedDate}
               </p>
             </div>
           ) : null}
           {!publicStory ? (
             <div className="flex items-center gap-1 text-secondary-text">
               <VenetianMask size={18} />
-              <p className="text-secondary-text text-sm">Private</p>
+              <p className="text-secondary-text text-sm">{t("profile.card.private")}</p>
             </div>
           ) : null}
         </CardDescription>

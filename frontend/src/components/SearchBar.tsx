@@ -1,12 +1,14 @@
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
+    const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState<string>("");
 
   //handle onChange inputs of the search
@@ -33,8 +35,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
         type="text"
         placeholder={
           window.location.pathname === "/sessions"
-            ? "Search Sessions"
-            : "Search Stories"
+            ? t("openSessions.header.searchbar.placeholder")
+            : t("stories.header.searchbar.placeholder")
         }
         value={searchTerm}
         onChange={handleSearchOnChange}

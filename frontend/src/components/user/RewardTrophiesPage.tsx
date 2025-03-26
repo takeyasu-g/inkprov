@@ -24,9 +24,11 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase, getCurrentUser } from "@/utils/supabase";
+import { supabase } from "@/utils/supabase";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { useTranslation } from "react-i18next";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Achievement {
   id: string;
@@ -45,34 +47,29 @@ interface RewardTrophiesPageProps {
 }
 
 const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
+  const { t } = useTranslation();
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [userStats, setUserStats] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<string>("all");
+  //  useAuth user will be used if no userId prop was given
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         setLoading(true);
 
-        // Get the current user if userId is not provided
-        let targetUserId = userId;
-        if (!targetUserId) {
-          const currentUser = await getCurrentUser();
-          if (!currentUser) return;
-          targetUserId = currentUser.id;
-        }
-
         // Fetch user stats from the database - using the correct table name
         const { data: stats, error } = await supabase
           .from("user_gamification_stats") // Changed from "user_stats" to "user_gamification_stats" to match current supabase titling
           .select("*")
-          .eq("user_id", targetUserId)
+          .eq("user_id", userId || user.id)
           .single();
 
         // Create default stats object
         const defaultStats = {
-          user_id: targetUserId,
+          user_id: userId || user.id,
           user_total_projects_created: 0,
           user_total_contribution: 0,
           projects_completed: 0,
@@ -84,10 +81,12 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
           user_total_invites: 0,
           user_total_score: 0,
           user_total_logins: 0,
+          attended_demo_day: 0,
+          is_cc_instructor: 0,
         };
 
-        // If no record exists for this user, create one
-        if (!stats && !error) {
+        // If no record exists for this user, create one, only if currentUser is the porfiles user
+        if (!stats && userId === user.id) {
           // Insert default stats for this user
           const { data: insertedStats, error: insertError } = await supabase
             .from("user_gamification_stats")
@@ -111,7 +110,7 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
         // Function to calculate which achievements are unlocked
         calculateAchievements(
           stats || {
-            user_id: targetUserId,
+            user_id: userId || user.id,
             user_total_projects_created: 0,
             user_total_contribution: 0,
             projects_completed: 0,
@@ -133,7 +132,7 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
     };
 
     fetchUserData();
-  }, [userId]);
+  }, [userId, user]);
 
   const calculateAchievements = (stats: any) => {
     const allAchievements: Achievement[] = [
@@ -151,8 +150,8 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
       },
       {
         id: "first_contribution",
-        name: "First Contribution",
-        description: "Made your first contribution to a project",
+        name: t("profile.achievements.trophies.trophy1.title"),
+        description: t("profile.achievements.trophies.trophy1.description"),
         icon: faPen,
         category: "writing",
         requiredValue: 1,
@@ -162,8 +161,8 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
       },
       {
         id: "prolific_writer",
-        name: "Prolific Writer",
-        description: "Made 10 contributions to projects",
+        name: t("profile.achievements.trophies.trophy2.title"),
+        description: t("profile.achievements.trophies.trophy2.description"),
         icon: faFeather,
         category: "writing",
         requiredValue: 10,
@@ -173,8 +172,8 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
       },
       {
         id: "wordsmith",
-        name: "Wordsmith",
-        description: "Written 1,000 words across all projects",
+        name: t("profile.achievements.trophies.trophy3.title"),
+        description: t("profile.achievements.trophies.trophy3.description"),
         icon: faBookOpen,
         category: "writing",
         requiredValue: 1000,
@@ -186,8 +185,8 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
       // Creation achievements
       {
         id: "project_creator",
-        name: "Project Creator",
-        description: "Created your first writing project",
+        name: t("profile.achievements.trophies.trophy4.title"),
+        description: t("profile.achievements.trophies.trophy4.description"),
         icon: faStar,
         category: "creation",
         requiredValue: 1,
@@ -197,8 +196,8 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
       },
       {
         id: "visionary",
-        name: "Visionary",
-        description: "Created 5 writing projects",
+        name: t("profile.achievements.trophies.trophy5.title"),
+        description: t("profile.achievements.trophies.trophy5.description"),
         icon: faCrown,
         category: "creation",
         requiredValue: 5,
@@ -210,8 +209,8 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
       // Completion achievements
       {
         id: "finisher",
-        name: "Finisher",
-        description: "Completed your first project",
+        name: t("profile.achievements.trophies.trophy6.title"),
+        description: t("profile.achievements.trophies.trophy6.description"),
         icon: faTrophy,
         category: "completion",
         requiredValue: 1,
@@ -221,8 +220,8 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
       },
       {
         id: "master_storyteller",
-        name: "Master Storyteller",
-        description: "Completed 3 projects",
+        name: t("profile.achievements.trophies.trophy7.title"),
+        description: t("profile.achievements.trophies.trophy7.description"),
         icon: faGem,
         category: "completion",
         requiredValue: 3,
@@ -234,8 +233,8 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
       // Social achievements
       {
         id: "loyal_user",
-        name: "Loyal User",
-        description: "Logged into the platform 5 times",
+        name: t("profile.achievements.trophies.trophy8.title"),
+        description: t("profile.achievements.trophies.trophy8.description"),
         icon: faUser,
         category: "social",
         requiredValue: 5,
@@ -245,8 +244,8 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
       },
       {
         id: "appreciator",
-        name: "Appreciator",
-        description: "Gave 10 likes to other projects",
+        name: t("profile.achievements.trophies.trophy9.title"),
+        description: t("profile.achievements.trophies.trophy9.description"),
         icon: faHeart,
         category: "social",
         requiredValue: 10,
@@ -256,8 +255,8 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
       },
       {
         id: "popular",
-        name: "Popular",
-        description: "Received 10 likes on your projects",
+        name: t("profile.achievements.trophies.trophy10.title"),
+        description: t("profile.achievements.trophies.trophy10.description"),
         icon: faFire,
         category: "social",
         requiredValue: 10,
@@ -269,8 +268,8 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
       // Special achievements
       {
         id: "community_member",
-        name: "Community Member",
-        description: "Contributed to 5 different projects",
+        name: t("profile.achievements.trophies.trophy11.title"),
+        description: t("profile.achievements.trophies.trophy11.description"),
         icon: faUsers,
         category: "special",
         requiredValue: 5,
@@ -281,8 +280,8 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
       },
       {
         id: "all_star",
-        name: "All-Star",
-        description: "Unlocked 5 other achievements",
+        name: t("profile.achievements.trophies.trophy12.title"),
+        description: t("profile.achievements.trophies.trophy12.description"),
         icon: faAward,
         category: "special",
         requiredValue: 5,
@@ -379,7 +378,7 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
                   width: `${achievement.progress}%`,
                   backgroundColor: achievement.isUnlocked
                     ? achievement.color
-                    : "#9CA3AF",
+                    : "#e5e7eb",
                 }}
               />
             </div>
@@ -389,7 +388,7 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
                 className="mt-2"
                 style={{ backgroundColor: achievement.color }}
               >
-                Unlocked
+                {t("unlocked")}
               </Badge>
             )}
           </div>
@@ -413,39 +412,46 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
 
   return (
     <div className="trophies-container">
-      <Card>
+      <Card className="border-none shadow-none">
         <CardHeader>
           <CardTitle className="flex items-center">
             <FontAwesomeIcon icon={faTrophy} className="mr-2 text-amber-500" />
-            Achievements & Trophies
+            {t("profile.achievements.title")}
           </CardTitle>
           <CardDescription>
-            Track your progress and unlock achievements as you write, create,
-            and engage with the community.
+            {t("profile.achievements.subtitle")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="achievement-stats mb-6 grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="stat-card bg-blue-50 p-3 rounded-lg">
-              <p className="text-sm text-secondary-text">Contributions</p>
+              <p className="text-sm text-secondary-text">
+                {t("contributions")}
+              </p>
               <p className="text-2xl font-bold">
                 {userStats?.user_total_contribution || 0}
               </p>
             </div>
             <div className="stat-card bg-purple-50 p-3 rounded-lg">
-              <p className="text-sm text-secondary-text">Projects Created</p>
+              <p className="text-sm text-secondary-text">
+                {t("profile.achievements.stats.projectsCreated")}
+              </p>
               <p className="text-2xl font-bold">
                 {userStats?.user_total_projects_created || 0}
               </p>
             </div>
             <div className="stat-card bg-amber-50 p-3 rounded-lg">
-              <p className="text-sm text-secondary-text">Projects Completed</p>
+              <p className="text-sm text-secondary-text">
+                {t("profile.achievements.stats.projectsCompleted")}
+              </p>
               <p className="text-2xl font-bold">
                 {userStats?.projects_completed || 0}
               </p>
             </div>
             <div className="stat-card bg-green-50 p-3 rounded-lg">
-              <p className="text-sm text-secondary-text">Words Written</p>
+              <p className="text-sm text-secondary-text">
+                {t("profile.achievements.stats.wordsWritten")}
+              </p>
               <p className="text-2xl font-bold">
                 {userStats?.user_total_wordcount || 0}
               </p>
@@ -461,19 +467,22 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
             <ScrollArea type="always">
               <TabsList className="mb-4 overflow-x-auto flex-nowrap ">
                 <TabsTrigger value="all" className="cursor-pointer">
-                  All ({unlockedCounts.all}/{achievements.length})
+                  {t("all")} ({unlockedCounts.all}/{achievements.length})
                 </TabsTrigger>
                 <TabsTrigger value="writing" className="cursor-pointer">
-                  Writing ({unlockedCounts.writing}/
+                  {t("profile.achievements.stats.tabs.writing")} (
+                  {unlockedCounts.writing}/
                   {achievements.filter((a) => a.category === "writing").length})
                 </TabsTrigger>
                 <TabsTrigger value="creation" className="cursor-pointer">
-                  Creation ({unlockedCounts.creation}/
+                  {t("profile.achievements.stats.tabs.creation")} (
+                  {unlockedCounts.creation}/
                   {achievements.filter((a) => a.category === "creation").length}
                   )
                 </TabsTrigger>
                 <TabsTrigger value="completion" className="cursor-pointer">
-                  Completion ({unlockedCounts.completion}/
+                  {t("profile.achievements.stats.tabs.completion")} (
+                  {unlockedCounts.completion}/
                   {
                     achievements.filter((a) => a.category === "completion")
                       .length
@@ -481,11 +490,13 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
                   )
                 </TabsTrigger>
                 <TabsTrigger value="social" className="cursor-pointer">
-                  Social ({unlockedCounts.social}/
+                  {t("profile.achievements.stats.tabs.social")} (
+                  {unlockedCounts.social}/
                   {achievements.filter((a) => a.category === "social").length})
                 </TabsTrigger>
                 <TabsTrigger value="special" className="cursor-pointer">
-                  Special ({unlockedCounts.special}/
+                  {t("profile.achievements.stats.tabs.special")} (
+                  {unlockedCounts.special}/
                   {achievements.filter((a) => a.category === "special").length})
                 </TabsTrigger>
               </TabsList>
@@ -500,7 +511,7 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
                 )}
                 {filteredAchievements.length === 0 && (
                   <div className="col-span-2 text-center py-8 text-secondary-text">
-                    No achievements found in this category.
+                    {t("profile.acheivements.noAchievements")}
                   </div>
                 )}
               </div>
