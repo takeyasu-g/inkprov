@@ -206,19 +206,18 @@ const CreateSession: React.FC = () => {
 
       // Check if content is flagged for moderation
 
-      const moderationResponse = await axios.post(`${API_BASE_URL}moderation`, {
-        content: title + " " + description + " " + content,
-      });
+      // const moderationResponse = await axios.post(`${API_BASE_URL}moderation`, {
+      //   content: title + " " + description + " " + content,
+      // });
 
-
-      // If content is flagged, display reason
-      if (moderationResponse.data.flagged) {
-        toast.error(
-          `${t("moderation.flagged")} ${t(moderationResponse.data.reason)}`
-        );
-        setIsLoading(false);
-        return;
-      }
+      // // If content is flagged, display reason
+      // if (moderationResponse.data.flagged) {
+      //   toast.error(
+      //     `${t("moderation.flagged")} ${t(moderationResponse.data.reason)}`
+      //   );
+      //   setIsLoading(false);
+      //   return;
+      // }
 
       const newProject: Project = {
         title,

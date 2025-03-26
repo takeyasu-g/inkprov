@@ -11,7 +11,7 @@ import {
 } from "@/components/ui";
 import CardHeaderWithMature from "@/components/ui/CardHeaderWithMature";
 import { CompletedStoriesData } from "@/types/global";
-import { supabase } from "@/utils/supabase";
+import { getProjectContributors, supabase } from "@/utils/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatRelative } from "date-fns";
@@ -58,6 +58,9 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
   const navigate = useNavigate();
   const [isContributor, setIsContributor] = useState(false);
   const [isCreator, setIsCreator] = useState(false);
+  const [totalContributors, setTotalContributors] = useState<number | null>(
+    null
+  );
 
   // Check if user is a contributor of the story
   useEffect(() => {
@@ -83,6 +86,10 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
         // Returns true user is in the project
         setIsContributor(!!contributorData);
       }
+
+      const contributors = await getProjectContributors(projectData.id);
+
+      setTotalContributors(contributors.length);
     };
 
     checkContributorStatus();
@@ -95,9 +102,7 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
           isContributor || isCreator ? "text-green-600" : "text-secondary-text"
         }`}
       />
-      <span className="text-secondary-text text-sm">
-        {projectData.current_contributors_count}
-      </span>
+      <span className="text-secondary-text text-sm">{totalContributors}</span>
     </>
   );
 
@@ -122,7 +127,9 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
               {projectData.title}
             </CardTitle>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-secondary-text">{t("startedby")}:</span>
+              <span className="text-sm text-secondary-text">
+                {t("startedby")}:
+              </span>
               <span className="text-sm font-medium">
                 {isCreator
                   ? t("you")
@@ -139,7 +146,10 @@ const ProjectCard: React.FC<ProjectCardDataProp> = ({ projectData }) => {
       </div>
       <CardFooter className="flex justify-between items-center">
         <span className="text-sm text-secondary-text">
-          {t("completed")}: {`${formatRelative(new Date(projectData.updated_at), new Date(), { locale: sessionStorage.getItem("lang") === "ja" ? ja : enUS })}`}
+          {t("completed")}:{" "}
+          {`${formatRelative(new Date(projectData.updated_at), new Date(), {
+            locale: sessionStorage.getItem("lang") === "ja" ? ja : enUS,
+          })}`}
         </span>
         <Button
           className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
