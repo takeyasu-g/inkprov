@@ -755,17 +755,34 @@ const WritingEditor: React.FC = () => {
       //   return;
       // }
       // insert project conribution
-      const { error: contributionError } = await supabase
-        .from("project_contributors")
-        .insert({
-          project_id: projectId,
-          user_id: userData.auth_id,
-          last_contribution_at: new Date().toISOString(),
-          user_made_contribution: true,
-        });
 
-      if (contributionError) {
-        throw contributionError;
+      // Check if the user already exists in project_contributors for this project
+      const { data: existingContributor, error: fetchError } = await supabase
+        .from("project_contributors")
+        .select("id") // Select only the ID for efficiency
+        .eq("project_id", projectId)
+        .eq("user_id", userData.auth_id)
+        .single(); // Expect at most one result
+
+      if (fetchError && fetchError.code !== "PGRST116") {
+        // Ignore "no rows found" error
+        throw fetchError;
+      }
+
+      // Insert only if no existing contributor is found
+      if (!existingContributor) {
+        const { error: contributionError } = await supabase
+          .from("project_contributors")
+          .insert({
+            project_id: projectId,
+            user_id: userData.auth_id,
+            last_contribution_at: new Date().toISOString(),
+            user_made_contribution: true,
+          });
+
+        if (contributionError) {
+          throw contributionError;
+        }
       }
 
       // Add the snippet
@@ -788,38 +805,13 @@ const WritingEditor: React.FC = () => {
         setIsSubmitting(false);
         return;
       }
+      // add a snippet count in projects => supabase will automatically check if current_snippets = max_snippets and mark is_completed to true
+      const { error } = await supabase.rpc("increment_current_snippets", {
+        project_id: projectId,
+      });
 
-      // Get the latest snippet count to check if we should mark the project as completed
-      const { data: currentSnippets, error: snippetsCountError } =
-        await supabase
-          .from("project_snippets")
-          .select("id")
-          .eq("project_id", projectId);
-
-      if (snippetsCountError) {
-        console.error(
-          "Error fetching current snippets count:",
-          snippetsCountError
-        );
-      } else {
-        const snippetCount = currentSnippets?.length || 0;
-
-        // Check if this submission completes the project
-        if (
-          project?.max_snippets &&
-          snippetCount >= project.max_snippets &&
-          !project.is_completed
-        ) {
-          // Mark project as completed if it's reached max snippets
-          const { error: updateError } = await supabase
-            .from("projects")
-            .update({ current_snippets: supabase.rpc("current_snippets + 1") })
-            .eq("id", projectId);
-
-          if (updateError) {
-            // Handle error without logging
-          }
-        }
+      if (error) {
+        console.error("Increment failed:", error);
       }
 
       // Stop the timer and reset writing fields
