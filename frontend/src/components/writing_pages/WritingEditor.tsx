@@ -736,12 +736,9 @@ const WritingEditor: React.FC = () => {
       }
       setIsSubmitting(true);
 
-      const moderationResponse = await axios.post(
-        `${API_BASE_URL}/moderation`,
-        {
-          content: content,
-        }
-      );
+      const moderationResponse = await axios.post(`${API_BASE_URL}moderation`, {
+        content: content,
+      });
 
       // If content is flagged, display reason
       if (moderationResponse.data.flagged) {
