@@ -56,7 +56,7 @@ app.post("/ideas", async (req, res) => {
 // AI Content Moderation API Endpoint
 app.post("/moderation", async (req, res) => {
   try {
-    const moderationResult = await ModeratePromptInput(req.body.content);
+    const moderationResult = await ModeratePromptInput(req.body.content, req.body.matureContent);
     res.status(200).send(moderationResult);
   } catch (error) {
     res.status(500).send(error.message);
