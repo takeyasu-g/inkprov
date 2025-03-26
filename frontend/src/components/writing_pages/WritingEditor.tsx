@@ -478,23 +478,23 @@ const WritingEditor: React.FC = () => {
       setIsCurrentlyWriting(true);
 
       // Attempt to lock the project - no .single() or additional conditions
-      const { data: lockResult, error: lockError } = await supabase
-        .from("projects")
-        .update({
-          is_locked: true,
-          locked_by: user.id,
-          locked_at: new Date().toISOString(),
-        })
-        .eq("id", projectId);
+      // const { data: lockResult, error: lockError } = await supabase
+      //   .from("projects")
+      //   .update({
+      //     is_locked: true,
+      //     locked_by: user.id,
+      //     locked_at: new Date().toISOString(),
+      //   })
+      //   .eq("id", projectId);
 
-      if (lockError) {
-        // Revert optimistic update if lock fails
-        setProjectLocked(false);
-        setLockedBy(null);
-        setIsCurrentlyWriting(false);
-        toast.error("Failed to start contribution. Please try again.");
-        return;
-      }
+      // if (lockError) {
+      //   // Revert optimistic update if lock fails
+      //   setProjectLocked(false);
+      //   setLockedBy(null);
+      //   setIsCurrentlyWriting(false);
+      //   toast.error("Failed to start contribution. Please try again.");
+      //   return;
+      // }
 
       // Start the timer when contribution begins
       setTimeRemaining(600); // Reset to 10 minutes
