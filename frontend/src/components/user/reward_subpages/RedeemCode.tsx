@@ -67,11 +67,7 @@ const RedeemCode: React.FC<RedeemCodeProps> = ({ setIsRedeeming }) => {
 
       // Prepare update data
       const updateData: Record<string, any> = {};
-      if (statColumn === "is_cc_instructor") {
-        updateData[statColumn] = true;
-      } else {
-        updateData[statColumn] = 1;
-      }
+      updateData[statColumn] = 1; // Always use 1 for all stats, including is_cc_instructor
 
       if (userStats) {
         // Update existing record
