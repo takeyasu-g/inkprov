@@ -932,7 +932,7 @@ const WritingEditor: React.FC = () => {
       // Signal that sessions page needs to refresh data
       sessionStorage.setItem("refreshSessions", "true");
 
-      toast.success(t("writingSession.content.deleteProjectSuccess"));
+      toast.success(t("writingSession.content.form.deleteProjectSuccess"));
       navigate("/sessions");
     } catch (error) {
       toast.error(`${error}`);
@@ -1285,7 +1285,7 @@ const WritingEditor: React.FC = () => {
           {isProjectCreator && (
             <div className="flex justify-center mt-4">
               <Button
-                className="bg-red-500 hover:bg-red-600 text-white"
+                className="bg-red-500 hover:bg-red-600 text-white cursor-pointer"
                 onClick={handleDeleteProject}
               >
                 {t("writingSession.content.form.deleteProject")}
