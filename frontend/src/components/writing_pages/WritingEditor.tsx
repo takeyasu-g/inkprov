@@ -810,8 +810,15 @@ const WritingEditor: React.FC = () => {
           snippetCount >= project.max_snippets &&
           !project.is_completed
         ) {
-          // We'll mark the project as completed later in unlockProject()
-          // This serves as an additional check
+          // Mark project as completed if it's reached max snippets
+          const { error: updateError } = await supabase
+            .from("projects")
+            .update({ current_snippets: supabase.rpc("current_snippets + 1") })
+            .eq("id", projectId);
+
+          if (updateError) {
+            // Handle error without logging
+          }
         }
       }
 
