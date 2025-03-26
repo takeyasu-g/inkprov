@@ -74,7 +74,7 @@ interface Contributor {
 }
 
 // to log errors without showing in console in production
-export const logDevError = (error: unknown) => {
+const logDevError = (error: unknown) => {
   if (import.meta.env.DEV) {
     console.error("[DEV]", error);
   }
