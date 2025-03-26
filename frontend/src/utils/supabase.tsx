@@ -958,6 +958,7 @@ export const getUserIsInstructor = async (userId: string): Promise<boolean> => {
 
     return !!data.is_cc_instructor;
   } catch (error) {
+    console.error(error);
     return false;
   }
 };

@@ -133,8 +133,6 @@ const WritingEditor: React.FC = () => {
           new Date(b.joined_at || "").getTime()
       );
 
-      console.log(sortedContributors);
-
       setContributors(sortedContributors);
 
       // Check if current user is a contributor
@@ -740,20 +738,20 @@ const WritingEditor: React.FC = () => {
       }
       setIsSubmitting(true);
 
-      // const moderationResponse = await axios.post(`${API_BASE_URL}moderation`, {
-      //   content: content,
-      // });
+      const moderationResponse = await axios.post(`${API_BASE_URL}moderation`, {
+        content: content,
+      });
 
-      // // If content is flagged, display reason
-      // if (moderationResponse.data.flagged) {
-      //   toast.error(
-      //     `${t(
-      //       "moderation.flagged"
-      //     )} ${moderationResponse.data.reason.toLowerCase()}`
-      //   );
-      //   setIsSubmitting(false);
-      //   return;
-      // }
+      // If content is flagged, display reason
+      if (moderationResponse.data.flagged) {
+        toast.error(
+          `${t(
+            "moderation.flagged"
+          )} ${moderationResponse.data.reason.toLowerCase()}`
+        );
+        setIsSubmitting(false);
+        return;
+      }
       // insert project conribution
 
       // Check if the user already exists in project_contributors for this project
