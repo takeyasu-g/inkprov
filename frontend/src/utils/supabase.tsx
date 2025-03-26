@@ -352,7 +352,7 @@ export const getProfilesByUserIdsForPopUp = async (
     const { data: profiles, error: profilesError } = await supabase
       .from("users_ext")
       .select("id, user_profile_name, profile_pic_url, user_email")
-      .in("id", userIds);
+      .in("auth_id", userIds);
 
     if (profilesError) {
       console.error("Error fetching profiles:", profilesError);
