@@ -38,6 +38,7 @@ export interface ProjectsData {
   updated_at: Date;
   is_public: boolean;
   is_mature_content: boolean;
+  current_snippets?: number;
 }
 
 // interface for just ProjectStoriesCompletedCards

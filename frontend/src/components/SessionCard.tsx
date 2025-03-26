@@ -66,9 +66,16 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
   const contributors = sessionData.project_contributors || [];
   const maxSnippets = sessionData.max_snippets;
   const currentUser = sessionData.creator;
+  const currentSnippets = sessionData.current_snippets;
+
+  console.log(sessionData);
 
   const formattedDate = sessionData.created_at
-    ? `${t("openSessions.card.time.created")} ${formatRelative(new Date(sessionData.created_at), new Date(), { locale: sessionStorage.getItem("lang") === "ja" ? ja : enUS })}`
+    ? `${t("openSessions.card.time.created")} ${formatRelative(
+        new Date(sessionData.created_at),
+        new Date(),
+        { locale: sessionStorage.getItem("lang") === "ja" ? ja : enUS }
+      )}`
     : "";
 
   const isUserContributor =
@@ -86,7 +93,7 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
         }`}
       >
         {" "}
-        {maxSnippets}
+        {`${currentSnippets}/${maxSnippets}`}
       </span>
     </>
   );
