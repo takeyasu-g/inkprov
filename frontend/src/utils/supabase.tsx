@@ -507,8 +507,8 @@ export async function getProjectContributors(projectId: string | undefined) {
       .select(
         `
         *,
-        user:users_ext!user_id(
-          id, 
+        user:users_ext!auth_id(
+          auth_id, 
           user_profile_name
         )
       `

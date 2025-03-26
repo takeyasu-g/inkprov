@@ -205,21 +205,21 @@ const CreateSession: React.FC = () => {
       }
 
       // Check if content is flagged for moderation
-      const moderationResponse = await axios.post(
-        `${API_BASE_URL}moderation`,
-        {
-          content: title + " " + description + " " + content,
-        }
-      );
+      // const moderationResponse = await axios.post(
+      //   `${API_BASE_URL}moderation`,
+      //   {
+      //     content: title + " " + description + " " + content,
+      //   }
+      // );
 
-      // If content is flagged, display reason
-      if (moderationResponse.data.flagged) {
-        toast.error(
-          `${t("moderation.flagged")} ${t(moderationResponse.data.reason)}`
-        );
-        setIsLoading(false);
-        return;
-      }
+      // // If content is flagged, display reason
+      // if (moderationResponse.data.flagged) {
+      //   toast.error(
+      //     `${t("moderation.flagged")} ${t(moderationResponse.data.reason)}`
+      //   );
+      //   setIsLoading(false);
+      //   return;
+      // }
 
       const newProject: Project = {
         title,
@@ -316,7 +316,9 @@ const CreateSession: React.FC = () => {
       </div>
       <Card className="border-none shadow-none md:shadow-lg">
         <CardHeader>
-          <CardTitle className="text-primary-text text-2xl font-bold">{t("create.header.title")}</CardTitle>
+          <CardTitle className="text-primary-text text-2xl font-bold">
+            {t("create.header.title")}
+          </CardTitle>
           <CardDescription className="text-left text-secondary-text">
             {t("create.header.description")}
           </CardDescription>
@@ -324,7 +326,10 @@ const CreateSession: React.FC = () => {
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="title" className="text-sm font-medium text-primary-text">
+              <label
+                htmlFor="title"
+                className="text-sm font-medium text-primary-text"
+              >
                 {t("create.form.titleField.title")}
               </label>
               <Input
@@ -350,7 +355,10 @@ const CreateSession: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="description" className="text-sm font-medium text-primary-text">
+              <label
+                htmlFor="description"
+                className="text-sm font-medium text-primary-text"
+              >
                 {t("create.form.descriptionField.title")}
               </label>
               <Textarea
@@ -377,7 +385,10 @@ const CreateSession: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="genre" className="text-sm font-medium text-primary-text">
+              <label
+                htmlFor="genre"
+                className="text-sm font-medium text-primary-text"
+              >
                 {t("create.form.genreField.title")}
               </label>
 
@@ -386,7 +397,10 @@ const CreateSession: React.FC = () => {
                 onValueChange={(value) => handleChange("genre", value)}
               >
                 <SelectTrigger className="mt-1 rounded-md border border-primary-border bg-white px-4 py-2 text-primary-text shadow-sm focus:outline-none focus-visible:ring-1 focus-visible:ring-input-focus focus-visible:border-input-focus sm:text-sm">
-                  <SelectValue className="text-secondary-text" placeholder={t("create.form.genreField.placeholder")}  />
+                  <SelectValue
+                    className="text-secondary-text"
+                    placeholder={t("create.form.genreField.placeholder")}
+                  />
                 </SelectTrigger>
                 <SelectContent className="text-primary-text">
                   {genres.map((genre) => (
@@ -399,7 +413,12 @@ const CreateSession: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="maxSnippets" className="text-sm font-medium text-primary-text">{t("create.form.snippetsField.title")}</Label>
+              <Label
+                htmlFor="maxSnippets"
+                className="text-sm font-medium text-primary-text"
+              >
+                {t("create.form.snippetsField.title")}
+              </Label>
 
               <Select
                 value={formData.maxSnippets.toString()}
@@ -408,7 +427,10 @@ const CreateSession: React.FC = () => {
                 }
               >
                 <SelectTrigger className="mt-1 rounded-md border border-primary-border bg-white px-4 py-2 text-primary-text shadow-sm focus:outline-none focus-visible:ring-1 focus-visible:ring-input-focus focus-visible:border-input-focus sm:text-sm">
-                  <SelectValue className="text-secondary-text" placeholder="Select snippet count" />
+                  <SelectValue
+                    className="text-secondary-text"
+                    placeholder="Select snippet count"
+                  />
                 </SelectTrigger>
                 <SelectContent className="text-secondary-text">
                   {[3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((num) => (
@@ -420,7 +442,8 @@ const CreateSession: React.FC = () => {
               </Select>
               <p className="text-xs mt-1 text-secondary-text">
                 {t("create.form.snippetsField.subtitle")}{" "}
-                {formData.maxSnippets * 50}-{formData.maxSnippets * 100} {t("words")}
+                {formData.maxSnippets * 50}-{formData.maxSnippets * 100}{" "}
+                {t("words")}
               </p>
             </div>
 
@@ -434,7 +457,12 @@ const CreateSession: React.FC = () => {
                     handleChange("isPublic", checked)
                   }
                 />
-                <Label htmlFor="public" className="text-sm font-medium text-primary-text">{t("create.form.publicSession")}</Label>
+                <Label
+                  htmlFor="public"
+                  className="text-sm font-medium text-primary-text"
+                >
+                  {t("create.form.publicSession")}
+                </Label>
               </div>
               <div className="flex items-center space-x-2">
                 <Switch
@@ -445,12 +473,20 @@ const CreateSession: React.FC = () => {
                     handleChange("isMature", checked)
                   }
                 />
-                <Label htmlFor="mature" className="text-sm font-medium text-primary-text">{t("matureContent")}</Label>
+                <Label
+                  htmlFor="mature"
+                  className="text-sm font-medium text-primary-text"
+                >
+                  {t("matureContent")}
+                </Label>
               </div>
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="content" className="text-sm font-medium text-primary-text">
+              <label
+                htmlFor="content"
+                className="text-sm font-medium text-primary-text"
+              >
                 {t("create.form.contributionField.title")}
               </label>
               <Textarea
