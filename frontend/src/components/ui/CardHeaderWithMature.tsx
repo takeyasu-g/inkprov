@@ -1,5 +1,4 @@
 import React from "react";
-import { CircleAlert } from "lucide-react";
 import {
   Badge,
   Tooltip,
@@ -8,6 +7,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui";
 import matureIcon from "@/assets/mature-icon.png";
+import { useTranslation } from "react-i18next";
 
 interface CardHeaderWithMatureProps {
   genre: string;
@@ -22,10 +22,11 @@ const CardHeaderWithMature: React.FC<CardHeaderWithMatureProps> = ({
   children,
   rightContent,
 }) => {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-3">
       <div className="flex justify-between items-center">
-        <Badge className={`genre-${genre.toLowerCase()}`}>{genre}</Badge>
+        <Badge className={`genre-${genre.toLowerCase()}`}>{t(`genres.${genre.toLowerCase()}`)}</Badge>
         <div className="flex items-center gap-1">
           {isMatureContent && (
             <TooltipProvider delayDuration={100}>
@@ -35,7 +36,7 @@ const CardHeaderWithMature: React.FC<CardHeaderWithMatureProps> = ({
                   {/* <CircleAlert className="h-4 w-4 text-amber-600" /> */}
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Mature Content</p>
+                  <p>{t("matureContent")}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

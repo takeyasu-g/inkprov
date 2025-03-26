@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { ProjectSnippet, ProjectsData, UserProfilePopUp } from "@/types/global";
+import { format } from "date-fns";
+import { useLanguage } from "@/contexts/LangContext";
+import { enUS, ja } from "date-fns/locale";
 import {
   getProjectOfId,
   getProjectSnippets,
@@ -36,12 +39,14 @@ import {
   Ghost,
   ChevronLeft,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+
 
 // Define reaction types
 const reactionTypes = [
   { type: "cool", icon: ThumbsUp, color: "#3b82f6", label: "Cool" },
   { type: "funny", icon: Laugh, color: "#f59e0b", label: "Funny" },
-  { type: "sad", icon: HeartCrack, color: "#6b7280", label: "Sad" },
+  { type: "sad", icon: HeartCrack, color: "#713600", label: "Sad" },
   {
     type: "heartwarming",
     icon: Heart,
@@ -58,6 +63,8 @@ const reactionTypes = [
 ];
 
 const ReadingPage: React.FC = () => {
+  const { lang } = useLanguage();
+  const { t } = useTranslation();
   const { projectId } = useParams();
 
   // this gets the passed state from the projectCard => projectData
@@ -151,15 +158,15 @@ const ReadingPage: React.FC = () => {
 
         toast.success(
           newReaction
-            ? `Marked this story as ${reactionLabel}`
-            : "Reaction removed"
+            ? `${t("toasts.reactionAdded")} ${t(`readingView.reactions.${reactionLabel.toLowerCase()}`)}`
+            : `${t("toasts.reactionRemoved")}`
         );
       } else {
-        toast.error("Couldn't update your reaction");
+        toast.error(t("toasts.reactionError"));
       }
     } catch (error) {
       console.error("Error updating reaction:", error);
-      toast.error("Something went wrong");
+      toast.error(t("toasts.reactionError"));
     } finally {
       setIsLoading(false);
     }
@@ -174,14 +181,14 @@ const ReadingPage: React.FC = () => {
 
   return (
     <main className="h-full md:flex md:flex-col md:gap-5 py-6 lg:mb-15 md:px-4 md:mx-auto md:max-w-[800px] bg-white md:bg-background">
-      <div className="bg-white md:bg-background px-5">
+      <div className="bg-white md:bg-background px-5 text-secondary-text">
         <Button
           variant="outline"
           onClick={() => navigate(-1)} // go back where came from , so now if came from profile it will go back there
-          className="text-sm bg-white md:bg-background"
+          className="text-sm bg-white md:bg-background hover:text-secondary-text cursor-pointer "
         >
           <ChevronLeft />
-          <span>Back</span>
+          <span>{t("back")}</span>
         </Button>
       </div>
       <Card className="border-none shadow-none md:shadow-lg">
@@ -195,17 +202,19 @@ const ReadingPage: React.FC = () => {
                 projectData?.project_genre?.toLowerCase() || ""
               }`}
             >
-              {projectData?.project_genre ||
-                project?.project_genre ||
-                "Unknown"}
+              {t(`genres.${projectData?.project_genre.toLowerCase()}`) ||
+                t(`genres.${project?.project_genre ||
+                "unknown".toLowerCase()}`)} 
             </Badge>
             <span className="text-secondary-text">
-              Completed:{" "}
+              {t("completed")}{" "}
               {project?.updated_at || projectData?.updated_at
-                ? new Date(
+                ? format(new Date(
                     project?.updated_at || projectData?.updated_at
-                  ).toDateString()
-                : "No date found"}
+                  ).toDateString(), lang === "ja" ? "yyyy年M月d日" : "MMMM d yyyy", {
+                    locale: lang === "ja" ? ja : enUS,
+                  })
+                : t("noDate")}
             </span>
           </div>
         </CardHeader>
@@ -241,7 +250,7 @@ const ReadingPage: React.FC = () => {
           {projectData?.is_completed && (
             <div className="mt-8 border-t pt-4">
               <h3 className="text-primary-text text-center font-medium my-3">
-                How did this story make you feel?
+                {t("readingView.reactionTitle")}
               </h3>
               <div className="flex flex-wrap gap-4 justify-center">
                 <TooltipProvider>
@@ -255,19 +264,19 @@ const ReadingPage: React.FC = () => {
                         <TooltipTrigger asChild>
                           <button
                             onClick={() => handleReactionClick(reaction.type)}
-                            className={`reaction-btn flex flex-col items-center w-14 h-16 rounded-lg transition-all ${
+                            className={`reaction-btn flex flex-col items-center w-14 h-12 rounded-lg transition-all cursor-pointer ${
                               isSelected
                                 ? "bg-gray-100 dark:bg-gray-800 shadow-sm"
-                                : "hover:bg-gray-50 dark:hover:bg-gray-800"
+                                : "hover:bg-accent"
                             }`}
                             disabled={isLoading}
-                            aria-label={`React with ${reaction.label}`}
+                            aria-label={`${t("readingView.reactionAria")} ${t(`readingView.reactions.${reaction.label.toLowerCase()}`)}`}
                           >
                             <div className="flex items-center justify-center h-7 w-full mt-2">
                               <Icon
                                 size={20}
-                                color={isSelected ? reaction.color : "#6b7280"}
-                                fill={isSelected ? reaction.color : "none"}
+                                stroke={isSelected ? reaction.color : "#6b7280"}
+                                // fill={isSelected ? reaction.color : "none"}
                                 strokeWidth={isSelected ? 2.5 : 2}
                                 className="transition-all"
                               />
@@ -282,8 +291,8 @@ const ReadingPage: React.FC = () => {
                         <TooltipContent side="bottom">
                           <p>
                             {isSelected
-                              ? "Remove reaction"
-                              : `Mark as ${reaction.label}`}
+                              ? t("readingView.removeReaction")
+                              : `${t("readingView.reactionTooltip")} ${t(`readingView.reactions.${reaction.label.toLowerCase()}`)}`}
                           </p>
                         </TooltipContent>
                       </Tooltip>

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { BookText, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
+import { useTranslation } from "react-i18next";
 import {
   Form,
   FormControl,
@@ -21,6 +22,7 @@ import {
 } from "@/components/ui/form";
 
 export default function RegisterPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -56,7 +58,7 @@ export default function RegisterPage() {
         throw response.error;
       }
 
-      toast.success("Registration successful! Logging in...");
+      toast.success(t("toasts.registerSuccess"));
 
       // Redirect to sessions page after successful registration
       setTimeout(() => {
@@ -64,7 +66,7 @@ export default function RegisterPage() {
       }, 2000);
     } catch (error: any) {
       setIsLoading(false);
-      toast.error(error.message || "An error occurred during registration");
+      toast.error(error.message || t("toasts.registerError"));
     } finally {
       setIsLoading(false);
     }
@@ -88,7 +90,7 @@ export default function RegisterPage() {
         throw error;
       }
     } catch (error: any) {
-      toast.error(error.message || "An error occurred during Google sign up");
+      toast.error(error.message || t("toasts.registerError"));
     } finally {
       setIsLoading(false);
     }
@@ -122,21 +124,19 @@ export default function RegisterPage() {
             <div className="p-4">
               <BookText size={44} />
               <h1 className="text-2xl font-bold text-primary-text text-center mt-2">
-                Begin your Writing Adventure
+                {t("auth.register.leftSection.title")}
               </h1>
               <p className="text-sm text-secondary-text text-left mt-2">
-                "There is no greater agony than bearing an untold story inside
-                you."
+                {t("auth.register.leftSection.quote")}
               </p>
               <p className="text-sm text-tertiary-text text text-right mt-2">
-                - Maya Angelou
+                {t("auth.register.leftSection.quoteAuthor")}
               </p>
               <div className="mt-3 flex justify-center">
                 <div className="h-px w-16 my-2 bg-tertiary-background"></div>
               </div>
               <p className="text-sm text-tertiary-text text-left my-3">
-                Join Inkprov today and turn your ideas into colaborative
-                masterpieces with fellow writers.
+                {t("auth.register.leftSection.bottomSubtitle")}
               </p>
             </div>
           </div>
@@ -144,14 +144,14 @@ export default function RegisterPage() {
       </div>
 
       {/* Right Column */}
-      <div className="w-full px-8 flex justify-center order-1 lg:order-2 py-15">
+      <div className="w-full px-8 flex justify-center order-1 lg:order-2 py-5">
         <div className="w-full max-w-md space-y-8 bg-background rounded-lg">
           <div>
             <h2 className="text-3xl font-bold text-primary-text text-center">
-              Create an account
+              {t("auth.register.rightSection.title")}
             </h2>
             <p className="mt-2 text-center text-secondary-text">
-              Join our community of writers.
+              {t("auth.register.rightSection.subtitle")}
             </p>
           </div>
 
@@ -170,7 +170,7 @@ export default function RegisterPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="block text-sm font-medium text-primary-text text-left">
-                          Email Address
+                         {t("auth.form.email")}
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -198,7 +198,7 @@ export default function RegisterPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="block text-sm font-medium text-primary-text text-left">
-                          Password
+                          {t("auth.form.password")}
                         </FormLabel>
                         <FormControl>
                           <div className="relative">
@@ -211,7 +211,7 @@ export default function RegisterPage() {
                           </div>
                         </FormControl>
                         <FormDescription className="text-xs text-secondary-text text-left">
-                          Minimum 6 Characters
+                          {t("auth.register.rightSection.form.passwordRequirments")}
                         </FormDescription>
                         <FormMessage className="text-left">
                           {form.formState.errors.password?.message}
@@ -228,7 +228,7 @@ export default function RegisterPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="block text-sm font-medium text-primary-text text-left">
-                          Confirm Password
+                          {t("auth.register.rightSection.form.confirmPassword")}
                         </FormLabel>
                         <FormControl>
                           <div className="relative">
@@ -258,21 +258,22 @@ export default function RegisterPage() {
                 >
                   {isLoading ? (
                     <>
-                      <Loader2 className="animate-spin" /> Creating Account
+                      <Loader2 className="animate-spin" /> {
+                        t("auth.register.rightSection.form.registerLoading")}
                     </>
                   ) : (
-                    "Create Account"
+                    t("auth.register.rightSection.form.register")
                   )}
                 </Button>
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-primary-border "></div>
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-background text-secondary-text">
-                      Or
-                    </span>
-                  </div>
+              </div>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-primary-border"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 my-2 bg-background text-secondary-text">
+                  {t("auth.continueWith.subtitle")}
+                  </span>
                 </div>
               </div>
             </form>
@@ -309,19 +310,19 @@ export default function RegisterPage() {
                   />
                 </g>
               </svg>
-              Continue with Google
+              {t("auth.continueWith.google")}
             </Button>
           </div>
 
           <p className="text-center text-sm text-secondary-text">
-            Already have an account?
+            {t("auth.register.rightSection.form.haveAccount")}
             <Button
               type="button"
               variant="link"
               onClick={() => navigate("/login")}
               className="text-primary-text hover:text-hover-text font-medium no-underline hover:no-underline cursor-pointer"
             >
-              Sign in
+              {t("auth.register.rightSection.form.signIn")}
             </Button>
           </p>
         </div>

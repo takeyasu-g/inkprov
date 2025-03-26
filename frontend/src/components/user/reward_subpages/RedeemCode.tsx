@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/utils/supabase";
+import { useTranslation } from "react-i18next";
 
 interface RedeemCodeProps {
   isRedeeming: boolean;
@@ -19,6 +20,7 @@ const CODE_TO_STAT_MAPPING: Record<string, string> = {
 };
 
 const RedeemCode: React.FC<RedeemCodeProps> = ({ setIsRedeeming }) => {
+  const { t } = useTranslation();
   const [code, setCode] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { user } = useAuth();
@@ -27,7 +29,7 @@ const RedeemCode: React.FC<RedeemCodeProps> = ({ setIsRedeeming }) => {
     e.preventDefault();
 
     if (!code.trim()) {
-      toast.error("Please enter a redemption code");
+      toast.error(t("toasts.codeRedemptionError1"));
       return;
     }
 
@@ -92,11 +94,11 @@ const RedeemCode: React.FC<RedeemCodeProps> = ({ setIsRedeeming }) => {
       }
 
       // Success response
-      toast.success("Code redeemed successfully! Reward unlocked.");
+      toast.success(t("toasts.codeRedemptionSuccess"));
       setCode("");
       setIsRedeeming(false);
     } catch (error: any) {
-      toast.error(error.message || "Failed to redeem code");
+      toast.error(error.message || t("toasts.codeRedemptionError2"));
     } finally {
       setIsSubmitting(false);
     }
@@ -109,9 +111,11 @@ const RedeemCode: React.FC<RedeemCodeProps> = ({ setIsRedeeming }) => {
 
   return (
     <div className="flex flex-col space-y-4 p-2">
-      <h3 className="text-lg font-medium text-primary-text">Redeem Code</h3>
+      <h3 className="text-lg font-medium text-primary-text">
+        {t("profile.header.redeemCode")}
+      </h3>
       <p className="text-sm text-secondary-text">
-        Enter your redemption code to unlock exclusive content and rewards.
+        {t("profile.header.redeemCodeDescription")}
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -120,8 +124,8 @@ const RedeemCode: React.FC<RedeemCodeProps> = ({ setIsRedeeming }) => {
             type="text"
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            placeholder="Enter your code"
-            className="w-full mt-1 px-4 py-2 border border-primary-border rounded-md bg-white text-primary-text focus:ring-primary-button focus:border-primary-button"
+            placeholder={t("profile.header.redeemCodePlaceholder")}
+            className="mt-1 block w-full rounded-md border border-primary-border bg-white px-4 py-2 text-primary-text shadow-sm focus:outline-none focus-visible:ring-1 focus-visible:ring-input-focus focus-visible:border-input-focus sm:text-sm"
             disabled={isSubmitting}
             autoComplete="off"
           />
@@ -135,10 +139,11 @@ const RedeemCode: React.FC<RedeemCodeProps> = ({ setIsRedeeming }) => {
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Redeeming...
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
+                {t("profile.header.redeemCodeLoading")}
               </>
             ) : (
-              "Redeem"
+              t("profile.header.redeem")
             )}
           </Button>
 
@@ -147,9 +152,9 @@ const RedeemCode: React.FC<RedeemCodeProps> = ({ setIsRedeeming }) => {
             variant="outline"
             onClick={handleCancel}
             disabled={isSubmitting}
-            className="border-primary-border text-primary-text hover:bg-accent"
+            className="w-auto text-primary-text hover:bg-secondary-button-hover hover:text-primary-text cursor-pointer"
           >
-            Cancel
+            {t("cancel")}
           </Button>
         </div>
       </form>

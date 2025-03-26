@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -29,16 +29,24 @@ import {
 } from "@/components/ui/alert-dialog";
 import ProfileSettings from "../ProfileSettings";
 import UserSettings from "../UserSettings";
+import { useTranslation } from "react-i18next";
 import RedeemCode from "@/components/user/reward_subpages/RedeemCode";
 
 const Profile: React.FC = () => {
-  const { user } = useAuth();
+  const { t } = useTranslation();
+  const { user: currentUser } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  let profileUserId: string = location.state?.userId;
+
+  // const { profileId } = useParams();
 
   // Profile States
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [username, setUsername] = useState<string>("");
   const [bio, setBio] = useState<string>("");
+  const [userEmail, setUserEmail] = useState<string>("");
   const [selectedProfilePicture, setSelectedProfilePicture] = useState<
     number | null
   >(null);
@@ -70,9 +78,13 @@ const Profile: React.FC = () => {
   useEffect(() => {
     const fetchProfileData = async () => {
       setIsLoading(true);
+      // go back where you cam from, id the param is null/undefined
+
       try {
         // Single API call to get all user data
-        const userData = await getUserProfileData();
+        const userData = await getUserProfileData(
+          profileUserId || currentUser.id
+        );
 
         // Process username
         const userNameParts = userData.username.split("@")[0];
@@ -87,6 +99,8 @@ const Profile: React.FC = () => {
         setStoriesCompleted(userData.completedProjects);
         setStoriesInprogress(userData.inProgressProjects);
         setUserPreference(userData.matureContentEnabled);
+        setUserEmail(userData.email);
+
 
         // Get instructor and demo day status
         if (user && user.id) {
@@ -94,6 +108,7 @@ const Profile: React.FC = () => {
             .from("user_gamification_stats")
             .select("is_cc_instructor, attended_demo_day")
             .eq("user_id", user.id)
+
             .single();
 
           setIsInstructor(!!stats?.is_cc_instructor);
@@ -107,11 +122,11 @@ const Profile: React.FC = () => {
     };
 
     fetchProfileData();
-  }, [user]);
+  }, [profileUserId, currentUser]);
 
   const getInitials = () => {
-    if (!user?.email) return "?";
-    return user.email
+    if (!userEmail) return "?";
+    return userEmail
       .split("@")[0]
       .split(".")
       .map((n: string) => n[0].toUpperCase())
@@ -124,137 +139,158 @@ const Profile: React.FC = () => {
         <ProfileSkeleton />
       ) : (
         <div className=" mb-5 lg:flex lg:gap-2 lg:p-4 ">
-          <section className="flex flex-col lg:h-150 w-[95%] md:w-[90%] lg:w-100 mx-auto bg-card rounded-lg border border-primary-border p-4">
-            <div className="ml-auto ">
-              <UserSettings userPreference={userPreference} />
-            </div>
+          <section className="flex flex-col lg:h-full lg:min-h-140 w-[95%] md:w-[90%] lg:w-100 mx-auto bg-card rounded-lg border border-primary-border p-4">
+            {/* Only display settings when currentUser === to the profile you are viewing */}
+            {currentUser.id === (profileUserId || currentUser.id) && (
+              <div className="ml-auto ">
+                <UserSettings userPreference={userPreference} />
+              </div>
+            )}
+
             <section className="flex space-y-5">
               <div>
                 <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <div className="relative group w-22 h-22 cursor-pointer">
-                      <Avatar className="w-22 h-22 cursor-pointer">
-                        <AvatarImage
-                          src={
-                            currentProfilePicture ||
-                            user?.user_metadata?.avatar_url
-                          }
-                        />
+                  {currentUser.id === (profileUserId || currentUser.id) ? (
+                    <AlertDialogTrigger asChild>
+                      <div className="relative group w-22 h-22 cursor-pointer">
+                        <Avatar className="w-22 h-22 cursor-pointer">
+                          <AvatarImage
+                            src={currentProfilePicture || undefined}
+                          />
+                          <AvatarFallback className="bg-white border border-tab-active">
+                            {getInitials()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="absolute inset-0 bg-background bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-60 transition-opacity duration-300 rounded-full">
+                          <span className="text-primary-text text-sm font-bold">
+                            {t("profile.header.profilePictureChange")}
+                          </span>
+                        </div>
+                      </div>
+                    </AlertDialogTrigger>
+                  ) : (
+                    <div className="w-22 h-22">
+                      <Avatar className="w-22 h-22">
+                        <AvatarImage src={currentProfilePicture || undefined} />
                         <AvatarFallback className="bg-white border border-tab-active">
                           {getInitials()}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="absolute inset-0 bg-background bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-60 transition-opacity duration-300 rounded-full">
-                        <span className="text-primary-text text-sm font-bold">
-                          Change
-                        </span>
-                      </div>
                     </div>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent className=" landscape:md:h-full landscape:lg:h-auto landscape:overflow-y-auto">
-                    <AlertDialogHeader>
-                      <AlertDialogTitle className="text-primary-text font-bold">
-                        Select Profile Picture
-                      </AlertDialogTitle>
-                      <AlertDialogDescription className="flex flex-col gap-4">
-                        <div className="flex flex-wrap gap-4 justify-center">
-                          {profilepictureOptions
-                            .slice(
-                              currentPage * ITEMS_PER_PAGE,
-                              (currentPage + 1) * ITEMS_PER_PAGE
-                            )
-                            .map((url, index) => {
-                              const actualIndex =
-                                currentPage * ITEMS_PER_PAGE + index;
-                              return (
-                                <img
-                                  key={actualIndex}
-                                  src={url}
-                                  alt={url.substring(url.lastIndexOf("/") + 1)}
-                                  className={`w-32 h-32 rounded-full cursor-pointer transition-transform hover:scale-105 ${
-                                    selectedProfilePicture === actualIndex
-                                      ? "border-4 border-primary-button"
-                                      : "border-2 border-transparent hover:border-primary-button/50"
-                                  }`}
-                                  onClick={() =>
-                                    setSelectedProfilePicture(actualIndex)
-                                  }
-                                />
-                              );
-                            })}
-                        </div>
-                        {profilepictureOptions.length > ITEMS_PER_PAGE && (
-                          <div className="flex justify-between items-center pt-4 border-t border-primary-border">
-                            <Button
-                              onClick={() =>
-                                setCurrentPage((prev) => Math.max(0, prev - 1))
-                              }
-                              disabled={currentPage === 0}
-                              variant="outline"
-                              className="text-primary-text"
-                            >
-                              Previous
-                            </Button>
-                            <span className="text-sm text-primary-text">
-                              Page {currentPage + 1} of{" "}
-                              {Math.ceil(
-                                profilepictureOptions.length / ITEMS_PER_PAGE
-                              )}
-                            </span>
-                            <Button
-                              onClick={() =>
-                                setCurrentPage((prev) =>
-                                  Math.min(
-                                    Math.ceil(
-                                      profilepictureOptions.length /
-                                        ITEMS_PER_PAGE
-                                    ) - 1,
-                                    prev + 1
-                                  )
-                                )
-                              }
-                              disabled={
-                                currentPage >=
-                                Math.ceil(
-                                  profilepictureOptions.length / ITEMS_PER_PAGE
-                                ) -
-                                  1
-                              }
-                              variant="outline"
-                              className="text-primary-text"
-                            >
-                              Next
-                            </Button>
+                  )}
+
+                  {currentUser.id === (profileUserId || currentUser.id) && (
+                    <AlertDialogContent className="landscape:md:h-full landscape:lg:h-auto landscape:overflow-y-auto">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-primary-text font-bold">
+                          {t("profile.changeProfilePictureAlert.header.title")}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="flex flex-col gap-4">
+                          <div className="flex flex-wrap gap-4 justify-center">
+                            {profilepictureOptions
+                              .slice(
+                                currentPage * ITEMS_PER_PAGE,
+                                (currentPage + 1) * ITEMS_PER_PAGE
+                              )
+                              .map((url, index) => {
+                                const actualIndex =
+                                  currentPage * ITEMS_PER_PAGE + index;
+                                return (
+                                  <img
+                                    key={actualIndex}
+                                    src={url}
+                                    alt={url.substring(
+                                      url.lastIndexOf("/") + 1
+                                    )}
+                                    className={`w-32 h-32 rounded-full cursor-pointer transition-transform hover:scale-105 ${
+                                      selectedProfilePicture === actualIndex
+                                        ? "border-4 border-primary-button"
+                                        : "border-2 border-transparent hover:border-primary-button/50"
+                                    }`}
+                                    onClick={() =>
+                                      setSelectedProfilePicture(actualIndex)
+                                    }
+                                  />
+                                );
+                              })}
                           </div>
-                        )}
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel
-                        className="cursor-pointer"
-                        onClick={() => setSelectedProfilePicture(null)}
-                      >
-                        Cancel
-                      </AlertDialogCancel>
-                      <AlertDialogAction
-                        disabled={selectedProfilePicture === null}
-                        onClick={() => {
-                          if (selectedProfilePicture !== null) {
-                            setCurrentProfilePicture(
-                              profilepictureOptions[selectedProfilePicture]
-                            );
-                            setSelectedProfilePicture(null);
-                            updateProfilePicture(
-                              profilepictureOptions[selectedProfilePicture]
-                            );
-                          }
-                        }}
-                        className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
-                      >
-                        Select
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
+                          {profilepictureOptions.length > ITEMS_PER_PAGE && (
+                            <div className="flex justify-between items-center pt-4 border-t border-primary-border">
+                              <Button
+                                onClick={() =>
+                                  setCurrentPage((prev) =>
+                                    Math.max(0, prev - 1)
+                                  )
+                                }
+                                disabled={currentPage === 0}
+                                variant="outline"
+                                className="text-primary-text"
+                              >
+                                {t("pagination.previous")}
+                              </Button>
+                              <span className="text-sm text-primary-text">
+                                {t("pagination.page")} {currentPage + 1}{" "}
+                                {t("of")}{" "}
+                                {Math.ceil(
+                                  profilepictureOptions.length / ITEMS_PER_PAGE
+                                )}
+                              </span>
+                              <Button
+                                onClick={() =>
+                                  setCurrentPage((prev) =>
+                                    Math.min(
+                                      Math.ceil(
+                                        profilepictureOptions.length /
+                                          ITEMS_PER_PAGE
+                                      ) - 1,
+                                      prev + 1
+                                    )
+                                  )
+                                }
+                                disabled={
+                                  currentPage >=
+                                  Math.ceil(
+                                    profilepictureOptions.length /
+                                      ITEMS_PER_PAGE
+                                  ) -
+                                    1
+                                }
+                                variant="outline"
+                                className="text-primary-text"
+                              >
+                                {t("pagination.next")}
+                              </Button>
+                            </div>
+                          )}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel
+                          className="cursor-pointer"
+                          onClick={() => setSelectedProfilePicture(null)}
+                        >
+                          {t("cancel")}
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          disabled={selectedProfilePicture === null}
+                          onClick={() => {
+                            if (selectedProfilePicture !== null) {
+                              setCurrentProfilePicture(
+                                profilepictureOptions[selectedProfilePicture]
+                              );
+                              setSelectedProfilePicture(null);
+                              updateProfilePicture(
+                                profilepictureOptions[selectedProfilePicture]
+                              );
+                            }
+                          }}
+                          className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
+                        >
+                          {t("select")}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  )}
                 </AlertDialog>
               </div>
 
@@ -285,14 +321,16 @@ const Profile: React.FC = () => {
                 <div className="flex items-center ml-3 text-secondary-text">
                   <BookOpen size={20} />
                   <p className="ml-2 mb-1">
-                    {storiesCompleted?.length} Completed Stories
+                    {storiesCompleted?.length}{" "}
+                    {t("profile.header.completedStories")}
                   </p>
                 </div>
                 {/* In Progress Stories Tracker */}
                 <div className="flex items-center ml-3 text-secondary-text">
                   <PenTool size={20} />
                   <p className="ml-2 mb-1">
-                    {storiesInprogress?.length}/5 In Progress Stories
+                    {storiesInprogress?.length}/5{" "}
+                    {t("profile.header.inProgressStories")}
                   </p>
                 </div>
               </article>
@@ -301,7 +339,7 @@ const Profile: React.FC = () => {
             {!isEditing && (
               <section className="flex flex-col">
                 <h3 className="text-xl font-bold text-primary-text text-left mb-1 ml-3">
-                  About Me
+                  {t("profile.header.aboutMe")}
                 </h3>
                 <p className="ml-3 text-secondary-text text-left">
                   {bio.length > 0 ? bio : "No Bio Written"}
@@ -309,34 +347,37 @@ const Profile: React.FC = () => {
               </section>
             )}
 
-            {!isEditing && (
-              <Button
-                onClick={() => setIsEditing(!isEditing)}
-                className="self-center sm:self-start  mx-auto sm:mx-0 w-[90%] sm:w-[60%] md:w-[50%] lg:w-[90%] lg:self-center mt-6 bg-gray-100 text-black border border-gray-300 hover:bg-gray-200 cursor-pointer"
-              >
-                Edit Profile
-              </Button>
-            )}
-            {/* handles displaying editing pane */}
-            <div className="self-center sm:self-start mx-auto sm:mx-0 w-[90%] sm:w-[60%] lg:w-full">
-              {isEditing && (
-                <ProfileSettings
-                  isEditing={isEditing}
-                  setIsEditing={setIsEditing}
-                  setBio={setBio}
-                  setUsername={setUsername}
-                />
+            {currentUser.id === (profileUserId || currentUser.id) &&
+              !isEditing && (
+                <Button
+                  onClick={() => setIsEditing(!isEditing)}
+                  className="self-center sm:self-start  mx-auto sm:mx-0 w-[90%] sm:w-[60%] md:w-[50%] lg:w-[90%] lg:self-center mt-6 bg-primary-button hover:bg-primary-button-hover cursor-pointer"
+                >
+                  {t("profile.header.editProfile")}
+                </Button>
               )}
+            <div className="self-center sm:self-start mx-auto sm:mx-0 w-[90%] sm:w-[60%] lg:w-full">
+              {currentUser.id === (profileUserId || currentUser.id) &&
+                isEditing && (
+                  <ProfileSettings
+                    isEditing={isEditing}
+                    setIsEditing={setIsEditing}
+                    setBio={setBio}
+                    setUsername={setUsername}
+                    userId={profileUserId || currentUser.id}
+                  />
+                )}
             </div>
 
-            {!isRedeeming && (
-              <Button
-                onClick={() => setIsRedeeming(!isRedeeming)}
-                className="self-center sm:self-start  mx-auto sm:mx-0 w-[90%] sm:w-[60%] md:w-[50%] lg:w-[90%] lg:self-center mt-6 bg-gray-100 text-black border border-gray-300 hover:bg-gray-200 cursor-pointer"
-              >
-                Redeem Code
-              </Button>
-            )}
+            {currentUser.id === (profileUserId || currentUser.id) &&
+              !isRedeeming && (
+                <Button
+                  onClick={() => setIsRedeeming(!isRedeeming)}
+                  className="self-center sm:self-start  mx-auto sm:mx-0 w-[90%] sm:w-[60%] md:w-[50%] lg:w-[90%] lg:self-center mt-6 bg-primary-button hover:bg-primary-button-hover cursor-pointer"
+                >
+                  {t("profile.header.redeemCode")}
+                </Button>
+              )}
             {/* handles displaying redemption pane */}
             <div className="self-center sm:self-start mx-auto sm:mx-0 w-[90%] sm:w-[60%] lg:w-full">
               {isRedeeming && (
@@ -361,7 +402,7 @@ const Profile: React.FC = () => {
               >
                 <div className="flex items-center">
                   <BookOpen className="mr-2" size={18} />
-                  Your Stories
+                  {t("profile.tabs.yourStories")}
                 </div>
               </TabsTrigger>
               <TabsTrigger
@@ -371,7 +412,7 @@ const Profile: React.FC = () => {
               >
                 <div className="flex items-center">
                   <Trophy className="mr-2" size={18} />
-                  Achievements
+                  {t("profile.tabs.achievements")}
                 </div>
               </TabsTrigger>
             </TabsList>
@@ -383,11 +424,11 @@ const Profile: React.FC = () => {
                   <div className="flex items-center text-secondary-text">
                     <BookOpen />
                     <h3 className="text-xl font-bold text-primary-text text-left mb-1 ml-3">
-                      Your Stories
+                      {t("profile.stories.title")}
                     </h3>
                   </div>
                   <p className="ml-3 text-secondary-text text-left">
-                    Stories you've contributed to
+                    {t("profile.stories.subtitle")}
                   </p>
                 </section>
                 {/* Completed and In Progress Stories Tabs */}
@@ -397,13 +438,13 @@ const Profile: React.FC = () => {
                       value="completed"
                       className="data-[state=active]:text-white data-[state=active]:bg-tab-active cursor-pointer"
                     >
-                      Completed
+                      {t("completed")}
                     </TabsTrigger>
                     <TabsTrigger
                       value="in-progress"
                       className="data-[state=active]:text-white data-[state=active]:bg-tab-active cursor-pointer"
                     >
-                      In progress
+                      {t("inProgress")}
                     </TabsTrigger>
                   </TabsList>
                   {/* Completed Stories Tab Content*/}
@@ -413,15 +454,18 @@ const Profile: React.FC = () => {
                       storiesCompleted?.length == 0 ? (
                         <div className="h-auto flex flex-col">
                           <p className="text-secondary-text font-medium mb-2">
-                            No Completed Stories
+                            {t("profile.empty.noCompleted")}
                           </p>
-                          <Button
-                            className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
-                            variant="default"
-                            onClick={() => navigate("/sessions/create")}
-                          >
-                            Start Creating
-                          </Button>
+                          {currentUser.id ===
+                            (profileUserId || currentUser.id) && (
+                            <Button
+                              className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
+                              variant="default"
+                              onClick={() => navigate("/sessions/create")}
+                            >
+                              {t("startCreating")}
+                            </Button>
+                          )}
                         </div>
                       ) : (
                         // Completed Stories Cards
@@ -449,15 +493,18 @@ const Profile: React.FC = () => {
                       storiesInprogress?.length == 0 ? (
                         <div className="h-auto flex flex-col">
                           <p className="text-secondary-text font-medium mb-2">
-                            No Stories in progress
+                            {t("profile.empty.noInProgress")}
                           </p>
-                          <Button
-                            className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
-                            variant="default"
-                            onClick={() => navigate("/sessions/create")}
-                          >
-                            Start Creating
-                          </Button>
+                          {currentUser.id ===
+                            (profileUserId || currentUser.id) && (
+                            <Button
+                              className="bg-primary-button hover:bg-primary-button-hover cursor-pointer"
+                              variant="default"
+                              onClick={() => navigate("/sessions/create")}
+                            >
+                              {t("startCreating")}
+                            </Button>
+                          )}
                         </div>
                       ) : (
                         // In Progress Stories Cards
@@ -485,20 +532,7 @@ const Profile: React.FC = () => {
             {/* Gamification Tab Content */}
             <TabsContent value="gamification">
               <section className="w-full space-y-8 bg-card p-8 mt-[39px] rounded-lg rounded-tl-none border border-primary-border">
-                <section className="flex flex-col">
-                  <div className="flex items-center text-secondary-text">
-                    <Trophy />
-                    <h3 className="text-xl font-bold text-primary-text text-left mb-1 ml-3">
-                      Gamification
-                    </h3>
-                  </div>
-                  <p className="ml-3 text-secondary-text text-left mb-4">
-                    Your achievements and progress
-                  </p>
-                </section>
-
-                {/* Integrated RewardTrophiesPage component */}
-                <RewardTrophiesPage />
+                <RewardTrophiesPage userId={profileUserId || currentUser.id} />
               </section>
             </TabsContent>
           </Tabs>
