@@ -68,8 +68,6 @@ const SessionCard: React.FC<SessionCardDataProp> = ({
   const currentUser = sessionData.creator;
   const currentSnippets = sessionData.current_snippets;
 
-  console.log(sessionData);
-
   const formattedDate = sessionData.created_at
     ? `${t("openSessions.card.time.created")} ${formatRelative(
         new Date(sessionData.created_at),
