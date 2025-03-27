@@ -610,7 +610,7 @@ const WritingEditor: React.FC = () => {
   // Get ideas from AI API
   const getWritingIdeas = async () => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/ideas`, {
+      const response = await axios.post(`${API_BASE_URL}ideas`, {
         prompt: previousSnippets[previousSnippets.length - 1].content,
       });
       setWritingIdeas(response.data);
