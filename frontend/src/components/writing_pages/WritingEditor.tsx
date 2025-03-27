@@ -243,6 +243,8 @@ const WritingEditor: React.FC = () => {
             sessionStorage.setItem("refreshSessions", "true");
           }
         }
+
+        await fetchContributors();
       } catch (error) {
         toast.error(`${error}`);
       } finally {
@@ -736,19 +738,50 @@ const WritingEditor: React.FC = () => {
       }
       setIsSubmitting(true);
 
-      const moderationResponse = await axios.post(`${API_BASE_URL}moderation`, {
-        content: content,
-      });
+      // const moderationResponse = await axios.post(`${API_BASE_URL}moderation`, {
+      //   content: content,
+      // });
 
-      // If content is flagged, display reason
-      if (moderationResponse.data.flagged) {
-        toast.error(
-          `${t(
-            "moderation.flagged"
-          )} ${moderationResponse.data.reason.toLowerCase()}`
-        );
-        setIsSubmitting(false);
-        return;
+      // // If content is flagged, display reason
+      // if (moderationResponse.data.flagged) {
+      //   toast.error(
+      //     `${t(
+      //       "moderation.flagged"
+      //     )} ${moderationResponse.data.reason.toLowerCase()}`
+      //   );
+      //   setIsSubmitting(false);
+      //   return;
+      // }
+
+      // insert project conribution
+
+      // Check if the user already exists in project_contributors for this project
+      const { data: existingContributor, error: fetchError } = await supabase
+        .from("project_contributors")
+        .select("id") // Select only the ID for efficiency
+        .eq("project_id", projectId)
+        .eq("user_id", userData.auth_id)
+        .single(); // Expect at most one result
+
+      if (fetchError && fetchError.code !== "PGRST116") {
+        // Ignore "no rows found" error
+        throw fetchError;
+      }
+
+      // Insert only if no existing contributor is found
+      if (!existingContributor) {
+        const { error: contributionError } = await supabase
+          .from("project_contributors")
+          .insert({
+            project_id: projectId,
+            user_id: userData.auth_id,
+            last_contribution_at: new Date().toISOString(),
+            user_made_contribution: true,
+          });
+
+        if (contributionError) {
+          throw contributionError;
+        }
       }
 
       // Add the snippet
@@ -771,31 +804,13 @@ const WritingEditor: React.FC = () => {
         setIsSubmitting(false);
         return;
       }
+      // add a snippet count in projects => supabase will automatically check if current_snippets = max_snippets and mark is_completed to true
+      const { error } = await supabase.rpc("increment_current_snippets", {
+        project_id: projectId,
+      });
 
-      // Get the latest snippet count to check if we should mark the project as completed
-      const { data: currentSnippets, error: snippetsCountError } =
-        await supabase
-          .from("project_snippets")
-          .select("id")
-          .eq("project_id", projectId);
-
-      if (snippetsCountError) {
-        console.error(
-          "Error fetching current snippets count:",
-          snippetsCountError
-        );
-      } else {
-        const snippetCount = currentSnippets?.length || 0;
-
-        // Check if this submission completes the project
-        if (
-          project?.max_snippets &&
-          snippetCount >= project.max_snippets &&
-          !project.is_completed
-        ) {
-          // We'll mark the project as completed later in unlockProject()
-          // This serves as an additional check
-        }
+      if (error) {
+        console.error("Increment failed:", error);
       }
 
       // Stop the timer and reset writing fields
