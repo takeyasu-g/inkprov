@@ -32,12 +32,13 @@ export interface ProjectsData {
     user_profile_name: string;
   } | null;
   created_at: Date;
-  current_contributors_count: number;
+  contributor_count: number;
   max_snippets: number;
   project_contributors?: ProjectContributor[];
   updated_at: Date;
   is_public: boolean;
   is_mature_content: boolean;
+  word_count: number;
   current_snippets?: number;
 }
 

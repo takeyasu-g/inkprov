@@ -22,7 +22,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import axios from "axios";
+// import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -34,8 +34,8 @@ interface EditingToggleProps {
   userId?: string;
 }
 
-const API_BASE_URL =
-  (import.meta.env.VITE_BACKEND_URL as string) || "http://localhost:8080";
+// const API_BASE_URL =
+//   (import.meta.env.VITE_BACKEND_URL as string) || "http://localhost:8080";
 
 const ProfileSettings: React.FC<EditingToggleProps> = ({
   isEditing,
@@ -95,23 +95,23 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
       setIsLoading(true);
 
       // Check if any of the fields have data
-      if (values.username.length > 0 || values.bio.length > 0) {
-        const moderationResponse = await axios.post(
-          `${API_BASE_URL}moderation`,
-          {
-            content: values.username + " " + values.bio,
-          }
-        );
+      // if (values.username.length > 0 || values.bio.length > 0) {
+      //   const moderationResponse = await axios.post(
+      //     `${API_BASE_URL}moderation`,
+      //     {
+      //       content: values.username + " " + values.bio,
+      //     }
+      //   );
 
-        // If content is flagged, display reason
-        if (moderationResponse.data.flagged) {
-          toast.error(
-            `${t("moderation.flagged")} ${moderationResponse.data.reason}`
-          );
-          setIsLoading(false);
-          return;
-        }
-      }
+      //   // If content is flagged, display reason
+      //   if (moderationResponse.data.flagged) {
+      //     toast.error(
+      //       `${t("moderation.flagged")} ${moderationResponse.data.reason}`
+      //     );
+      //     setIsLoading(false);
+      //     return;
+      //   }
+      // }
 
       // Update username and bio
       if (values.username.length > 0) {

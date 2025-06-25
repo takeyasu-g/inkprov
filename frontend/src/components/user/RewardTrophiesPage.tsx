@@ -24,11 +24,9 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase } from "@/utils/supabase";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useTranslation } from "react-i18next";
-import { useAuth } from "@/contexts/AuthContext";
 
 interface Achievement {
   id: string;
@@ -43,96 +41,25 @@ interface Achievement {
 }
 
 interface RewardTrophiesPageProps {
-  userId?: string; // Optional - if not provided, will use the current user
+  stats: any; // Changed from userId to accept the stats object directly
 }
 
-const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
+const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ stats }) => {
   const { t } = useTranslation();
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [userStats, setUserStats] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<string>("all");
-  //  useAuth user will be used if no userId prop was given
-  const { user } = useAuth();
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        setLoading(true);
-
-        // Fetch user stats from the database - using the correct table name
-        const { data: stats, error } = await supabase
-          .from("user_gamification_stats") // Changed from "user_stats" to "user_gamification_stats" to match current supabase titling
-          .select("*")
-          .eq("user_id", userId || user.id)
-          .single();
-
-        // Create default stats object
-        const defaultStats = {
-          user_id: userId || user.id,
-          user_total_projects_created: 0,
-          user_total_contribution: 0,
-          projects_completed: 0,
-          user_total_wordcount: 0,
-          comments_made: 0,
-          likes_given: 0,
-          likes_received: 0,
-          unique_projects_contributed: 0,
-          user_total_invites: 0,
-          user_total_score: 0,
-          user_total_logins: 0,
-          attended_demo_day: 0,
-          is_cc_instructor: 0,
-        };
-
-        // If no record exists for this user, create one, only if currentUser is the porfiles user
-        if (!stats && userId === user.id) {
-          // Insert default stats for this user
-          const { data: insertedStats, error: insertError } = await supabase
-            .from("user_gamification_stats")
-            .insert([defaultStats])
-            .select()
-            .single();
-
-          if (insertError) {
-            console.error("Error creating default stats:", insertError);
-            setUserStats(defaultStats);
-          } else {
-            setUserStats(insertedStats);
-          }
-        } else if (error) {
-          console.error("Error fetching user stats:", error);
-          setUserStats(defaultStats);
-        } else {
-          setUserStats(stats);
-        }
-
-        // Function to calculate which achievements are unlocked
-        calculateAchievements(
-          stats || {
-            user_id: userId || user.id,
-            user_total_projects_created: 0,
-            user_total_contribution: 0,
-            projects_completed: 0,
-            user_total_wordcount: 0,
-            comments_made: 0,
-            likes_given: 0,
-            likes_received: 0,
-            unique_projects_contributed: 0,
-            user_total_invites: 0,
-            user_total_score: 0,
-            user_total_logins: 0,
-          }
-        );
-      } catch (error) {
-        console.error("Error in fetchUserData:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserData();
-  }, [userId, user]);
+    // Remove all data fetching logic.
+    // Directly use the stats prop to calculate achievements.
+    if (stats) {
+      calculateAchievements(stats);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
+  }, [stats]); // Re-run when the stats prop changes.
 
   const calculateAchievements = (stats: any) => {
     const allAchievements: Achievement[] = [
@@ -429,7 +356,7 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
                 {t("contributions")}
               </p>
               <p className="text-2xl font-bold">
-                {userStats?.user_total_contribution || 0}
+                {stats?.user_total_contribution || 0}
               </p>
             </div>
             <div className="stat-card bg-purple-50 p-3 rounded-lg">
@@ -437,7 +364,7 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
                 {t("profile.achievements.stats.projectsCreated")}
               </p>
               <p className="text-2xl font-bold">
-                {userStats?.user_total_projects_created || 0}
+                {stats?.user_total_projects_created || 0}
               </p>
             </div>
             <div className="stat-card bg-amber-50 p-3 rounded-lg">
@@ -445,7 +372,7 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
                 {t("profile.achievements.stats.projectsCompleted")}
               </p>
               <p className="text-2xl font-bold">
-                {userStats?.projects_completed || 0}
+                {stats?.projects_completed || 0}
               </p>
             </div>
             <div className="stat-card bg-green-50 p-3 rounded-lg">
@@ -453,7 +380,7 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
                 {t("profile.achievements.stats.wordsWritten")}
               </p>
               <p className="text-2xl font-bold">
-                {userStats?.user_total_wordcount || 0}
+                {stats?.user_total_wordcount || 0}
               </p>
             </div>
           </div>

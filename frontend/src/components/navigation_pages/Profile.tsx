@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { getProfile } from "@/services/api";
 import { BookOpen, PenTool, Trophy } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChalkboard, faSchool } from "@fortawesome/free-solid-svg-icons";
@@ -11,11 +12,7 @@ import ProfileStoriesCard from "../ProfileStoriesCard";
 import ProfileSkeleton from "../ProfileSkeleton";
 import RewardTrophiesPage from "../user/RewardTrophiesPage";
 import { ProjectsData } from "@/types/global";
-import {
-  getUserProfileData,
-  updateProfilePicture,
-  supabase,
-} from "@/utils/supabase";
+import { updateProfilePicture } from "@/utils/supabase";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,7 +28,6 @@ import ProfileSettings from "../ProfileSettings";
 import UserSettings from "../UserSettings";
 import { useTranslation } from "react-i18next";
 import RedeemCode from "@/components/user/reward_subpages/RedeemCode";
-// import { Skeleton } from "@/components/ui/skeleton";
 
 const Profile: React.FC = () => {
   const { t } = useTranslation();
@@ -39,8 +35,6 @@ const Profile: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   let profileUserId: string = location.state?.userId;
-
-  // const { profileId } = useParams();
 
   // Profile States
 
@@ -64,8 +58,7 @@ const Profile: React.FC = () => {
     ProjectsData[] | null
   >([]);
   const [currentPage, setCurrentPage] = useState(0);
-  const [isInstructor, setIsInstructor] = useState<boolean>(false);
-  const [attendedDemoDay, setAttendedDemoDay] = useState<boolean>(false);
+  const [userStats, setUserStats] = useState<any>(null);
 
   // maybe future add also private toggle
   const [userPreference, setUserPreference] = useState<boolean>(false);
@@ -80,43 +73,31 @@ const Profile: React.FC = () => {
     const fetchProfileData = async () => {
       setIsLoading(true);
       try {
-        // Single API call to get all user data
-        const userData = await getUserProfileData(
-          profileUserId || currentUser.id
-        );
+        // Single, efficient API call to the backend
+        const data = await getProfile(profileUserId || currentUser.id);
+
+        // Destructure the response from the backend
+        const { profile, projects, stats, pictureOptions } = data;
 
         // Process username
-        const userNameParts = userData.username.split("@")[0];
+        const userNameParts = profile.user_profile_name.split("@")[0];
         const formattedUsername =
           userNameParts[0].toUpperCase() + userNameParts.substring(1);
 
-        // Update all state
+        // Update all state from the single API call
         setUsername(formattedUsername);
-        setBio(userData.bio || "");
-        setCurrentProfilePicture(userData.profilePicture);
-        setProfilePictureOptions(userData.profilePictureOptions);
-        setStoriesCompleted(userData.completedProjects);
-        setStoriesInprogress(userData.inProgressProjects);
-        setUserPreference(userData.matureContentEnabled);
-        setUserEmail(userData.email);
-
-        // Get instructor and demo day status
-        if (currentUser && currentUser.id) {
-          const { data: stats } = await supabase
-            .from("user_gamification_stats")
-            .select("is_cc_instructor, attended_demo_day")
-            .eq("user_id", currentUser.id)
-
-            .single();
-
-          setIsInstructor(!!stats?.is_cc_instructor);
-          setAttendedDemoDay(!!stats?.attended_demo_day);
-        }
+        setBio(profile.user_profile_bio || "");
+        setCurrentProfilePicture(profile.profile_pic_url);
+        setProfilePictureOptions(pictureOptions || []);
+        setStoriesCompleted(projects.completedProjects || []);
+        setStoriesInprogress(projects.inProgressProjects || []);
+        setUserPreference(profile.user_profile_mature_enabled);
+        setUserEmail(profile.user_email);
+        setUserStats(stats); // Set the entire stats object
       } catch (error) {
         console.error("Error fetching profile data:", error);
       } finally {
         setIsLoading(false);
-        // setIsLoadingPictures(false);
       }
     };
 
@@ -299,14 +280,14 @@ const Profile: React.FC = () => {
                     <h1 className="text-2xl font-bold text-primary-text">
                       {username}
                     </h1>
-                    {isInstructor && (
+                    {userStats?.is_cc_instructor && (
                       <FontAwesomeIcon
                         icon={faChalkboard}
                         className="text-yellow-500"
                         size="lg"
                       />
                     )}
-                    {attendedDemoDay && (
+                    {userStats?.attended_demo_day && (
                       <FontAwesomeIcon
                         icon={faSchool}
                         className="text-blue-500"
@@ -474,8 +455,8 @@ const Profile: React.FC = () => {
                             genre={story.project_genre}
                             creationDate={story.created_at}
                             title={story.title}
-                            collaborators={story.current_contributors_count}
-                            wordCount={1051}
+                            collaborators={story.contributor_count}
+                            wordCount={story.word_count}
                             lastUpdated={story.updated_at}
                             publicStory={story.is_public}
                             storyId={story.id}
@@ -513,8 +494,8 @@ const Profile: React.FC = () => {
                             genre={story.project_genre}
                             creationDate={story.created_at}
                             title={story.title}
-                            collaborators={story.current_contributors_count}
-                            wordCount={1051}
+                            collaborators={story.contributor_count}
+                            wordCount={story.word_count}
                             lastUpdated={story.updated_at}
                             publicStory={story.is_public}
                             storyId={story.id}
@@ -531,7 +512,7 @@ const Profile: React.FC = () => {
             {/* Gamification Tab Content */}
             <TabsContent value="gamification">
               <section className="w-full space-y-8 bg-card p-8 mt-[39px] rounded-lg rounded-tl-none border border-primary-border">
-                <RewardTrophiesPage userId={profileUserId || currentUser.id} />
+                <RewardTrophiesPage stats={userStats} />
               </section>
             </TabsContent>
           </Tabs>
