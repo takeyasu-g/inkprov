@@ -4,7 +4,7 @@ import { supabase } from "../config/supabase.js";
  * Fetches all projects a specific user is a contributor to, including calculated stats.
  * This function calls a custom database function (RPC) for high performance.
  * @param {string} userId - The auth_id of the user.
- * @returns {Promise<Array>} An array of project objects with contributor and word counts.
+ * @returns {Promise<Object>} An object containing two arrays of project objects: completedProjects and inProgressProjects.
  */
 export const getUserProjectsWithStats = async (userId) => {
   // 1. Call the RPC function by its name.
@@ -18,6 +18,15 @@ export const getUserProjectsWithStats = async (userId) => {
     throw new Error("Could not fetch user's projects with stats.");
   }
 
-  // 3. The data comes back perfectly formatted from the database function. No extra mapping needed.
-  return data;
+  // If no data is returned, provide a default structure.
+  if (!data) {
+    return { completedProjects: [], inProgressProjects: [] };
+  }
+
+  // Categorize projects into completed and in-progress lists.
+  const completedProjects = data.filter((p) => p.is_completed);
+  const inProgressProjects = data.filter((p) => !p.is_completed);
+
+  // Return the categorized data.
+  return { completedProjects, inProgressProjects };
 };

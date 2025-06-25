@@ -1,4 +1,7 @@
-import { getBasicProfile } from "../services/userService.js";
+import {
+  getBasicProfile,
+  getProfilePictureOptions,
+} from "../services/userService.js";
 import { getUserProjectsWithStats } from "../services/projectService.js";
 import { getUserStats } from "../services/gamificationService.js";
 
@@ -14,10 +17,11 @@ export const getProfileData = async (req, res) => {
   try {
     // Use Promise.all to fetch all data in parallel for maximum efficiency.
     // This is much faster than awaiting each call individually.
-    const [profile, projects, stats] = await Promise.all([
+    const [profile, projects, stats, pictureOptions] = await Promise.all([
       getBasicProfile(userId),
       getUserProjectsWithStats(userId),
       getUserStats(userId),
+      getProfilePictureOptions(), // Fetch the avatar options
     ]);
 
     // Assemble the final, clean JSON response for the frontend
@@ -25,6 +29,7 @@ export const getProfileData = async (req, res) => {
       profile, // Basic user info from userService
       projects, // Projects with stats from projectService
       stats, // Gamification stats from gamificationService
+      pictureOptions, // Available avatar choices
     };
 
     res.status(200).json(profileData);

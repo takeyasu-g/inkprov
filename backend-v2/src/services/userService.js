@@ -23,3 +23,28 @@ export const getBasicProfile = async (userId) => {
 
   return data;
 };
+
+/**
+ * Fetches the list of all available profile picture options from Supabase storage.
+ * @returns {Promise<string[]>} A promise that resolves to an array of public URLs for the avatar images.
+ */
+export const getProfilePictureOptions = async () => {
+  const { data: fileList, error: listError } = await supabase.storage
+    .from("user-profile-pictures")
+    .list();
+
+  if (listError) {
+    console.error("Error listing profile pictures:", listError);
+    throw new Error("Could not fetch profile picture options.");
+  }
+
+  // Map the file list to an array of public URLs
+  const options = fileList.map((file) => {
+    const { data: publicUrlData } = supabase.storage
+      .from("user-profile-pictures")
+      .getPublicUrl(file.name);
+    return publicUrlData.publicUrl;
+  });
+
+  return options;
+};
