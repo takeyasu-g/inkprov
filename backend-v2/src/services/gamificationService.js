@@ -7,7 +7,7 @@ import { supabase } from "../config/supabase.js";
  */
 export const getUserStats = async (userId) => {
   const { data, error } = await supabase
-    .from("gamification_user_stats")
+    .from("user_gamification_stats")
     .select("*")
     .eq("user_id", userId)
     .single(); // .single() is used because each user has only one row of stats.

@@ -5,8 +5,8 @@
   "main": "api/index.js",
   "type": "module",
   "scripts": {
-    "start": "node api/index.js",
-    "dev": "nodemon api/index.js"
+    "start": "node -r dotenv/config api/index.js",
+    "dev": "nodemon -r dotenv/config api/index.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.43.4",
