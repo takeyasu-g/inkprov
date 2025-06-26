@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -75,43 +75,43 @@ const Profile: React.FC = () => {
 
   const ITEMS_PER_PAGE = 6;
 
+  const fetchProfileData = useCallback(async (): Promise<void> => {
+    setIsLoading(true);
+    try {
+      // Single, efficient API call to the backend
+      const data: ProfileApiResponse = await getProfile(
+        profileUserId || currentUser.id
+      );
+
+      // Destructure the response from the backend
+      const { profile, projects, stats, pictureOptions } = data;
+
+      // Process username
+      const userNameParts = profile.user_profile_name.split("@")[0];
+      const formattedUsername =
+        userNameParts[0].toUpperCase() + userNameParts.substring(1);
+
+      // Update all state from the single API call
+      setUsername(formattedUsername);
+      setBio(profile.user_profile_bio || "");
+      setCurrentProfilePicture(profile.profile_pic_url);
+      setProfilePictureOptions(pictureOptions || []);
+      setStoriesCompleted(projects.completedProjects || []);
+      setStoriesInprogress(projects.inProgressProjects || []);
+      setUserPreference(profile.user_profile_mature_enabled);
+      setUserEmail(profile.user_email);
+      setUserStats(stats); // Set the entire stats object
+      setProfile(profile);
+    } catch (error) {
+      console.error("Error fetching profile data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentUser.id, profileUserId]);
+
   useEffect(() => {
-    const fetchProfileData = async (): Promise<void> => {
-      setIsLoading(true);
-      try {
-        // Single, efficient API call to the backend
-        const data: ProfileApiResponse = await getProfile(
-          profileUserId || currentUser.id
-        );
-
-        // Destructure the response from the backend
-        const { profile, projects, stats, pictureOptions } = data;
-
-        // Process username
-        const userNameParts = profile.user_profile_name.split("@")[0];
-        const formattedUsername =
-          userNameParts[0].toUpperCase() + userNameParts.substring(1);
-
-        // Update all state from the single API call
-        setUsername(formattedUsername);
-        setBio(profile.user_profile_bio || "");
-        setCurrentProfilePicture(profile.profile_pic_url);
-        setProfilePictureOptions(pictureOptions || []);
-        setStoriesCompleted(projects.completedProjects || []);
-        setStoriesInprogress(projects.inProgressProjects || []);
-        setUserPreference(profile.user_profile_mature_enabled);
-        setUserEmail(profile.user_email);
-        setUserStats(stats); // Set the entire stats object
-        setProfile(profile);
-      } catch (error) {
-        console.error("Error fetching profile data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchProfileData();
-  }, [profileUserId, currentUser]);
+  }, [fetchProfileData]);
 
   const getInitials = (): string => {
     if (!userEmail) return "?";
@@ -354,6 +354,7 @@ const Profile: React.FC = () => {
                     setBio={setBio}
                     setUsername={setUsername}
                     profile={profile}
+                    onProfileUpdate={fetchProfileData}
                   />
                 )}
             </div>

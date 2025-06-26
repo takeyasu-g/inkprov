@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
-import { updateUsername, updateBio } from "@/utils/supabase";
+import { updateProfile } from "@/services/api";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Form,
   FormControl,
@@ -26,6 +27,7 @@ interface EditingToggleProps {
   setBio: React.Dispatch<React.SetStateAction<string>>;
   setUsername: React.Dispatch<React.SetStateAction<string>>;
   profile: UserProfileV2 | null;
+  onProfileUpdate?: () => Promise<void>;
 }
 
 const ProfileSettings: React.FC<EditingToggleProps> = ({
@@ -34,8 +36,10 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
   setBio,
   setUsername,
   profile,
+  onProfileUpdate,
 }) => {
   const { t } = useTranslation();
+  const { user } = useAuth();
   // Setting states
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [bioCharCount, setBioCharCount] = useState<number>(0);
@@ -71,8 +75,16 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
   async function onSubmit(
     values: z.infer<typeof settingsSchema>
   ): Promise<void> {
+    if (!user?.id) {
+      toast.error(t("errors.notAuthenticated"));
+      return;
+    }
+
     try {
       setIsLoading(true);
+
+      // Only include fields that have been modified
+      const updateData: { username?: string; bio?: string } = {};
 
       // Check if any of the fields have data
       // if (values.username.length > 0 || values.bio.length > 0) {
@@ -94,18 +106,36 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
       // }
       // Update username and bio
       if (values.username.length > 0) {
-        await updateUsername(values.username);
-        sessionStorage.setItem("username", values.username);
-        setUsername(values.username);
+        updateData.username = values.username;
       }
       if (values.bio.length > 0 || values.bio === "") {
-        await updateBio(values.bio);
-        setBio(values.bio);
+        updateData.bio = values.bio;
+      }
+
+      // Call the API to update the profile
+      const { profile: updatedProfile } = await updateProfile(
+        user.id,
+        updateData
+      );
+
+      // Update local state with the response from the API
+      if (updatedProfile.user_profile_name) {
+        sessionStorage.setItem("username", updatedProfile.user_profile_name);
+        setUsername(updatedProfile.user_profile_name);
+      }
+      if (updatedProfile.user_profile_bio !== undefined) {
+        setBio(updatedProfile.user_profile_bio);
+      }
+
+      // Trigger parent refresh
+      if (onProfileUpdate) {
+        await onProfileUpdate();
       }
 
       toast.success(t("toasts.saveChangesSuccess"));
+      setIsEditing(false);
     } catch (error: any) {
-      toast.error(`${error.message}`);
+      toast.error(error.message || t("errors.updateFailed"));
     } finally {
       setIsLoading(false);
     }
