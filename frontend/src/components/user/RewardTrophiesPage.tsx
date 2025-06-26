@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPen,
@@ -15,6 +15,7 @@ import {
   faUser,
   faSchool,
 } from "@fortawesome/free-solid-svg-icons";
+import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import {
   Card,
   CardContent,
@@ -24,17 +25,16 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase } from "@/utils/supabase";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useTranslation } from "react-i18next";
-import { useAuth } from "@/contexts/AuthContext";
+import { UserStats } from "@/types/global";
 
 interface Achievement {
   id: string;
   name: string;
   description: string;
-  icon: any; // FontAwesome icon
+  icon: IconDefinition; // FontAwesome icon
   category: string;
   requiredValue: number;
   isUnlocked: boolean;
@@ -43,277 +43,210 @@ interface Achievement {
 }
 
 interface RewardTrophiesPageProps {
-  userId?: string; // Optional - if not provided, will use the current user
+  stats: UserStats | null; // Accept the stats object directly
 }
 
-const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
+const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ stats }) => {
   const { t } = useTranslation();
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [userStats, setUserStats] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<string>("all");
-  //  useAuth user will be used if no userId prop was given
-  const { user } = useAuth();
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        setLoading(true);
+  const calculateAchievements = useCallback(
+    (stats: UserStats) => {
+      const allAchievements: Achievement[] = [
+        // Writing achievements
+        {
+          id: "demo_champion",
+          name: "Demo Day Darling",
+          description: "Attended Inkprov's Demo Event!",
+          icon: faSchool,
+          category: "special",
+          requiredValue: 1,
+          isUnlocked: stats.attended_demo_day >= 1,
+          progress: Math.min(stats.attended_demo_day, 1) * 100,
+          color: "#facc7d", // volt
+        },
+        {
+          id: "first_contribution",
+          name: t("profile.achievements.trophies.trophy1.title"),
+          description: t("profile.achievements.trophies.trophy1.description"),
+          icon: faPen,
+          category: "writing",
+          requiredValue: 1,
+          isUnlocked: stats.user_total_contribution >= 1,
+          progress: Math.min(stats.user_total_contribution, 1) * 100,
+          color: "#3B82F6", // blue
+        },
+        {
+          id: "prolific_writer",
+          name: t("profile.achievements.trophies.trophy2.title"),
+          description: t("profile.achievements.trophies.trophy2.description"),
+          icon: faFeather,
+          category: "writing",
+          requiredValue: 10,
+          isUnlocked: stats.user_total_contribution >= 10,
+          progress: Math.min(stats.user_total_contribution / 10, 1) * 100,
+          color: "#8B5CF6", // purple
+        },
+        {
+          id: "wordsmith",
+          name: t("profile.achievements.trophies.trophy3.title"),
+          description: t("profile.achievements.trophies.trophy3.description"),
+          icon: faBookOpen,
+          category: "writing",
+          requiredValue: 1000,
+          isUnlocked: stats.user_total_wordcount >= 1000,
+          progress: Math.min(stats.user_total_wordcount / 1000, 1) * 100,
+          color: "#EC4899", // pink
+        },
 
-        // Fetch user stats from the database - using the correct table name
-        const { data: stats, error } = await supabase
-          .from("user_gamification_stats") // Changed from "user_stats" to "user_gamification_stats" to match current supabase titling
-          .select("*")
-          .eq("user_id", userId || user.id)
-          .single();
+        // Creation achievements
+        {
+          id: "project_creator",
+          name: t("profile.achievements.trophies.trophy4.title"),
+          description: t("profile.achievements.trophies.trophy4.description"),
+          icon: faStar,
+          category: "creation",
+          requiredValue: 1,
+          isUnlocked: stats.user_total_projects_created >= 1,
+          progress: Math.min(stats.user_total_projects_created, 1) * 100,
+          color: "#F59E0B", // amber
+        },
+        {
+          id: "visionary",
+          name: t("profile.achievements.trophies.trophy5.title"),
+          description: t("profile.achievements.trophies.trophy5.description"),
+          icon: faCrown,
+          category: "creation",
+          requiredValue: 5,
+          isUnlocked: stats.user_total_projects_created >= 5,
+          progress: Math.min(stats.user_total_projects_created / 5, 1) * 100,
+          color: "#10B981", // emerald
+        },
 
-        // Create default stats object
-        const defaultStats = {
-          user_id: userId || user.id,
-          user_total_projects_created: 0,
-          user_total_contribution: 0,
-          projects_completed: 0,
-          user_total_wordcount: 0,
-          comments_made: 0,
-          likes_given: 0,
-          likes_received: 0,
-          unique_projects_contributed: 0,
-          user_total_invites: 0,
-          user_total_score: 0,
-          user_total_logins: 0,
-          attended_demo_day: 0,
-          is_cc_instructor: 0,
-        };
+        // Completion achievements
+        {
+          id: "finisher",
+          name: t("profile.achievements.trophies.trophy6.title"),
+          description: t("profile.achievements.trophies.trophy6.description"),
+          icon: faTrophy,
+          category: "completion",
+          requiredValue: 1,
+          isUnlocked: stats.projects_completed >= 1,
+          progress: Math.min(stats.projects_completed, 1) * 100,
+          color: "#F97316", // orange
+        },
+        {
+          id: "master_storyteller",
+          name: t("profile.achievements.trophies.trophy7.title"),
+          description: t("profile.achievements.trophies.trophy7.description"),
+          icon: faGem,
+          category: "completion",
+          requiredValue: 3,
+          isUnlocked: stats.projects_completed >= 3,
+          progress: Math.min(stats.projects_completed / 3, 1) * 100,
+          color: "#EF4444", // red
+        },
 
-        // If no record exists for this user, create one, only if currentUser is the porfiles user
-        if (!stats && userId === user.id) {
-          // Insert default stats for this user
-          const { data: insertedStats, error: insertError } = await supabase
-            .from("user_gamification_stats")
-            .insert([defaultStats])
-            .select()
-            .single();
+        // Social achievements
+        {
+          id: "loyal_user",
+          name: t("profile.achievements.trophies.trophy8.title"),
+          description: t("profile.achievements.trophies.trophy8.description"),
+          icon: faUser,
+          category: "social",
+          requiredValue: 5,
+          isUnlocked: stats.user_total_logins >= 5,
+          progress: Math.min(stats.user_total_logins / 5, 1) * 100,
+          color: "#14B8A6", // teal
+        },
+        {
+          id: "appreciator",
+          name: t("profile.achievements.trophies.trophy9.title"),
+          description: t("profile.achievements.trophies.trophy9.description"),
+          icon: faHeart,
+          category: "social",
+          requiredValue: 10,
+          isUnlocked: stats.likes_given >= 10,
+          progress: Math.min(stats.likes_given / 10, 1) * 100,
+          color: "#DC2626", // red
+        },
+        {
+          id: "popular",
+          name: t("profile.achievements.trophies.trophy10.title"),
+          description: t("profile.achievements.trophies.trophy10.description"),
+          icon: faFire,
+          category: "social",
+          requiredValue: 10,
+          isUnlocked: stats.likes_received >= 10,
+          progress: Math.min(stats.likes_received / 10, 1) * 100,
+          color: "#FB923C", // orange
+        },
 
-          if (insertError) {
-            console.error("Error creating default stats:", insertError);
-            setUserStats(defaultStats);
-          } else {
-            setUserStats(insertedStats);
-          }
-        } else if (error) {
-          console.error("Error fetching user stats:", error);
-          setUserStats(defaultStats);
-        } else {
-          setUserStats(stats);
-        }
+        // Special achievements
+        {
+          id: "community_member",
+          name: t("profile.achievements.trophies.trophy11.title"),
+          description: t("profile.achievements.trophies.trophy11.description"),
+          icon: faUsers,
+          category: "special",
+          requiredValue: 5,
+          isUnlocked: (stats.unique_projects_contributed || 0) >= 5,
+          progress:
+            Math.min((stats.unique_projects_contributed || 0) / 5, 1) * 100,
+          color: "#0EA5E9", // sky
+        },
+        {
+          id: "all_star",
+          name: t("profile.achievements.trophies.trophy12.title"),
+          description: t("profile.achievements.trophies.trophy12.description"),
+          icon: faAward,
+          category: "special",
+          requiredValue: 5,
+          isUnlocked: false,
+          progress: 0,
+          color: "#FBBF24", // amber
+        },
+        {
+          id: "cc_instructor",
+          name: "Code Chrysalis Instructor",
+          description: "Instructor at Code Chrysalis",
+          icon: faSchool,
+          category: "special",
+          requiredValue: 1,
+          isUnlocked: (stats.is_cc_instructor || 0) >= 1,
+          progress: Math.min((stats.is_cc_instructor || 0) / 1, 1) * 100,
+          color: "#8B5CF6", // violet
+        },
+      ];
 
-        // Function to calculate which achievements are unlocked
-        calculateAchievements(
-          stats || {
-            user_id: userId || user.id,
-            user_total_projects_created: 0,
-            user_total_contribution: 0,
-            projects_completed: 0,
-            user_total_wordcount: 0,
-            comments_made: 0,
-            likes_given: 0,
-            likes_received: 0,
-            unique_projects_contributed: 0,
-            user_total_invites: 0,
-            user_total_score: 0,
-            user_total_logins: 0,
-          }
-        );
-      } catch (error) {
-        console.error("Error in fetchUserData:", error);
-      } finally {
-        setLoading(false);
+      const unlockedCount = allAchievements.filter(
+        (a) => a.id !== "all_star" && a.isUnlocked
+      ).length;
+      const allStarIndex = allAchievements.findIndex(
+        (a) => a.id === "all_star"
+      );
+      if (allStarIndex >= 0) {
+        allAchievements[allStarIndex].isUnlocked = unlockedCount >= 5;
+        allAchievements[allStarIndex].progress =
+          Math.min(unlockedCount / 5, 1) * 100;
       }
-    };
 
-    fetchUserData();
-  }, [userId, user]);
-
-  const calculateAchievements = (stats: any) => {
-    const allAchievements: Achievement[] = [
-      // Writing achievements
-      {
-        id: "demo_champion",
-        name: "Demo Day Darling",
-        description: "Attended Inkprov's Demo Event!",
-        icon: faSchool,
-        category: "special",
-        requiredValue: 1,
-        isUnlocked: stats.attended_demo_day >= 1,
-        progress: Math.min(stats.attended_demo_day, 1) * 100,
-        color: "#facc7d", // volt
-      },
-      {
-        id: "first_contribution",
-        name: t("profile.achievements.trophies.trophy1.title"),
-        description: t("profile.achievements.trophies.trophy1.description"),
-        icon: faPen,
-        category: "writing",
-        requiredValue: 1,
-        isUnlocked: stats.user_total_contribution >= 1,
-        progress: Math.min(stats.user_total_contribution, 1) * 100,
-        color: "#3B82F6", // blue
-      },
-      {
-        id: "prolific_writer",
-        name: t("profile.achievements.trophies.trophy2.title"),
-        description: t("profile.achievements.trophies.trophy2.description"),
-        icon: faFeather,
-        category: "writing",
-        requiredValue: 10,
-        isUnlocked: stats.user_total_contribution >= 10,
-        progress: Math.min(stats.user_total_contribution / 10, 1) * 100,
-        color: "#8B5CF6", // purple
-      },
-      {
-        id: "wordsmith",
-        name: t("profile.achievements.trophies.trophy3.title"),
-        description: t("profile.achievements.trophies.trophy3.description"),
-        icon: faBookOpen,
-        category: "writing",
-        requiredValue: 1000,
-        isUnlocked: stats.user_total_wordcount >= 1000,
-        progress: Math.min(stats.user_total_wordcount / 1000, 1) * 100,
-        color: "#EC4899", // pink
-      },
-
-      // Creation achievements
-      {
-        id: "project_creator",
-        name: t("profile.achievements.trophies.trophy4.title"),
-        description: t("profile.achievements.trophies.trophy4.description"),
-        icon: faStar,
-        category: "creation",
-        requiredValue: 1,
-        isUnlocked: stats.user_total_projects_created >= 1,
-        progress: Math.min(stats.user_total_projects_created, 1) * 100,
-        color: "#F59E0B", // amber
-      },
-      {
-        id: "visionary",
-        name: t("profile.achievements.trophies.trophy5.title"),
-        description: t("profile.achievements.trophies.trophy5.description"),
-        icon: faCrown,
-        category: "creation",
-        requiredValue: 5,
-        isUnlocked: stats.user_total_projects_created >= 5,
-        progress: Math.min(stats.user_total_projects_created / 5, 1) * 100,
-        color: "#10B981", // emerald
-      },
-
-      // Completion achievements
-      {
-        id: "finisher",
-        name: t("profile.achievements.trophies.trophy6.title"),
-        description: t("profile.achievements.trophies.trophy6.description"),
-        icon: faTrophy,
-        category: "completion",
-        requiredValue: 1,
-        isUnlocked: stats.projects_completed >= 1,
-        progress: Math.min(stats.projects_completed, 1) * 100,
-        color: "#F97316", // orange
-      },
-      {
-        id: "master_storyteller",
-        name: t("profile.achievements.trophies.trophy7.title"),
-        description: t("profile.achievements.trophies.trophy7.description"),
-        icon: faGem,
-        category: "completion",
-        requiredValue: 3,
-        isUnlocked: stats.projects_completed >= 3,
-        progress: Math.min(stats.projects_completed / 3, 1) * 100,
-        color: "#EF4444", // red
-      },
-
-      // Social achievements
-      {
-        id: "loyal_user",
-        name: t("profile.achievements.trophies.trophy8.title"),
-        description: t("profile.achievements.trophies.trophy8.description"),
-        icon: faUser,
-        category: "social",
-        requiredValue: 5,
-        isUnlocked: stats.user_total_logins >= 5,
-        progress: Math.min(stats.user_total_logins / 5, 1) * 100,
-        color: "#14B8A6", // teal
-      },
-      {
-        id: "appreciator",
-        name: t("profile.achievements.trophies.trophy9.title"),
-        description: t("profile.achievements.trophies.trophy9.description"),
-        icon: faHeart,
-        category: "social",
-        requiredValue: 10,
-        isUnlocked: stats.likes_given >= 10,
-        progress: Math.min(stats.likes_given / 10, 1) * 100,
-        color: "#DC2626", // red
-      },
-      {
-        id: "popular",
-        name: t("profile.achievements.trophies.trophy10.title"),
-        description: t("profile.achievements.trophies.trophy10.description"),
-        icon: faFire,
-        category: "social",
-        requiredValue: 10,
-        isUnlocked: stats.likes_received >= 10,
-        progress: Math.min(stats.likes_received / 10, 1) * 100,
-        color: "#FB923C", // orange
-      },
-
-      // Special achievements
-      {
-        id: "community_member",
-        name: t("profile.achievements.trophies.trophy11.title"),
-        description: t("profile.achievements.trophies.trophy11.description"),
-        icon: faUsers,
-        category: "special",
-        requiredValue: 5,
-        isUnlocked: stats.unique_projects_contributed || 0 >= 5,
-        progress:
-          Math.min((stats.unique_projects_contributed || 0) / 5, 1) * 100,
-        color: "#0EA5E9", // sky
-      },
-      {
-        id: "all_star",
-        name: t("profile.achievements.trophies.trophy12.title"),
-        description: t("profile.achievements.trophies.trophy12.description"),
-        icon: faAward,
-        category: "special",
-        requiredValue: 5,
-        isUnlocked: false,
-        progress: 0,
-        color: "#FBBF24", // amber
-      },
-      {
-        id: "cc_instructor",
-        name: "Code Chrysalis Instructor",
-        description: "Instructor at Code Chrysalis",
-        icon: faSchool,
-        category: "special",
-        requiredValue: 1,
-        isUnlocked: stats.attended_cc_instructor >= 1,
-        progress: Math.min(stats.attended_cc_instructor, 1) * 100,
-        color: "#facc7d", // volt
-      },
-    ];
-
-    const unlockedCount = allAchievements.filter(
-      (a) => a.id !== "all_star" && a.isUnlocked
-    ).length;
-    const allStarIndex = allAchievements.findIndex((a) => a.id === "all_star");
-    if (allStarIndex >= 0) {
-      allAchievements[allStarIndex].isUnlocked = unlockedCount >= 5;
-      allAchievements[allStarIndex].progress =
-        Math.min(unlockedCount / 5, 1) * 100;
+      setAchievements(allAchievements);
+    },
+    [t]
+  );
+  useEffect(() => {
+    // Remove all data fetching logic.
+    // Directly use the stats prop to calculate achievements.
+    if (stats) {
+      calculateAchievements(stats);
+      setLoading(false);
+    } else {
+      setLoading(true);
     }
-
-    setAchievements(allAchievements);
-  };
+  }, [stats, calculateAchievements]); // Re-run when the stats prop changes.
 
   const filteredAchievements =
     activeTab === "all"
@@ -340,7 +273,9 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
     ).length,
   };
 
-  const renderAchievementCard = (achievement: Achievement) => {
+  const renderAchievementCard = (
+    achievement: Achievement
+  ): React.ReactElement => {
     return (
       <Card
         key={achievement.id}
@@ -429,7 +364,7 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
                 {t("contributions")}
               </p>
               <p className="text-2xl font-bold">
-                {userStats?.user_total_contribution || 0}
+                {stats?.user_total_contribution || 0}
               </p>
             </div>
             <div className="stat-card bg-purple-50 p-3 rounded-lg">
@@ -437,7 +372,7 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
                 {t("profile.achievements.stats.projectsCreated")}
               </p>
               <p className="text-2xl font-bold">
-                {userStats?.user_total_projects_created || 0}
+                {stats?.user_total_projects_created || 0}
               </p>
             </div>
             <div className="stat-card bg-amber-50 p-3 rounded-lg">
@@ -445,7 +380,7 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
                 {t("profile.achievements.stats.projectsCompleted")}
               </p>
               <p className="text-2xl font-bold">
-                {userStats?.projects_completed || 0}
+                {stats?.projects_completed || 0}
               </p>
             </div>
             <div className="stat-card bg-green-50 p-3 rounded-lg">
@@ -453,7 +388,7 @@ const RewardTrophiesPage: React.FC<RewardTrophiesPageProps> = ({ userId }) => {
                 {t("profile.achievements.stats.wordsWritten")}
               </p>
               <p className="text-2xl font-bold">
-                {userStats?.user_total_wordcount || 0}
+                {stats?.user_total_wordcount || 0}
               </p>
             </div>
           </div>

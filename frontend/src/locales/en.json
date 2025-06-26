@@ -1,321 +1,320 @@
 {
+  "header": {
+    "appName": "Inkprov",
+    "signIn": "Sign In",
+    "register": "Register",
+    "navbar": {
+      "sessions": "Sessions",
+      "stories": "Stories",
+      "create": "Create"
+    },
+    "accountPopover": {
+      "profile": "Profile",
+      "settings": "Settings",
+      "logout": "Logout"
+    },
+    "languagePopover": {
+      "title": "Lang",
+      "english": "English",
+      "japanese": "Japanese"
+    }
+  },
+  "footer": {
+    "about": "About",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "contact": "Contact"
+  },
+  "landing": {
+    "topSection": {
+      "title1": "Write Together",
+      "title2": "Create Together",
+      "subtitle": "Join a community of writers and collaborate on stories, poems, and more in real-time.",
+      "startWriting": "Start Writing",
+      "exploreStories": "Explore Stories"
+    },
+    "middleSection": {
+      "title": "How Inkprov Works",
+      "action1": {
+        "title": "Join a Session",
+        "description": "Find an open writing session that matches your interests or create your own."
+      },
+      "action2": {
+        "title": "Write Together",
+        "description": "Collaborate in real-time with other writers to create something beautiful."
+      },
+      "action3": {
+        "title": "Share & Discover",
+        "description": "Publish your collaborative works and explore creations from other writers."
+      }
+    },
+    "bottomSection": {
+      "title": "A Cozy Space for Creative Minds",
+      "description": "Inkprov provides a warm, inviting environment that feels like writing in your favorite reading nook. Our platform is designed to inspire creativity and foster collaboration.",
+      "bulletPoints": {
+        "point1": "Real-time collaborative writing",
+        "point2": "Idea prompts for when you need inspiration",
+        "point3": "Genre-based sessions and filtering",
+        "point4": "Community feedback and reactions"
+      }
+    }
+  },
+  "auth": {
+    "form": {
+      "email": "Email Address",
+      "password": "Password"
+    },
+    "signIn": {
+      "leftSection": {
+        "title": "Join our writing community",
+        "quote": "\"The act of writing is an act of optimism. You would not take the trouble to do it if you felt it didn't matter.\"",
+        "quoteAuthor": "- Edwared Albee",
+        "bottomSubtitle": "Inkprov brings writers together in a cozy, collaborative environment where creaativity flows freely."
+      },
+      "rightSection": {
+        "title": "Welcome back",
+        "subtitle": "Sign in to continue your writing journey",
+        "form": {
+          "forgotPassword": "Forgot Password?",
+          "rememberMe": "Remember Me",
+          "signIn": "Sign In",
+          "signInLoading": "Signing in"
+        },
+        "noAccount": "Don't have an account?",
+        "signUp": "Sign Up"
+      }
+    },
+    "register": {
+      "leftSection": {
+        "title": "Begin your Writing Adventure",
+        "quote": "\"There is no greater agony than bearing an untold story inside you.\"",
+        "quoteAuthor": "- Maya Angelou",
+        "bottomSubtitle": "Join Inkprov today and turn your ideas into colaborative masterpieces with fellow writers."
+      },
+      "rightSection": {
+        "title": "Create an account",
+        "subtitle": "Join our community of writers.",
+        "form": {
+          "passwordRequirments": "Minimum 6 characters",
+          "confirmPassword": "Confirm Password",
+          "register": "Create Account",
+          "registerLoading": "Creating Account",
+          "haveAccount": "Already have an account?",
+          "signIn": "Sign In"
+        }
+      }
+    },
+    "continueWith": {
+      "subtitle": "Or continue with",
+      "google": "Continue with Google"
+    }
+  },
+  "openSessions": {
     "header": {
-      "appName": "Inkprov",
-      "signIn": "Sign In",
-      "register": "Register",
-      "navbar": {
-        "sessions": "Sessions",
-        "stories": "Stories",
-        "create": "Create"
-      },
-      "accountPopover": {
-        "profile": "Profile",
-        "settings": "Settings",
-        "logout": "Logout"
-      },
-      "languagePopover": {
-        "title": "Lang",
-        "english": "English",
-        "japanese": "Japanese"
+      "title": "Open Writing Sessions",
+      "subtitle": "Join an existing session or create your own!",
+      "refreshLoading": "Refreshing",
+      "searchbar": {
+        "placeholder": "Search Sessions"
       }
     },
-    "footer": {
-      "about": "About",
-      "privacy": "Privacy",
-      "terms": "Terms",
-      "contact": "Contact"
-    },
-    "landing": {
-      "topSection": {
-        "title1": "Write Together",
-        "title2": "Create Together",
-        "subtitle": "Join a community of writers and collaborate on stories, poems, and more in real-time.",
-        "startWriting": "Start Writing",
-        "exploreStories": "Explore Stories"
+    "card": {
+      "time": {
+        "created": "Created"
       },
-      "middleSection": {
-        "title": "How Inkprov Works",
-        "action1": {
-          "title": "Join a Session",
-          "description": "Find an open writing session that matches your interests or create your own."
-        },
-        "action2": {
-          "title": "Write Together",
-          "description": "Collaborate in real-time with other writers to create something beautiful."
-        },
-        "action3": {
-          "title": "Share & Discover",
-          "description": "Publish your collaborative works and explore creations from other writers."
-        }
-      },
-      "bottomSection": {
-        "title": "A Cozy Space for Creative Minds",
-        "description": "Inkprov provides a warm, inviting environment that feels like writing in your favorite reading nook. Our platform is designed to inspire creativity and foster collaboration.",
-        "bulletPoints": {
-          "point1": "Real-time collaborative writing",
-          "point2": "Idea prompts for when you need inspiration",
-          "point3": "Genre-based sessions and filtering",
-          "point4": "Community feedback and reactions"
-        }
+      "viewSession": "View Session"
+    }
+  },
+  "stories": {
+    "header": {
+      "title": "Completed Stories",
+      "subtitle": "Browse and read collaborative stories created by our community",
+      "searchbar": {
+        "placeholder": "Search Stories"
       }
     },
-    "auth": {
-      "form": {
-        "email": "Email Address",
-        "password": "Password"
-      },
-      "signIn": {
-        "leftSection": {
-          "title": "Join our writing community",
-          "quote": "\"The act of writing is an act of optimism. You would not take the trouble to do it if you felt it didn't matter.\"",
-          "quoteAuthor": "- Edwared Albee",
-          "bottomSubtitle": "Inkprov brings writers together in a cozy, collaborative environment where creaativity flows freely."
-        },
-        "rightSection": {
-          "title": "Welcome back",
-          "subtitle": "Sign in to continue your writing journey",
-          "form": {
-            "forgotPassword": "Forgot Password?",
-            "rememberMe": "Remember Me",
-            "signIn": "Sign In",
-            "signInLoading": "Signing in"
-          },
-          "noAccount": "Don't have an account?",
-          "signUp": "Sign Up"
-        }
-      },
-      "register": {
-        "leftSection": {
-          "title": "Begin your Writing Adventure",
-          "quote": "\"There is no greater agony than bearing an untold story inside you.\"",
-          "quoteAuthor": "- Maya Angelou",
-          "bottomSubtitle": "Join Inkprov today and turn your ideas into colaborative masterpieces with fellow writers."
-        },
-        "rightSection": {
-          "title": "Create an account",
-          "subtitle": "Join our community of writers.",
-          "form": {
-            "passwordRequirments": "Minimum 6 characters",
-            "confirmPassword": "Confirm Password",
-            "register": "Create Account",
-            "registerLoading": "Creating Account",
-            "haveAccount": "Already have an account?",
-            "signIn": "Sign In"
-          }
-        }
-      },
-      "continueWith": {
-              "subtitle": "Or continue with",
-              "google": "Continue with Google"
-            }
+    "card": {
+      "readStory": "Read Story"
+    }
+  },
+  "create": {
+    "header": {
+      "title": "Create New Writing Session",
+      "description": "Start a new collaborative writing session. Each contributor adds 50-100 words per snippet. Set how many total contributions you want for your story."
     },
-    "openSessions": {
+    "form": {
+      "titleField": {
+        "title": "Session Title",
+        "placeholder": "Enter session title"
+      },
+      "descriptionField": {
+        "title": "Description",
+        "placeholder": "Describe what this session is about"
+      },
+      "genreField": {
+        "title": "Genre",
+        "placeholder": "Select a genre"
+      },
+      "snippetsField": {
+        "title": "Maximum Number of Snippets",
+        "snippets": "snippets",
+        "subtitle": "Each snippet is 50-100 words. Estimated total story length:"
+      },
+      "publicSession": "Public Session",
+      "contributionField": {
+        "title": "Your Contribution (50-100 words)",
+        "placeholder": "Start the story here"
+      }
+    }
+  },
+  "profile": {
+    "header": {
+      "completedStories": "Completed Stories",
+      "inProgressStories": "In Progress Stories",
+      "profilePictureChange": "Change",
+      "aboutMe": "About Me",
+      "editProfile": "Edit Profile",
+      "redeemCode": "Redeem Code",
+      "redeemCodeDescription": "Enter your redemption code to unlock exclusive content and rewards.",
+      "redeemCodePlaceholder": "Enter your code",
+      "redeemCodeLoading": "Redeeming Code",
+      "redeem": "Redeem"
+    },
+    "changeProfilePictureAlert": {
       "header": {
-        "title": "Open Writing Sessions",
-        "subtitle": "Join an existing session or create your own!",
-        "refreshLoading": "Refreshing",
-        "searchbar": {
-          "placeholder": "Search Sessions"
-        }
-      },
-      "card": {
-        "time": {
-          "created": "Created"
-        },
-        "viewSession": "View Session"
+        "title": "Select Profile Picture"
       }
     },
     "stories": {
-      "header": {
-        "title": "Completed Stories",
-        "subtitle": "Browse and read collaborative stories created by our community",
-        "searchbar": {
-          "placeholder": "Search Stories"
+      "title": "Your Stories",
+      "subtitle": "Stories you've contributed to"
+    },
+    "empty": {
+      "noCompleted": "No Completed Stories",
+      "noInProgress": "No Stories in Progress"
+    },
+    "tabs": {
+      "yourStories": "Your Stories",
+      "achievements": "Achievements"
+    },
+    "card": {
+      "collaborators": "Collaborators",
+      "wordCount": "Word Count",
+      "lastUpdated": "Updated",
+      "private": "Private"
+    },
+    "achievements": {
+      "title": "Achievements & Trophies",
+      "subtitle": "Track your progress and unlock achievements as you write, create, and engage with the community.",
+      "stats": {
+        "projectsCreated": "Projects Created",
+        "projectsCompleted": "Projects Completed",
+        "wordsWritten": "Words Written",
+        "tabs": {
+          "writing": "Writing",
+          "creation": "Creation",
+          "completion": "Completion",
+          "social": "Social",
+          "special": "Special"
         }
       },
-      "card": {
-        "readStory": "Read Story"
+      "unlocked": "Unlocked",
+      "noAchievements": "No achievements found",
+      "trophies": {
+        "trophy1": {
+          "title": "First Contribution",
+          "description": "Made your first contribution to a project"
+        },
+        "trophy2": {
+          "title": "Prolific Writer",
+          "description": "Made 10 contributions to projects"
+        },
+        "trophy3": {
+          "title": "Wordsmith",
+          "description": "Written 1,000 words across all projects"
+        },
+        "trophy4": {
+          "title": "Project Creator",
+          "description": "Created your first writing project"
+        },
+        "trophy5": {
+          "title": "Visionary",
+          "description": "Created 5 writing projects"
+        },
+        "trophy6": {
+          "title": "Finisher",
+          "description": "Completed your first project"
+        },
+        "trophy7": {
+          "title": "Master Storyteller",
+          "description": "Completed 3 projects"
+        },
+        "trophy8": {
+          "title": "Loyal User",
+          "description": "Logged into the platform 5 times"
+        },
+        "trophy9": {
+          "title": "Appreciator",
+          "description": "Gave 10 likes to other projects"
+        },
+        "trophy10": {
+          "title": "Popular",
+          "description": "Received 10 likes on your projects"
+        },
+        "trophy11": {
+          "title": "Community Member",
+          "description": "Contributed to 5 different projects"
+        },
+        "trophy12": {
+          "title": "RockStar",
+          "description": "Unlocked 5 other achievements"
+        }
       }
-    },
-    "create": {
-      "header": {
-        "title": "Create New Writing Session",
-        "description": "Start a new collaborative writing session. Each contributor adds 50-100 words per snippet. Set how many total contributions you want for your story."
-      },
+    }
+  },
+  "settings": {
+    "title": "User Settings",
+    "subtitle": "Manage your preferences and account settings.",
+    "leftSection": {
+      "title": "Profile Information",
+      "subtitle": "Update your account settings",
       "form": {
-        "titleField": {
-          "title": "Session Title",
-          "placeholder": "Enter session title"
+        "usernameField": {
+          "title": "Username",
+          "placeholder": "Username"
         },
-        "descriptionField": {
-          "title": "Description",
-          "placeholder": "Describe what this session is about"
-        },
-        "genreField": {
-          "title": "Genre",
-          "placeholder": "Select a genre"
-        },
-        "snippetsField": {
-          "title": "Maximum Number of Snippets",
-          "snippets": "snippets",
-          "subtitle": "Each snippet is 50-100 words. Estimated total story length:"
-        },
-        "publicSession": "Public Session",
-        "contributionField": {
-          "title": "Your Contribution (50-100 words)",
-          "placeholder": "Start the story here"
+        "bioField": {
+          "title": "Bio",
+          "placeholder": "Share a glimpse of your story with others."
         }
+      },
+      "saveChanges": "Save Changes",
+      "saveChangesLoading": "Saving Changes"
+    },
+    "rightSection": {
+      "title": "Preferences",
+      "subtitle": "Manage your account preferences",
+      "toggle": {
+        "matureContentTitle": "Allow Mature Content"
       }
     },
-    "profile": {
-      "header": {
-        "completedStories": "Completed Stories",
-        "inProgressStories": "In Progress Stories",
-        "profilePictureChange": "Change",
-        "aboutMe": "About Me",
-        "editProfile": "Edit Profile",
-        "redeemCode": "Redeem Code",
-        "redeemCodeDescription": "Enter your redemption code to unlock exclusive content and rewards.",
-        "redeemCodePlaceholder": "Enter your code",
-        "redeemCodeLoading": "Redeeming Code",
-        "redeem": "Redeem"
-      },
-      "changeProfilePictureAlert": {
-        "header": {
-          "title": "Select Profile Picture"
-        }
-      },
-      "stories": {
-        "title": "Your Stories",
-        "subtitle": "Stories you've contributed to"
-      },
-      "empty": {
-        "noCompleted": "No Completed Stories",
-        "noInProgress": "No Stories in Progress"
-      },
-      "tabs": {
-        "yourStories": "Your Stories",
-        "achievements": "Achievements"
-      },
-      "cards": {
-        "collaborators": "Collaborators",
-        "wordCount": "Word Count",
-        "lastActive": "Last Active",
-        "private": "Private"
-      },
-      "achievements": {
-        "title": "Achievements & Trophies",
-        "subtitle": "Track your progress and unlock achievements as you write, create, and engage with the community.",
-        "stats": {
-          "projectsCreated": "Projects Created",
-          "projectsCompleted": "Projects Completed",
-          "wordsWritten": "Words Written",
-          "tabs": {
-            "writing": "Writing",
-            "creation": "Creation",
-            "completion": "Completion",
-            "social": "Social",
-            "special": "Special"
-          }
-        },
-        "unlocked": "Unlocked",
-        "noAchievements": "No achievements found",
-        "trophies": {
-          "trophy1": {
-            "title": "First Contribution",
-            "description": "Made your first contribution to a project"
-          },
-          "trophy2": {
-            "title": "Prolific Writer",
-            "description": "Made 10 contributions to projects"
-          },
-          "trophy3": {
-            "title": "Wordsmith",
-            "description": "Written 1,000 words across all projects"
-          },
-          "trophy4": {
-            "title": "Project Creator",
-            "description": "Created your first writing project"
-          },
-          "trophy5": {
-            "title": "Visionary",
-            "description": "Created 5 writing projects"
-          },
-          "trophy6": {
-            "title": "Finisher",
-            "description": "Completed your first project"
-          },
-          "trophy7": {
-            "title": "Master Storyteller",
-            "description": "Completed 3 projects"
-          },
-          "trophy8": {
-            "title": "Loyal User",
-            "description": "Logged into the platform 5 times"
-          },
-          "trophy9": {
-            "title": "Appreciator",
-            "description": "Gave 10 likes to other projects"
-          },
-          "trophy10": {
-            "title": "Popular",
-            "description": "Received 10 likes on your projects"
-          },
-          "trophy11": {
-            "title": "Community Member",
-            "description": "Contributed to 5 different projects"
-          },
-          "trophy12": {
-            "title": "RockStar",
-            "description": "Unlocked 5 other achievements"
-          }
-        }
-      }
+    "loadError": "Failed to load settings",
+    "dangerZone": {
+      "title": "Danger Zone",
+      "deleteAccountMessage": "Delete user account and information from Inkprov",
+      "deleteAccountLoading": "Deleting Account",
+      "deleteAccount": "Delete Account"
+    }
+  },
+  "readingView": {
+    "footer": {
+      "title": "How did this story make you feel?"
     },
-    "settings": {
-      "title": "User Settings",
-      "subtitle": "Manage your preferences and account settings.",
-      "leftSection": {
-        "title": "Profile Information",
-        "subtitle": "Update your account settings",
-        "form": {
-          "usernameField": {
-            "title": "Username",
-            "placeholder": "Username"
-          },
-          "bioField": {
-            "title": "Bio",
-            "placeholder": "Share a glimpse of your story with others."
-          }
-        },
-        "saveChanges": "Save Changes",
-        "saveChangesLoading": "Saving Changes"
-      },
-      "rightSection": {
-        "title": "Preferences",
-        "subtitle": "Manage your account preferences",
-        "toggle": {
-          "matureContentTitle": "Allow Mature Content"
-        }
-      },
-      "loadError": "Failed to load settings",
-      "dangerZone": {
-        "title": "Danger Zone",
-        "deleteAccountMessage": "Delete user account and information from Inkprov",
-        "deleteAccountLoading": "Deleting Account",
-        "deleteAccount": "Delete Account"
-      }
-      
-    },
-    "readingView": {
-      "footer": {
-        "title": "How did this story make you feel?"
-      },
-      "reactionTitle": "How did this story make you feel?",
-      "removeReaction": "Remove Reaction",
-      "reactionTooltip": "Mark as ",
-      "reactionAria": "React with ",
-      "reactions": {
+    "reactionTitle": "How did this story make you feel?",
+    "removeReaction": "Remove Reaction",
+    "reactionTooltip": "Mark as ",
+    "reactionAria": "React with ",
+    "reactions": {
       "cool": "Cool",
       "funny": "Funny",
       "sad": "Sad",
@@ -323,210 +322,208 @@
       "interesting": "Interesting",
       "scary": "Scary"
     }
+  },
+  "writingSession": {
+    "header": {
+      "subtitle1": "Each contribution: 50-100 words.",
+      "subtitle2": "Estimated total story length:",
+      "note": "Note: Stories are limited to a maximum of 12 contributions.",
+      "userCurrentlyWriting": "Someone is currently writing a contribution."
     },
-    "writingSession": {
-      "header": {
-        "subtitle1": "Each contribution: 50-100 words.",
-        "subtitle2": "Estimated total story length:",
-        "note": "Note: Stories are limited to a maximum of 12 contributions.",
-        "userCurrentlyWriting": "Someone is currently writing a contribution."
-      },
-      "content": {
-        "title": "Story So Far:",
-        "contribution": "Contribution",
-        "form": {
-          "contributors": "Contributors",
-          "textarea": {
-            "placeholder": "Add your contribution(50-100 words).",
-            "timeRemaining": "remaining"
-          },
-          "submitContribution": "Submit Contribution",
-          "submitLoading": "Submitting",
-          "deleteProject": "Delete Project",
-          "deleteProjectConfirm": "Are you sure you want to delete this project? This action cannot be undone.",
-          "contributionAddSuccess": "Contribution added successfully!",
-          "submitError": "Error submitting contribution. Please try again.",
-          "deleteProjectSuccess": "Successfully deleted project."
-
-
+    "content": {
+      "title": "Story So Far:",
+      "contribution": "Contribution",
+      "form": {
+        "contributors": "Contributors",
+        "textarea": {
+          "placeholder": "Add your contribution(50-100 words).",
+          "timeRemaining": "remaining"
         },
-        "writersBlock": "Writer's Block?",
-        "writingIdeas": "Writing Ideas",
-        "noWritingIdeas": "No writing ideas available.",
-        "projectCompleted": "Project Completed",
-        "userWaiting": "Someone is currently writing"
-      }
-    },
-    "about": {
-      "title": "About Inkprov",
-      "subtitle": "Collaborative storytelling for creative minds",
-      "mission": {
-        "title": "Our Mission",
-        "description": "Inkprov is a platform designed to bring writers together in a unique collaborative environment. We believe that the best stories are often told through multiple perspectives, and our platform makes it possible for writers to create together in real-time."
+        "submitContribution": "Submit Contribution",
+        "submitLoading": "Submitting",
+        "deleteProject": "Delete Project",
+        "deleteProjectConfirm": "Are you sure you want to delete this project? This action cannot be undone.",
+        "contributionAddSuccess": "Contribution added successfully!",
+        "submitError": "Error submitting contribution. Please try again.",
+        "deleteProjectSuccess": "Successfully deleted project."
       },
-      "howItWorks": {
-        "title": "How It Works",
-        "step1": "Create a writing session and set your parameters.",
-        "step2": "Write your initial contribution (50-100 words).",
-        "step3": "Share your session with other writers.",
-        "step4": "Watch as your story grows with each contribution."
-      },
-      "community": {
-        "title": "Community Guidelines",
-        "description": "We strive to maintain a respectful and creative environment. All contributors are expected to:",
-        "rule1": "Respect other writers' creative choices.",
-        "rule2": "Mark mature content appropriately.",
-        "rule3": "Provide constructive feedback.",
-        "rule4": "Follow the word count guidelines."
-      },
-      "contact": {
-        "title": "Contact Us",
-        "description": "Have questions or suggestions? We'd love to hear from you. Reach out to our team at",
-        "email": "support@inkprov.net"
-      }
+      "writersBlock": "Writer's Block?",
+      "writingIdeas": "Writing Ideas",
+      "noWritingIdeas": "No writing ideas available.",
+      "projectCompleted": "Project Completed",
+      "userWaiting": "Someone is currently writing"
+    }
+  },
+  "about": {
+    "title": "About Inkprov",
+    "subtitle": "Collaborative storytelling for creative minds",
+    "mission": {
+      "title": "Our Mission",
+      "description": "Inkprov is a platform designed to bring writers together in a unique collaborative environment. We believe that the best stories are often told through multiple perspectives, and our platform makes it possible for writers to create together in real-time."
     },
-    "privacyPolicy": {
-      "title": "Privacy Policy",
-      "policy": "1. Introduction\nWelcome to Inkprov! This Privacy Policy describes how Inkprov ('we,' 'us,' or 'our') collects, uses, and shares information about you when you use our website, www.inkprov.net (the 'Site'), and the services offered through the Site (collectively, the 'Services'). By using our Services, you agree to the terms of this Privacy Policy.\n\n2. Information We Collect\nWe collect information about you in the following ways:\n\n Information You Provide Directly: \n- When you create an account, we collect your username, email address, and password.\n- When you participate in collaborative writing projects, we collect the content you create and contribute.\n- When you communicate with us, we collect your name, email address, and any other information you provide.\n- If you use payment features, we collect payment information through our third-party payment processors. (We do not store your credit card details)\n\n Information Collected Automatically: \n- Log Data: We collect information about your use of the Services, including your IP address, browser type, operating system, access times, and pages viewed.\n- Cookies and Tracking Technologies: We use cookies and similar technologies to collect information about your browsing activities. You can control cookies through your browser settings.\n- Usage Data: We collect data about how you interact with the site, including the frequency of use and features used.\n\n Information From Third Parties:\n- We may receive information about you from third-party services if you link, connect, or log in to your account with them (e.g., social media platforms).\n\n3. How We Use Your Information\nWe use your information for the following purposes:\n- To provide and maintain the Services.\n- To personalize your experience on the Site.\n- To communicate with you, including responding to your inquiries and providing support.\n- To send you updates and promotional materials (you can opt out at any time).\n- To monitor and analyze usage of the Services.\n- To detect, prevent, and address technical issues and security vulnerabilities.\n- To enforce our terms and conditions.\n- To process payments.\n\n4. Sharing Your Information\nWe may share your information with:\n- Other Users: Content you contribute to collaborative writing projects is shared with other users participating in those projects.\n- Service Providers: We share information with third-party service providers who assist us with hosting, payment processing, analytics, and other services.\n- Legal Compliance: We may disclose information if required by law or in response to a valid legal request.\n- Business Transfers: In the event of a merger, acquisition, or sale of assets, your information may be transferred to the acquiring entity.\n- With your consent: We may share your information with third parties when we have your consent to do so.\n\n5. Data Security\nWe take reasonable measures to protect your information from unauthorized access, use, or disclosure. However, no method of transmission over the internet or electronic storage is completely secure.\n\n6. Data Retention\nWe retain your information for as long as necessary to provide the Services and as required by applicable law.\n\n7. Your Rights\nYou have the following rights regarding your information:\n- Access: You can access and update your account information.\n- Correction: You can correct inaccuracies in your information.\n- Deletion: You can request the deletion of your account and related information, subject to legal limitations.\n- Opt-out: You can opt out of receiving promotional communications.\n- Data portability: You can request a copy of your personal data.\n\nTo exercise these rights, please contact us at support@inkprov.net.\n\n8. Children's Privacy\nOur Services are not intended for children under the age of 13. We do not knowingly collect personal information from children under 13. If we become aware that we have collected personal information from a child under 13, we will take steps to delete it.\n\n9. Changes to This Privacy Policy\nWe may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page. Your continued use of the Services after any changes constitutes your acceptance of the new Privacy Policy.\n\n10. Contact Us\nIf you have any questions about this Privacy Policy at \nsupport@inkprov.net\n\n INKPROV"
+    "howItWorks": {
+      "title": "How It Works",
+      "step1": "Create a writing session and set your parameters.",
+      "step2": "Write your initial contribution (50-100 words).",
+      "step3": "Share your session with other writers.",
+      "step4": "Watch as your story grows with each contribution."
     },
-    "toasts": {
-      "logoutSuccess": "Successfully logged out",
-      "logoutError": "Error logging out. Please try again.",
-      "signInSuccess": "Successfully signed in",
-      "signInError": "Error signing in. Please try again.",
-      "registerSuccess": "Registration successful",
-      "registerError": "Error registering. Please try again.",
-      "saveChangesSuccess": "Successfully Saved Changes",
-      "matureContentEnabled": "Mature Content Enabled",
-      "matureContentDisabled": "Mature Content Disabled",
-      "reactionAdded": "Marked this story as ",
-      "reactionRemoved": "Reaction removed",
-      "reactionError": "Unable to update your reaction",
-      "snippetsError": "Error fetching snippets. Please try again.",
-      "completedStoryError": "This project is already completed. Please try again.",
-      "maxSnippetsError": "You have reached the maximum number of snippets for this project. Please try again.",
-      "otherUserWritingError": "Another user is currently writing this project. Please try again later.",
-      "collaborationError": "Failed to start contribution. Please try again.",
-      "collaborationSuccess": "You can now write your contribution!",
-      "wordCountErrorGeneral": "Please write between 50 to 100 words.",
-      "noUserDataError": "User data not available. Please log in again.",
-      "contributionSubmitError": "Error submitting contribution. Please try again.",
-      "contributionSubmitSuccess": "Successfully submitted contribution.",
-      "storyCompletedSuccess": "Project completed! This was the final contribution.",
-      "cancelError": "Failed to cancel. Please try again.",
-      "writingCancelled": "Writing cancelled. The project is now available for others.",
-      "confirmDelete": "Are you sure you want to delete this project? This action cannot be undone.",
-      "deleteSuccess": "Successfully deleted project.",
-      "inactivity": "Project was automatically unlocked after 10 minutes of inactivity.",
-      "timerExpired": "Time's up! The project has been unlocked.",
-      "deleteAccountError": "Failed to delete account.",
-      "codeRedemptionError1": "Please enter a redemption code.",
-      "codeRedemptionError2": "Failed to redeem code. Please try again.",
-      "codeRedemptionSuccess": "Successfully redeemed code. Reward unlocked.",
+    "community": {
+      "title": "Community Guidelines",
+      "description": "We strive to maintain a respectful and creative environment. All contributors are expected to:",
+      "rule1": "Respect other writers' creative choices.",
+      "rule2": "Mark mature content appropriately.",
+      "rule3": "Provide constructive feedback.",
+      "rule4": "Follow the word count guidelines."
+    },
+    "contact": {
+      "title": "Contact Us",
+      "description": "Have questions or suggestions? We'd love to hear from you. Reach out to our team at",
+      "email": "support@inkprov.net"
+    }
+  },
+  "privacyPolicy": {
+    "title": "Privacy Policy",
+    "policy": "1. Introduction\nWelcome to Inkprov! This Privacy Policy describes how Inkprov ('we,' 'us,' or 'our') collects, uses, and shares information about you when you use our website, www.inkprov.net (the 'Site'), and the services offered through the Site (collectively, the 'Services'). By using our Services, you agree to the terms of this Privacy Policy.\n\n2. Information We Collect\nWe collect information about you in the following ways:\n\n Information You Provide Directly: \n- When you create an account, we collect your username, email address, and password.\n- When you participate in collaborative writing projects, we collect the content you create and contribute.\n- When you communicate with us, we collect your name, email address, and any other information you provide.\n- If you use payment features, we collect payment information through our third-party payment processors. (We do not store your credit card details)\n\n Information Collected Automatically: \n- Log Data: We collect information about your use of the Services, including your IP address, browser type, operating system, access times, and pages viewed.\n- Cookies and Tracking Technologies: We use cookies and similar technologies to collect information about your browsing activities. You can control cookies through your browser settings.\n- Usage Data: We collect data about how you interact with the site, including the frequency of use and features used.\n\n Information From Third Parties:\n- We may receive information about you from third-party services if you link, connect, or log in to your account with them (e.g., social media platforms).\n\n3. How We Use Your Information\nWe use your information for the following purposes:\n- To provide and maintain the Services.\n- To personalize your experience on the Site.\n- To communicate with you, including responding to your inquiries and providing support.\n- To send you updates and promotional materials (you can opt out at any time).\n- To monitor and analyze usage of the Services.\n- To detect, prevent, and address technical issues and security vulnerabilities.\n- To enforce our terms and conditions.\n- To process payments.\n\n4. Sharing Your Information\nWe may share your information with:\n- Other Users: Content you contribute to collaborative writing projects is shared with other users participating in those projects.\n- Service Providers: We share information with third-party service providers who assist us with hosting, payment processing, analytics, and other services.\n- Legal Compliance: We may disclose information if required by law or in response to a valid legal request.\n- Business Transfers: In the event of a merger, acquisition, or sale of assets, your information may be transferred to the acquiring entity.\n- With your consent: We may share your information with third parties when we have your consent to do so.\n\n5. Data Security\nWe take reasonable measures to protect your information from unauthorized access, use, or disclosure. However, no method of transmission over the internet or electronic storage is completely secure.\n\n6. Data Retention\nWe retain your information for as long as necessary to provide the Services and as required by applicable law.\n\n7. Your Rights\nYou have the following rights regarding your information:\n- Access: You can access and update your account information.\n- Correction: You can correct inaccuracies in your information.\n- Deletion: You can request the deletion of your account and related information, subject to legal limitations.\n- Opt-out: You can opt out of receiving promotional communications.\n- Data portability: You can request a copy of your personal data.\n\nTo exercise these rights, please contact us at support@inkprov.net.\n\n8. Children's Privacy\nOur Services are not intended for children under the age of 13. We do not knowingly collect personal information from children under 13. If we become aware that we have collected personal information from a child under 13, we will take steps to delete it.\n\n9. Changes to This Privacy Policy\nWe may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page. Your continued use of the Services after any changes constitutes your acceptance of the new Privacy Policy.\n\n10. Contact Us\nIf you have any questions about this Privacy Policy at \nsupport@inkprov.net\n\n INKPROV"
+  },
+  "toasts": {
+    "logoutSuccess": "Successfully logged out",
+    "logoutError": "Error logging out. Please try again.",
+    "signInSuccess": "Successfully signed in",
+    "signInError": "Error signing in. Please try again.",
+    "registerSuccess": "Registration successful",
+    "registerError": "Error registering. Please try again.",
+    "saveChangesSuccess": "Successfully Saved Changes",
+    "matureContentEnabled": "Mature Content Enabled",
+    "matureContentDisabled": "Mature Content Disabled",
+    "reactionAdded": "Marked this story as ",
+    "reactionRemoved": "Reaction removed",
+    "reactionError": "Unable to update your reaction",
+    "snippetsError": "Error fetching snippets. Please try again.",
+    "completedStoryError": "This project is already completed. Please try again.",
+    "maxSnippetsError": "You have reached the maximum number of snippets for this project. Please try again.",
+    "otherUserWritingError": "Another user is currently writing this project. Please try again later.",
+    "collaborationError": "Failed to start contribution. Please try again.",
+    "collaborationSuccess": "You can now write your contribution!",
+    "wordCountErrorGeneral": "Please write between 50 to 100 words.",
+    "noUserDataError": "User data not available. Please log in again.",
+    "contributionSubmitError": "Error submitting contribution. Please try again.",
+    "contributionSubmitSuccess": "Successfully submitted contribution.",
+    "storyCompletedSuccess": "Project completed! This was the final contribution.",
+    "cancelError": "Failed to cancel. Please try again.",
+    "writingCancelled": "Writing cancelled. The project is now available for others.",
+    "confirmDelete": "Are you sure you want to delete this project? This action cannot be undone.",
+    "deleteSuccess": "Successfully deleted project.",
+    "inactivity": "Project was automatically unlocked after 10 minutes of inactivity.",
+    "timerExpired": "Time's up! The project has been unlocked.",
+    "deleteAccountError": "Failed to delete account.",
+    "codeRedemptionError1": "Please enter a redemption code.",
+    "codeRedemptionError2": "Failed to redeem code. Please try again.",
+    "codeRedemptionSuccess": "Successfully redeemed code. Reward unlocked.",
 
-      "authRequired": {
-        "title": "Authentication Required",
-        "description": "You must be signed in to access this page."
-      },
-      "genreLoadError": {
-        "title": "Failed to load genres",
-        "description": "Could not load genre options. Please try again."
-      },
-      "titleRequired": {
-        "title": "Title Required",
-        "description": "Please provide a title for your project"
-      },
-      "descriptionRequired": {
-        "title": "Description Required",
-        "description": "Please provide a description for your project"
-      },
-      "genreRequired": {
-        "title": "Genre Required",
-        "description": "Please select a genre for your project"
-      },
-      "wordCountError": {
-        "title": "Invalid Word Count",
-        "description": "Please write between 50 to 100 words. Current word count: "
-      },
-      "sessionCreated": {
-        "title": "Session Created",
-        "description": "Session created successfully"
-      },
-      "sessionCreationError": {
-        "title": "Error Creating Session",
-        "description": "Error creating session. Please try again."
-      }
+    "authRequired": {
+      "title": "Authentication Required",
+      "description": "You must be signed in to access this page."
     },
-    "error": "Error",
-    "authError": "Error authenticating. Please try again.",
-    "loadSessionError": "Error loading session. Please try again.",
-    "noSession": "No sessions found.",
-    "noStories": "No stories found.",
-    "unknownError": "An unknown error occurred. Please try again.",
-    "unknown": "Unknown",
-    "refresh": "Refresh",
-    "makeContribution": "Make Contribution",
-    "noEmail": "No email",
-    "genres": {
-      "adventure": "Adventure",
-      "comedy": "Comedy",
-      "crime": "Crime",
-      "fantasy": "Fantasy",
-      "history": "History",
-      "horror": "Horror",
-      "mystery": "Mystery",
-      "paranormal": "Paranormal",
-      "romance": "Romance",
-      "scifi": "Sci-Fi",
-      "thriller": "Thriller",
-      "western": "Western"
+    "genreLoadError": {
+      "title": "Failed to load genres",
+      "description": "Could not load genre options. Please try again."
     },
-    "pagination": {
-          "previous": "Previous",
-          "next": "Next",
-          "page": "Page"
-        },
-    "genresTitle": "Genres",
-    "all": "All",
-    "by": "by",
-    "back": "Back",
-    "loading": "Loading",
-    "startedby": "Started by",
-    "completed": "Completed",
-    "noDate": "No date found",
-    "inProgress": "In progress",
-    "matureContent": "Mature Content",
-    "noSessions": "No sessions available",
-    "createSession": "Create Session",
-    "createSessionLoading": "Creating Session",
-    "cancel": "Cancel",
-    "select": "Select",
-    "words": "words",
-    "startCreating": "Start Creating",
-    "characters": "characters",
-    "contributions": "Contributions",
-    "of": "of",
-    "you": "You",
-    "anonymous": "Anonymous",
-    "close": "Close",
-    "competeLogin": "Completing your login.",
-    "userIDError": "User ID not found",
-    "moderation": {
-      "flagged": "Content flagged for ",
-      "categories": {
-        "sexual": "Sexual",
-        "sexual/minors": "Sexual/minors",
-        "harassment": "Harassment",
-        "harassment/threatening": "Harassment/threatening",
-        "hate": "Hate",
-        "hate/threatening": "Hate/threatening",
-        "illicit": "Illicit",
-        "illicit/violent": "Illicit/violent",
-        "self-harm": "Self-harm",
-        "self-harm/intent": "Self-harm/intent",
-        "self-harm/instructions": "Self-harm/instructions",
-        "violence": "Violence",
-        "violence/graphic": "Violence/graphic"
-      }
+    "titleRequired": {
+      "title": "Title Required",
+      "description": "Please provide a title for your project"
+    },
+    "descriptionRequired": {
+      "title": "Description Required",
+      "description": "Please provide a description for your project"
+    },
+    "genreRequired": {
+      "title": "Genre Required",
+      "description": "Please select a genre for your project"
+    },
+    "wordCountError": {
+      "title": "Invalid Word Count",
+      "description": "Please write between 50 to 100 words. Current word count: "
+    },
+    "sessionCreated": {
+      "title": "Session Created",
+      "description": "Session created successfully"
+    },
+    "sessionCreationError": {
+      "title": "Error Creating Session",
+      "description": "Error creating session. Please try again."
+    }
+  },
+  "error": "Error",
+  "authError": "Error authenticating. Please try again.",
+  "loadSessionError": "Error loading session. Please try again.",
+  "noSession": "No sessions found.",
+  "noStories": "No stories found.",
+  "unknownError": "An unknown error occurred. Please try again.",
+  "unknown": "Unknown",
+  "refresh": "Refresh",
+  "makeContribution": "Make Contribution",
+  "noEmail": "No email",
+  "genres": {
+    "adventure": "Adventure",
+    "comedy": "Comedy",
+    "crime": "Crime",
+    "fantasy": "Fantasy",
+    "history": "History",
+    "horror": "Horror",
+    "mystery": "Mystery",
+    "paranormal": "Paranormal",
+    "romance": "Romance",
+    "scifi": "Sci-Fi",
+    "thriller": "Thriller",
+    "western": "Western"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page"
+  },
+  "genresTitle": "Genres",
+  "all": "All",
+  "by": "by",
+  "back": "Back",
+  "loading": "Loading",
+  "startedby": "Started by",
+  "completed": "Completed",
+  "noDate": "No date found",
+  "inProgress": "In progress",
+  "matureContent": "Mature Content",
+  "noSessions": "No sessions available",
+  "createSession": "Create Session",
+  "createSessionLoading": "Creating Session",
+  "cancel": "Cancel",
+  "select": "Select",
+  "words": "words",
+  "startCreating": "Start Creating",
+  "characters": "characters",
+  "contributions": "Contributions",
+  "of": "of",
+  "you": "You",
+  "anonymous": "Anonymous",
+  "close": "Close",
+  "competeLogin": "Completing your login.",
+  "userIDError": "User ID not found",
+  "moderation": {
+    "flagged": "Content flagged for ",
+    "categories": {
+      "sexual": "Sexual",
+      "sexual/minors": "Sexual/minors",
+      "harassment": "Harassment",
+      "harassment/threatening": "Harassment/threatening",
+      "hate": "Hate",
+      "hate/threatening": "Hate/threatening",
+      "illicit": "Illicit",
+      "illicit/violent": "Illicit/violent",
+      "self-harm": "Self-harm",
+      "self-harm/intent": "Self-harm/intent",
+      "self-harm/instructions": "Self-harm/instructions",
+      "violence": "Violence",
+      "violence/graphic": "Violence/graphic"
     }
   }
+}
