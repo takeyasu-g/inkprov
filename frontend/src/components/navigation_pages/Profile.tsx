@@ -353,7 +353,6 @@ const Profile: React.FC = () => {
                     setIsEditing={setIsEditing}
                     setBio={setBio}
                     setUsername={setUsername}
-                    userId={profileUserId || currentUser.id}
                     profile={profile}
                   />
                 )}

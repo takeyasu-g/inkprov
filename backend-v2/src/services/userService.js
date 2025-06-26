@@ -48,3 +48,26 @@ export const getProfilePictureOptions = async () => {
 
   return options;
 };
+
+/**
+ * Updates the user's profile information in the users_ext table.
+ * @param {string} userId - The auth_id of the user.
+ * @param {object} updateData - An object containing the updated profile information.
+ * @returns {Promise<object>} An object containing the updated user's profile name and bio.
+ */
+export const updateUserProfile = async (userId, updateData) => {
+  const { data, error } = await supabase
+    .from("users_ext")
+    .update(updateData)
+    .eq("auth_id", userId)
+    .select("user_profile_name, user_profile_bio")
+    .single();
+
+  if (error) {
+    console.error("Error in updateUserProfile service:", error);
+    // For now, we'll throw a generic error. We can improve this later.
+    throw new Error("User profile not found or database error.");
+  }
+
+  return data;
+};
