@@ -23,20 +23,19 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
-import axios from "axios";
-const API_BASE_URL =
-  (import.meta.env.VITE_BACKEND_URL as string) || "http://localhost:8080";
+// import axios from "axios";
+// const API_BASE_URL =
+//   (import.meta.env.VITE_BACKEND_URL as string) || "http://localhost:8080";
 
-// Initializes supabase client
-import { supabase } from "../../utils/supabase";
-// import { read } from "fs";
+// Initializes supabase clientimport { supabase } from "../../utils/supabase";
+import { ChevronLeft } from "lucide-react";
 
 // interface imports
 import { FormData } from "@/types/global";
 
 // custom hook
 import useLocalStorage from "@/hooks/useLocalStorage";
-import { ChevronLeft } from "lucide-react";
+import { supabase } from "@/utils/supabase";
 
 // Defines Project interface
 interface Project {

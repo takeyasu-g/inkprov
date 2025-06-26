@@ -10,8 +10,16 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 // --- Middleware ---
-// Enable CORS for all routes so our frontend can talk to us
-app.use(cors());
+// Enable CORS for specific origins
+app.use(
+  cors({
+    origin: [
+      "https://inkprov-frontend.vercel.app",
+      "http://localhost:5173", // for local development
+    ],
+    credentials: true,
+  })
+);
 // Allow our server to understand JSON sent in request bodies
 app.use(express.json());
 
