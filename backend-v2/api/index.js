@@ -13,15 +13,23 @@ const PORT = process.env.PORT || 8080;
 // Enable CORS for specific origins
 app.use(
   cors({
-    origin: [
-      "https://inkprov-frontend.vercel.app",
-      "http://localhost:5173", // for local development
-      "https://inkprov-frontend-git-fix-vercel-spa-f98aab-takeyasu-gs-projects.vercel.app",
-    ],
+    origin: function (origin, callback) {
+      const allowedOrigins = [
+        "https://inkprov-frontend.vercel.app",
+        "http://localhost:5173",
+        "https://inkprov-frontend-git-fix-vercel-spa-f98aab-takeyasu-gs-projects.vercel.app",
+      ];
 
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
+
 // Allow our server to understand JSON sent in request bodies
 app.use(express.json());
 
