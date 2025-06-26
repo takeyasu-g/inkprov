@@ -11,7 +11,12 @@ import { faChalkboard, faSchool } from "@fortawesome/free-solid-svg-icons";
 import ProfileStoriesCard from "../ProfileStoriesCard";
 import ProfileSkeleton from "../ProfileSkeleton";
 import RewardTrophiesPage from "../user/RewardTrophiesPage";
-import { ProjectsData } from "@/types/global";
+import {
+  ProjectsData,
+  ProfileApiResponse,
+  UserStats,
+  UserProfileV2,
+} from "@/types/global";
 import { updateProfilePicture } from "@/utils/supabase";
 import {
   AlertDialog,
@@ -58,7 +63,8 @@ const Profile: React.FC = () => {
     ProjectsData[] | null
   >([]);
   const [currentPage, setCurrentPage] = useState(0);
-  const [userStats, setUserStats] = useState<any>(null);
+  const [userStats, setUserStats] = useState<UserStats | null>(null);
+  const [profile, setProfile] = useState<UserProfileV2 | null>(null);
 
   // maybe future add also private toggle
   const [userPreference, setUserPreference] = useState<boolean>(false);
@@ -70,11 +76,13 @@ const Profile: React.FC = () => {
   const ITEMS_PER_PAGE = 6;
 
   useEffect(() => {
-    const fetchProfileData = async () => {
+    const fetchProfileData = async (): Promise<void> => {
       setIsLoading(true);
       try {
         // Single, efficient API call to the backend
-        const data = await getProfile(profileUserId || currentUser.id);
+        const data: ProfileApiResponse = await getProfile(
+          profileUserId || currentUser.id
+        );
 
         // Destructure the response from the backend
         const { profile, projects, stats, pictureOptions } = data;
@@ -94,6 +102,7 @@ const Profile: React.FC = () => {
         setUserPreference(profile.user_profile_mature_enabled);
         setUserEmail(profile.user_email);
         setUserStats(stats); // Set the entire stats object
+        setProfile(profile);
       } catch (error) {
         console.error("Error fetching profile data:", error);
       } finally {
@@ -104,7 +113,7 @@ const Profile: React.FC = () => {
     fetchProfileData();
   }, [profileUserId, currentUser]);
 
-  const getInitials = () => {
+  const getInitials = (): string => {
     if (!userEmail) return "?";
     return userEmail
       .split("@")[0]
@@ -345,6 +354,7 @@ const Profile: React.FC = () => {
                     setBio={setBio}
                     setUsername={setUsername}
                     userId={profileUserId || currentUser.id}
+                    profile={profile}
                   />
                 )}
             </div>

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
 import React, { useState, useEffect } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,11 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
-import {
-  getUserProfileData,
-  updateUsername,
-  updateBio,
-} from "@/utils/supabase";
+import { updateUsername, updateBio } from "@/utils/supabase";
 import {
   Form,
   FormControl,
@@ -22,30 +17,24 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-// import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { UserProfileV2 } from "@/types/global";
 
 interface EditingToggleProps {
   isEditing: boolean;
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
   setBio: React.Dispatch<React.SetStateAction<string>>;
   setUsername: React.Dispatch<React.SetStateAction<string>>;
-  userId?: string;
+  profile: UserProfileV2 | null;
 }
-
-// const API_BASE_URL =
-//   (import.meta.env.VITE_BACKEND_URL as string) || "http://localhost:8080";
 
 const ProfileSettings: React.FC<EditingToggleProps> = ({
   isEditing,
   setIsEditing,
   setBio,
   setUsername,
-  userId,
+  profile,
 }) => {
-  const navigate = useNavigate();
-
   const { t } = useTranslation();
   // Setting states
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -60,37 +49,28 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
     },
   });
 
-  // Fetch user data on mount
+  // Set form values from profile prop
   useEffect(() => {
-    const fetchSettingsData = async () => {
-      if (!userId) return navigate(-1);
-      try {
-        const userData = await getUserProfileData(userId);
-
-        let username = userData.username;
-        if (username.includes("@")) {
-          username = username.substring(0, username.indexOf("@"));
-        }
-
-        const bioText = userData.bio || "";
-        setBioCharCount(bioText ? bioText.length : 0);
-
-        // Set form values after data is fetched
-        form.reset({
-          username: username,
-          bio: bioText,
-        });
-      } catch (error) {
-        console.error("Error fetching settings data:", error);
-        toast.error(t("settings.loadError"));
+    if (profile) {
+      let username = profile.user_profile_name || "";
+      if (username.includes("@")) {
+        username = username.substring(0, username.indexOf("@"));
       }
-    };
 
-    fetchSettingsData();
-  }, [form]);
+      const bioText = profile.user_profile_bio || "";
+      setBioCharCount(bioText.length);
+
+      form.reset({
+        username: username,
+        bio: bioText,
+      });
+    }
+  }, [profile, form]);
 
   // Form Submission
-  async function onSubmit(values: z.infer<typeof settingsSchema>) {
+  async function onSubmit(
+    values: z.infer<typeof settingsSchema>
+  ): Promise<void> {
     try {
       setIsLoading(true);
 
@@ -112,7 +92,6 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
       //     return;
       //   }
       // }
-
       // Update username and bio
       if (values.username.length > 0) {
         await updateUsername(values.username);
@@ -136,7 +115,7 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
   const handleBioChange = (
     e: React.ChangeEvent<HTMLTextAreaElement>,
     onChange: (value: string) => void
-  ) => {
+  ): void => {
     const value = e.target.value;
 
     // Limit to 180 characters
