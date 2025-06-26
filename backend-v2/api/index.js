@@ -13,10 +13,22 @@ const PORT = process.env.PORT || 8080;
 // Enable CORS for specific origins
 app.use(
   cors({
-    origin: [
-      "https://inkprov-frontend.vercel.app",
-      "http://localhost:5173", // for local development
-    ],
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        "https://inkprov-frontend.vercel.app",
+        "http://localhost:5173",
+      ];
+
+      // Allow Vercel preview URLs dynamically
+      if (
+        origin &&
+        (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app"))
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
