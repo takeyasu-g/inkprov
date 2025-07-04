@@ -4,6 +4,10 @@ import StoryCarousel from "./components/StoryCarousel";
 import JoinSessionCarousel from "./components/JoinSessionCarousel";
 import HeroSection from "./components/HeroSection";
 
+const contributedSessions = [];
+const stories = [];
+const sessions = [];
+
 const HomePage: React.FC = () => {
   return (
     <>

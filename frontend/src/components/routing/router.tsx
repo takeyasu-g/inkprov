@@ -1,11 +1,7 @@
-import React, { useState, useEffect } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import { supabase } from "@/utils/supabase";
 import LoginPage from "../auth/LoginPage";
 import RegisterPage from "../auth/RegisterPage";
 import WritingEditor from "../writing_pages/WritingEditor";
-import LandingPage from "../navigation_pages/LandingPage";
-// import Settings from "../navigation_pages/Settings";
 import Profile from "../navigation_pages/Profile";
 import OpenSessionsPage from "../navigation_pages/OpenSessionsPage";
 import ProjectsPage from "../navigation_pages/ProjectsPage";
@@ -13,60 +9,11 @@ import ReadingPage from "../navigation_pages/ReadingPage";
 import CreateSessionPage from "../writing_pages/CreateSessionPage";
 import AboutPage from "../pages/AboutPage";
 import PrivacyPage from "../pages/PrivacyPage";
-import Header from "../Header";
 import Footer from "../Footer";
-import { useAuth } from "@/contexts/AuthContext";
-
-// Continue with Google requirement
 import AuthCallback from "../auth/AuthCallback";
-
-// Wrapper component for the layout and protected routes
-const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
-
-  return (
-    <div
-      className={
-        window.location.pathname === "/login" ||
-        window.location.pathname === "/register"
-          ? "lg:overflow-hidden portrait:h-dvh landscape:h-full lg:landscape:h-dvh "
-          : window.location.pathname.startsWith("/writing") ||
-            window.location.pathname.startsWith("/projects") ||
-            window.location.pathname.startsWith("/sessions/create")
-          ? "bg-white md:bg-background min-h-screen overflow-x-hidden"
-          : `min-h-screen overflow-x-hidden lg:flex lg:flex-col`
-      }
-    >
-      <Header loggedIn={isAuthenticated} page={window.location.pathname} />
-      {children}
-    </div>
-  );
-};
-
-// Protected route wrapper
-const ProtectedRoute: React.FC<{ element: React.ReactNode }> = ({
-  element,
-}) => {
-  const { isAuthenticated } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Check for session on mount
-    supabase.auth.getSession().then(() => {
-      setIsLoading(false);
-    });
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <p className="text-xl text-primary-text">Loading...</p>
-      </div>
-    );
-  }
-
-  return isAuthenticated ? element : <Navigate to="/" replace />;
-};
+import Layout from "./components/Layout";
+import HomeOrLanding from "./components/HomeOrLanding";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // Create the router configuration
 const router = createBrowserRouter([
@@ -75,7 +22,7 @@ const router = createBrowserRouter([
     element: (
       <>
         <Layout>
-          <LandingPage />
+          <HomeOrLanding />
         </Layout>
         <Footer />
       </>

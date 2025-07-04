@@ -84,13 +84,13 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
     fetchUserData();
   }, [isAuthenticated]); // Only run when authentication status changes
 
-  const handleLoggedInHomepage = () => {
-    if (isAuthenticated) {
-      navigate("/sessions");
-    } else {
-      navigate("/");
-    }
-  };
+  // const handleLoggedInHomepage = () => {
+  //   if (isAuthenticated) {
+  //     navigate("/sessions");
+  //   } else {
+  //     navigate("/");
+  //   }
+  // };
 
   const handleLogout = async () => {
     try {
@@ -131,14 +131,11 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
         }
       >
         <div className="flex items-center text-primary-text">
-          <Feather
-            className="cursor-pointer"
-            onClick={handleLoggedInHomepage}
-          />
+          <Feather className="cursor-pointer" onClick={() => navigate("/")} />
           <Button
             className="text-primary-text text-xl font-bold pl-2 hover:no-underline cursor-pointer"
             variant="link"
-            onClick={handleLoggedInHomepage}
+            onClick={() => navigate("/")}
           >
             {t("header.appName")}
           </Button>

@@ -67,7 +67,7 @@ export default function LoginPage() {
         setIsAuthenticated(true);
         setUser(data.user);
         toast.success(t("toasts.signInSuccess"));
-        navigate("/sessions");
+        navigate("/");
       }
     } catch (dataError: any) {
       setIsLoading(false);
@@ -264,7 +264,8 @@ export default function LoginPage() {
                 >
                   {isLoading ? (
                     <>
-                      <Loader2 className="animate-spin" /> {t("auth.signIn.rightSection.form.signInLoading")}
+                      <Loader2 className="animate-spin" />{" "}
+                      {t("auth.signIn.rightSection.form.signInLoading")}
                     </>
                   ) : (
                     t("auth.signIn.rightSection.form.signIn")
@@ -277,7 +278,7 @@ export default function LoginPage() {
                   </div>
                   <div className="relative flex justify-center text-sm">
                     <span className="px-2 bg-background text-secondary-text">
-                    {t("auth.continueWith.subtitle")}
+                      {t("auth.continueWith.subtitle")}
                     </span>
                   </div>
                 </div>

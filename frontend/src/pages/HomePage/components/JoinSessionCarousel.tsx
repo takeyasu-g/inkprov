@@ -3,7 +3,13 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import SessionCard from "@/components/SessionCard"; // Adjust path if needed
 import { ProjectsData } from "@/types/global";
 
-const JoinSessionCarousel: React.FC<ProjectsData[]> = (sessions) => (
+interface JoinSessionCarouselProps {
+  sessions?: ProjectsData[];
+}
+
+const JoinSessionCarousel: React.FC<JoinSessionCarouselProps> = ({
+  sessions = [],
+}) => (
   <ScrollArea type="always" className="w-full">
     <div className="flex space-x-4 pb-4">
       {sessions.map((session) => (
