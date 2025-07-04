@@ -1,12 +1,12 @@
-## Refactor Proposal #2 UI/UX: Home Page & Session Experience Improvements (inkprov)
+## Refactor Proposal #2: UI/UX Improvements for Home Page & Session Experience (inkprov)
 
 ### Background & Rationale
 
-Currently, after login, inkprov users land on a generic Sessions page that is not personalized or social. There is no central place to see their own activity, recent contributions, or engagement from others. Session cards lack clear indicators of progress and lock status, and the lock system can be confusing. Guests are also blocked from reading stories, which limits sharing and onboarding.
-
-For a collaborative writing platform, users should feel connected and engaged—not just with content, but with activity and community. Improving the home experience and session cards will make the app more inviting, social, and user-friendly.
-
----
+- Current Sessions page is generic, lacks personalization and social features.
+- No central place for users to see their own activity or others' engagement.
+- Session cards lack progress and lock clarity.
+- Guest users blocked from reading stories, limiting sharing and onboarding.
+- Goal: Make the app more engaging, social, and user-friendly.
 
 ---
 
@@ -14,33 +14,48 @@ For a collaborative writing platform, users should feel connected and engaged—
 
 #### 1. New Home Page
 
-- Build a new Home page as the default after login.
-- Display sessions the user has contributed to, with indicators for available contributions (not locked, new snippet made since last contribution).
-- Show recent activity on completed stories the user contributed to (reactions, views).
-- If no activity, prompt the user to create a session, join an in-progress session, or read completed stories.
-- Use improved session cards (see below).
-
-  _Why:_ This creates a personalized, engaging entry point that surfaces relevant activity and opportunities, making the platform feel alive and encouraging continued participation.
+- Create a personalized Home page as default after login.
+- Show sessions user contributed to with indicators:
+  - Available contributions (not locked, new snippet since last contribution).
+  - Recent activity on completed stories (reactions, views).
+- If no activity, prompt user to create, join, or read sessions.
+- Use improved session cards.
 
 #### 2. Session Card & Lock System Improvements
 
-- Redesign session cards (used in Home and Sessions page):
-  - Add progress bar (e.g., Intro, Body, Conclusion, or percent complete).
-  - Add tags (“Fresh/New,” “Needs Ending/Conclusion,” “Hot”).
-  - Add lock indicator (show if session is locked for writing, and by whom).
-  - Show clear call-to-action if user can contribute.
+- Redesign session cards for Home & Sessions page:
+  - Add progress bar (Intro, Body, Conclusion, % complete).
+  - Add tags (“Fresh/New,” “Needs Ending,” “Hot”).
+  - Add lock indicators (who locked it).
+  - Clear call-to-action if user can contribute.
 - Refactor lock system:
-
-  - Only one user can write at a time, with real-time presence indicator.
-  - Prevent back-to-back contributions by the same user.
-  - Show warnings when on last/near-last snippet.
-
-  _Why:_ These improvements make the collaborative writing process clearer, fairer, and more engaging by providing visibility into session status and preventing frustration from conflicts or unclear participation rules.
+  - One user writes at a time with real-time presence.
+  - Prevent consecutive contributions by same user.
+  - Warn when on last or near-last snippet.
 
 #### 3. Guest Access & Sharing
 
-- Allow guests to read completed stories (with tooltip if login is required for actions).
+- Allow guests to read completed stories (with tooltip for login-required actions).
 - Add shareable links for sessions and stories.
-- Enable private sessions with invite-by-link and clear access controls.
+- Enable private sessions via invite-by-link with access controls.
 
-  _Why:_ These changes lower the barrier to entry, support organic growth through sharing, and enable flexible collaboration—balancing openness with controlled access where needed.
+---
+
+### Notes
+
+- This proposal is currently in progress and being implemented.
+- Some features/improvements might emerge beyond this plan as new ideas come up during work.
+
+---
+
+### Action Items Checklist
+
+- [ ] Build new Home page with personalized session/activity feed.
+- [ ] Redesign session cards with progress bars, tags, and lock indicators.
+- [ ] Implement improved lock system rules and presence indicators.
+- [ ] Enable guest read access and sharing features.
+- [ ] Add private session invite-by-link functionality.
+
+---
+
+*End of Refactor Proposal #2 summary.*
