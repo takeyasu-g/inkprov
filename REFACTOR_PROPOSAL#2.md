@@ -15,10 +15,11 @@
 #### 1. New Home Page
 
 - Create a personalized Home page as default after login.
-- Show sessions user contributed to with indicators:
-  - Available contributions (not locked, new snippet since last contribution).
-  - Recent activity on completed stories (reactions, views).
+- Show sessions user contributed to:
+  - That are available contributions (not locked, new snippet since last contribution).
+- Show recently completed stories (reactions, views).
 - If no activity, prompt user to create, join, or read sessions.
+- Join new sessions made by others that the current user is not part of (new , popular, not locked, recent activity).
 - Use improved session cards.
 
 #### 2. Session Card & Lock System Improvements
@@ -26,9 +27,9 @@
 - Redesign session cards for Home & Sessions page:
   - Add progress bar (Intro, Body, Conclusion, % complete).
   - Add tags (“Fresh/New,” “Needs Ending,” “Hot”).
-  - Add lock indicators (who locked it).
+  - Add lock indicators (who locked it/someone is writing...).
   - Clear call-to-action if user can contribute.
-- Refactor lock system:
+- Refactor lock system of sessions:
   - One user writes at a time with real-time presence.
   - Prevent consecutive contributions by same user.
   - Warn when on last or near-last snippet.

@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { getProfile } from "@/services/api";
+import { getProfile, getMyProfile } from "@/services/api";
 import { BookOpen, PenTool, Trophy } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChalkboard, faSchool } from "@fortawesome/free-solid-svg-icons";
@@ -78,10 +78,14 @@ const Profile: React.FC = () => {
   const fetchProfileData = useCallback(async (): Promise<void> => {
     setIsLoading(true);
     try {
-      // Single, efficient API call to the backend
-      const data: ProfileApiResponse = await getProfile(
-        profileUserId || currentUser.id
-      );
+      let data: ProfileApiResponse;
+      // If viewing your own profile, use the secure "me" route
+      if (currentUser.id === (profileUserId || currentUser.id)) {
+        data = await getMyProfile();
+      } else {
+        // Otherwise, use the public route with the user ID
+        data = await getProfile(profileUserId || currentUser.id);
+      }
 
       // Destructure the response from the backend
       const { profile, projects, stats, pictureOptions } = data;

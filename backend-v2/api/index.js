@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import profileRoutes from "../src/routes/profileRoutes.js";
+import sessionRoutes from "../src/routes/sessionRoutes.js";
 
 // Load environment variables from a .env file
 dotenv.config();
@@ -37,6 +38,9 @@ app.use(express.json());
 
 // Step 2: Use the new profileRoutes with a more accurate path
 app.use("/api/profile", profileRoutes);
+
+// Session routes
+app.use("/api/sessions", sessionRoutes);
 
 // A simple test route to make sure everything is working
 app.get("/api", (req, res) => {

@@ -13,7 +13,12 @@ import { getUserStats } from "../services/gamificationService.js";
  * @param {object} res - The Express response object.
  */
 export const getProfileData = async (req, res) => {
-  const { userId } = req.params;
+  // Use req.user.id if no userId param (for /me route)
+  const userId = req.params.userId || (req.user && req.user.id);
+
+  if (!userId) {
+    return res.status(400).json({ message: "User ID is required." });
+  }
 
   try {
     // Use Promise.all to fetch all data in parallel for maximum efficiency.
@@ -49,7 +54,8 @@ export const getProfileData = async (req, res) => {
  * @param {object} res - The Express response object.
  */
 export const updateProfileData = async (req, res) => {
-  const { userId } = req.params;
+  // Use req.user.id if no userId param (for /me route)
+  const userId = req.params.userId || (req.user && req.user.id);
   const { username, bio } = req.body;
   const authenticatedUserId = req.user.id; // From authMiddleware
 

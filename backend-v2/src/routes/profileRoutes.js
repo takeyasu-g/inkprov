@@ -7,13 +7,14 @@ import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = Router();
 
-// This route is for fetching the complete, aggregated profile data for a user.
-// It is PUBLIC, so anyone can view a user's profile
-// URL BASE/api/profile/:userId
-router.get("/:userId", getProfileData);
+// Add routes for the authenticated user's own profile.
+// These MUST come before the /:userId route to be matched correctly.
+router.get("/me", authMiddleware, getProfileData);
+router.put("/me", authMiddleware, updateProfileData);
 
-// This route is for updating a user's profile information (e.g., username, bio).
-// It is PROTECTED, so only the authenticated user can update their own profile.
-router.put("/:userId", authMiddleware, updateProfileData);
+// This route is for fetching the complete, aggregated profile data for any user.
+// It is PUBLIC, so anyone can view a user's profile.
+// URL: /api/profile/:userId
+router.get("/:userId", getProfileData);
 
 export default router;
