@@ -11,7 +11,7 @@ import {
 } from "@/components/ui";
 import CardHeaderWithMature from "@/components/ui/CardHeaderWithMature";
 import { ProjectsData } from "@/types/global";
-import { Skeleton } from "@/components/ui/skeleton";
+
 import { formatRelative } from "date-fns";
 import { enUS, ja } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
@@ -19,44 +19,6 @@ import { useTranslation } from "react-i18next";
 interface SessionCardDataProp {
   sessionData: ProjectsData;
 }
-
-// SessionCardSkeleton component
-export const SessionCardSkeleton: React.FC = () => {
-  return (
-    <Card className="w-[350px] h-[250px] bg-background-card">
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <Skeleton className="h-5 w-20" /> {/* Genre badge */}
-          <div className="flex items-center gap-1">
-            <Skeleton className="h-4 w-12" /> {/* Contributors count */}
-          </div>
-        </div>
-        <div className="flex justify-between items-center">
-          <Skeleton className="h-6 w-40" /> {/* Title */}
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-8 w-8 rounded-full" /> {/* Avatar */}
-          </div>
-        </div>
-      </CardHeader>
-      <div className="bg-white">
-        <div className="m-4">
-          <Skeleton className="h-4 w-full mb-2" /> {/* Description line 1 */}
-          <Skeleton className="h-4 w-3/4" /> {/* Description line 2 */}
-        </div>
-      </div>
-      <CardFooter className="flex flex-col gap-2">
-        <div className="flex items-center gap-2">
-          <Skeleton className="h-6 w-24" /> {/* Contributors text */}
-          <div className="flex -space-x-2">
-            <Skeleton className="h-6 w-6 rounded-full" />
-            <Skeleton className="h-6 w-6 rounded-full" />
-          </div>
-        </div>
-        <Skeleton className="h-10 w-full" /> {/* Button */}
-      </CardFooter>
-    </Card>
-  );
-};
 
 const SessionCard: React.FC<SessionCardDataProp> = ({
   sessionData,

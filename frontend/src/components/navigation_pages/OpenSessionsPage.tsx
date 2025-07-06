@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback } from "react";
 import GenreFilter from "../GenreFilter";
 import SearchBar from "../SearchBar";
-import SessionCard, { SessionCardSkeleton } from "../SessionCard";
+import SessionCard from "../SessionCard";
+import { ProjectCardSkeleton } from "../ProjectCard";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ProjectsData } from "@/types/global";
@@ -159,7 +160,7 @@ const OpenSessionsPage: React.FC = () => {
       .fill(0)
       .map((_, index) => (
         <div key={index} className="flex justify-center">
-          <SessionCardSkeleton />
+          <ProjectCardSkeleton />
         </div>
       ));
   }, [ITEMS_PER_PAGE]);
