@@ -40,6 +40,11 @@ export interface ProjectsData {
   is_mature_content: boolean;
   word_count: number;
   current_snippets?: number;
+  is_locked?: boolean;
+  locked_by?: string;
+  last_writer?: string;
+  recent_contributions_count?: number;
+  reaction_count?: number;
 }
 
 // interface for just ProjectStoriesCompletedCards
@@ -56,6 +61,7 @@ export interface CompletedStoriesData {
   created_at: string;
   current_contributors_count: number; // provides the number of total project contributors (cumulative)
   is_mature_content: boolean;
+  reaction_count?: number; // number of reactions for the project
 }
 
 export interface ProjectSnippet {

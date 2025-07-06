@@ -21,9 +21,14 @@ const FreshSessionsSection: React.FC<FreshSessionsSectionProps> = ({
   const navigate = useNavigate();
   
   return (
-    <section className="space-y-4 w-full">
-      <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-2 mb-2">
-        <h2 className="text-xl font-bold">{t('home.freshSessions', 'Fresh Sessions to Join')}</h2>
+    <div className="space-y-4">
+      <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-2 mb-4">
+        <div>
+          <h2 className="text-xl font-bold text-primary-text">{t('home.freshSessions', 'Fresh Sessions')}</h2>
+          <p className="text-secondary-text text-sm mt-1">
+            Sessions you haven't joined yet—discover something new to contribute to.
+          </p>
+        </div>
         <Button 
           variant="ghost" 
           size="sm"
@@ -37,13 +42,13 @@ const FreshSessionsSection: React.FC<FreshSessionsSectionProps> = ({
       
       <div className="w-full overflow-hidden">
         <JoinSessionCarousel 
-          sessions={sessions} 
-          isLoading={isLoading} 
+          sessions={sessions}
+          isLoading={isLoading}
           error={error}
-          emptyMessage={t('home.noFreshSessions', 'No new sessions to join right now. Check back soon!')}
+          emptyMessage={t('home.noFreshSessions', 'No fresh sessions available. Check back soon!')}
         />
       </div>
-    </section>
+    </div>
   );
 };
 

@@ -5,6 +5,7 @@ import { ProjectsData } from '@/types/global';
 import ContributedSessionsCarousel from './ContributedSessionsCarousel';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
 interface ReadyToWriteSectionProps {
   sessions: ProjectsData[];
@@ -21,9 +22,25 @@ const ReadyToWriteSection: React.FC<ReadyToWriteSectionProps> = ({
   const navigate = useNavigate();
   
   return (
-    <section className="space-y-4 w-full">
-      <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-2 mb-2">
-        <h2 className="text-xl font-bold">{t('home.readyToWrite', 'Ready to Write')}</h2>
+    <div className="space-y-4">
+      <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-2 mb-4">
+        <div>
+          <h2 className="text-xl font-bold text-primary-text">{t('home.readyToWrite', 'Ready to Write')}</h2>
+          <div className="text-secondary-text text-sm mt-1">
+            Sessions you've contributed to or started, and are currently{' '}
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="font-bold text-emerald-700 cursor-help">Unlocked</span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <span>No one is currently writing and you didn't write the last snippet.</span>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            .
+          </div>
+        </div>
         <Button 
           variant="ghost" 
           size="sm"
@@ -44,7 +61,7 @@ const ReadyToWriteSection: React.FC<ReadyToWriteSectionProps> = ({
           showEmptyStateCTAs={true}
         />
       </div>
-    </section>
+    </div>
   );
 };
 

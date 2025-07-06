@@ -21,9 +21,14 @@ const ActiveStoriesSection: React.FC<ActiveStoriesSectionProps> = ({
   const navigate = useNavigate();
   
   return (
-    <section className="space-y-4 w-full">
-      <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-2 mb-2">
-        <h2 className="text-xl font-bold">{t('home.activeStories', 'Active Stories')}</h2>
+    <div className="space-y-4">
+      <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-2 mb-4">
+        <div>
+          <h2 className="text-xl font-bold text-primary-text">{t('home.activeStories', 'Active Stories')}</h2>
+          <p className="text-secondary-text text-sm mt-1">
+            Stories that are recently completed or have gained popularity with many reactions.
+          </p>
+        </div>
         <Button 
           variant="ghost" 
           size="sm"
@@ -43,7 +48,7 @@ const ActiveStoriesSection: React.FC<ActiveStoriesSectionProps> = ({
           emptyMessage={t('home.noActiveStories', 'No active stories yet. Check back soon for popular completed stories!')}
         />
       </div>
-    </section>
+    </div>
   );
 };
 

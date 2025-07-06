@@ -6,7 +6,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui";
-import matureIcon from "@/assets/mature-icon.png";
 import { useTranslation } from "react-i18next";
 
 interface CardHeaderWithMatureProps {
@@ -23,28 +22,67 @@ const CardHeaderWithMature: React.FC<CardHeaderWithMatureProps> = ({
   rightContent,
 }) => {
   const { t } = useTranslation();
+
+  const matureContent = isMatureContent ? (
+    <TooltipProvider delayDuration={100}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="flex items-center justify-center rounded-full bg-amber-100 w-5 h-5 ml-2">
+            <span className="text-[10px] font-medium text-amber-700">18+</span>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{t("matureContent")}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  ) : null;
+
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex justify-between items-center">
-        <Badge className={`genre-${genre.toLowerCase()}`}>{t(`genres.${genre.toLowerCase()}`)}</Badge>
-        <div className="flex items-center gap-1">
-          {isMatureContent && (
-            <TooltipProvider delayDuration={100}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <img src={matureIcon} alt="Icon" className="w-6 h-6" />
-                  {/* <CircleAlert className="h-4 w-4 text-amber-600" /> */}
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{t("matureContent")}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-          {rightContent}
-        </div>
+    <div className="relative">
+      <div className="absolute top-0 right-0">
+        {rightContent}
       </div>
-      {children}
+      <div className="flex flex-col gap-2">
+        <div>
+          <Badge className={`genre-${genre.toLowerCase()}`}>{t(`genres.${genre.toLowerCase()}`)}</Badge>
+        </div>
+        {React.Children.map(children, (child) => {
+          if (!React.isValidElement(child)) return child;
+          
+          // Cast child to ReactElement with proper props type
+          const childElement = child as React.ReactElement<{
+            className?: string;
+            children?: React.ReactNode;
+          }>;
+          
+          // If this is the container div
+          if (childElement.props.className?.includes('flex flex-col justify-start')) {
+            return React.cloneElement(childElement, {
+              children: React.Children.map(childElement.props.children, (titleChild) => {
+                if (!React.isValidElement(titleChild)) return titleChild;
+                
+                // Cast titleChild to ReactElement with proper props type
+                const titleChildElement = titleChild as React.ReactElement<{
+                  className?: string;
+                }>;
+                
+                // If this is the title element
+                if (titleChildElement.props.className?.includes('text-amber-900')) {
+                  return (
+                    <div className="flex items-center">
+                      {titleChild}
+                      {matureContent}
+                    </div>
+                  );
+                }
+                return titleChild;
+              })
+            });
+          }
+          return child;
+        })}
+      </div>
     </div>
   );
 };

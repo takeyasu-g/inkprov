@@ -266,6 +266,7 @@ const CreateSession: React.FC = () => {
             user_is_project_creator: true,
             user_made_contribution: true,
             joined_at: new Date().toISOString(),
+            last_contribution_at: new Date().toISOString(),
           },
         ]);
 

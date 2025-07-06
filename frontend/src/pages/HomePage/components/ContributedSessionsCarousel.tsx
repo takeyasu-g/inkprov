@@ -48,8 +48,15 @@ const ContributedSessionsCarousel: React.FC<ContributedSessionsCarouselProps> = 
           <h3 className="text-lg font-semibold mb-2">{t('home.noContributableSessions.title', 'Nothing to write right now!')}</h3>
           <p className="text-secondary-text mb-4">{t('home.noContributableSessions.description', 'Get started by creating your own story or joining an existing one.')}</p>
           <div className="flex justify-center gap-4">
-            <Button onClick={() => navigate('/sessions/create')}>{t('home.createSession', 'Create a Session')}</Button>
-            <Button variant="secondary" onClick={() => navigate('/sessions')}>{t('home.joinSession', 'Join a Session')}</Button>
+            <Button 
+              className="bg-primary-button hover:bg-primary-button-hover text-white" 
+              onClick={() => navigate('/sessions/create')}
+            >
+              {t('home.createSession', 'Create a Session')}
+            </Button>
+            <Button variant="secondary" onClick={() => navigate('/sessions')}>
+              {t('home.joinSession', 'Join a Session')}
+            </Button>
           </div>
         </div>
       );
