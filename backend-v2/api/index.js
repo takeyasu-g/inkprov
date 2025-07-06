@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import profileRoutes from "../src/routes/profileRoutes.js";
 import sessionRoutes from "../src/routes/sessionRoutes.js";
+import projectRoutes from "../src/routes/projectRoutes.js";
 
 // Load environment variables from a .env file
 dotenv.config();
@@ -41,6 +42,9 @@ app.use("/api/profile", profileRoutes);
 
 // Session routes
 app.use("/api/sessions", sessionRoutes);
+
+// Project routes
+app.use("/api/projects", projectRoutes);
 
 // A simple test route to make sure everything is working
 app.get("/api", (req, res) => {
