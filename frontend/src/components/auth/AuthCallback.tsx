@@ -28,7 +28,7 @@ const AuthCallback = () => {
           setIsAuthenticated(true);
           setUser(session.user);
           toast.success(t("toasts.signinSuccess"));
-          navigate("/sessions");
+          navigate("/");
         } else {
           // No session, redirect to login
           toast.error(t("toasts.signinError"));

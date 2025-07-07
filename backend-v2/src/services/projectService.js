@@ -30,3 +30,30 @@ export const getUserProjectsWithStats = async (userId) => {
   // Return the categorized data.
   return { completedProjects, inProgressProjects };
 };
+
+/**
+ * Fetches popular/recent completed projects with the most reactions
+ * Uses a single RPC call for maximum efficiency
+ * @param {string} userId - The auth_id of the user (optional, for mature content filtering)
+ * @param {number} limit - Maximum number of projects to return
+ * @returns {Promise<Array>} Array of popular completed projects
+ */
+export const getPopularProjects = async (userId = null, limit = 10) => {
+  try {
+    // Single RPC call that handles all the logic in PostgreSQL
+    const { data, error } = await supabase.rpc("get_popular_projects", {
+      p_user_id: userId,
+      p_limit: limit
+    });
+
+    if (error) {
+      console.error("Error in getPopularProjects service:", error);
+      throw new Error("Could not fetch popular projects.");
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error("Exception in getPopularProjects:", error);
+    throw error;
+  }
+};

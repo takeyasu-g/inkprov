@@ -211,6 +211,7 @@ export const getAllStoriesWithProfileName = async (): Promise<
       .eq("auth_id", user.id)
       .single();
 
+    // First get all completed projects
     const { data, error } = await supabase
       .from("projects")
       .select(
@@ -234,6 +235,35 @@ export const getAllStoriesWithProfileName = async (): Promise<
       console.error("Error fetching projects:", error.message);
       console.error("Error details:", error.details);
       return null;
+    }
+
+    // Now fetch reaction counts for all projects in one batch
+    if (data && data.length > 0) {
+      const projectIds = data.map(project => project.id);
+      
+      const { data: reactions, error: reactionsError } = await supabase
+        .from("reactions")
+        .select("project_id, reaction_id")
+        .in("project_id", projectIds);
+        
+      if (reactionsError) {
+        console.error("Error fetching reactions:", reactionsError);
+      } else {
+        // Count reactions by project
+        const reactionCounts: Record<string, number> = {};
+        reactions?.forEach(reaction => {
+          if (!reactionCounts[reaction.project_id]) {
+            reactionCounts[reaction.project_id] = 0;
+          }
+          reactionCounts[reaction.project_id]++;
+        });
+        
+        // Add reaction counts to projects
+        return data.map(project => ({
+          ...project,
+          reaction_count: reactionCounts[project.id] || 0
+        })) as CompletedStoriesData[];
+      }
     }
 
     return data as CompletedStoriesData[];

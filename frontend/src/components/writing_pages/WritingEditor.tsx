@@ -3,7 +3,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 const API_BASE_URL =
   (import.meta.env.VITE_BACKEND_URL as string) || "http://localhost:8080";
@@ -30,6 +30,12 @@ import { ProjectSnippet } from "@/types/global";
 import { useAuth } from "@/contexts/AuthContext";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { useTranslation } from "react-i18next";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 // Basic interfaces for our data
 interface Project {
@@ -178,15 +184,9 @@ const WritingEditor: React.FC = () => {
       try {
         // Get current user
         const user = await getCurrentUser();
-
-        if (!user) {
-          toast.error(t("toasts.authRequired.description"));
-          navigate("/login");
-          return;
-        }
-
-        // Set user data directly from auth
-        setUserData({ auth_id: user.id });
+        
+        // Set user data if authenticated, or null if guest
+        setUserData(user ? { auth_id: user.id } : null);
 
         // Fetch all data in parallel for better performance
         const [projectResult, snippets] = await Promise.all([
@@ -214,7 +214,7 @@ const WritingEditor: React.FC = () => {
         // Set project lock status
         setProjectLocked(cappedProjectData.is_locked || false);
         setLockedBy(cappedProjectData.locked_by || null);
-        setIsCurrentlyWriting(cappedProjectData.locked_by === user.id);
+        setIsCurrentlyWriting(user && cappedProjectData.locked_by === user.id ? true : false);
 
         // Process snippets
         if (snippets) {
@@ -244,7 +244,9 @@ const WritingEditor: React.FC = () => {
           }
         }
 
-        await fetchContributors();
+        if (user) {
+          await fetchContributors();
+        }
       } catch (error) {
         toast.error(`${error}`);
       } finally {
@@ -1267,32 +1269,61 @@ const WritingEditor: React.FC = () => {
             </div>
           ) : (
             <div className="flex justify-center">
-              <Button
-                onClick={handleStartContribution}
-                className="w-full max-w-md bg-primary-button hover:bg-primary-button-hover text-white cursor-pointer"
-                disabled={
-                  isLoading ||
-                  projectLocked ||
-                  project?.is_completed === true ||
-                  (project?.max_snippets !== undefined &&
-                    previousSnippets.length >= project.max_snippets)
-                }
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {t("loading")}
-                  </>
-                ) : project?.is_completed === true ||
-                  (project?.max_snippets !== undefined &&
-                    previousSnippets.length >= project.max_snippets) ? (
-                  t("writingSession.content.projectCompleted")
-                ) : projectLocked && lockedBy !== userData?.auth_id ? (
-                  t("writingSession.header.userCurrentlyWriting")
-                ) : (
-                  t("makeContribution")
-                )}
-              </Button>
+              {!userData ? (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="w-full flex flex-col items-center">
+                        <Button
+                          className="w-full max-w-md bg-gray-400 text-white cursor-not-allowed"
+                          disabled={true}
+                        >
+                          {t("makeContribution")}
+                        </Button>
+                        <p className="text-sm text-secondary-text mt-2">
+                          {t("writingSession.content.loginToContribute")}
+                        </p>
+                        <Link 
+                          to="/login" 
+                          className="text-primary-button hover:text-primary-button-hover mt-1"
+                        >
+                          {t("header.signIn")}
+                        </Link>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{t("writingSession.content.loginToContributeTooltip")}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ) : (
+                <Button
+                  onClick={handleStartContribution}
+                  className="w-full max-w-md bg-primary-button hover:bg-primary-button-hover text-white cursor-pointer"
+                  disabled={
+                    isLoading ||
+                    projectLocked ||
+                    project?.is_completed === true ||
+                    (project?.max_snippets !== undefined &&
+                      previousSnippets.length >= project.max_snippets)
+                  }
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {t("loading")}
+                    </>
+                  ) : project?.is_completed === true ||
+                    (project?.max_snippets !== undefined &&
+                      previousSnippets.length >= project.max_snippets) ? (
+                    t("writingSession.content.projectCompleted")
+                  ) : projectLocked && lockedBy !== userData?.auth_id ? (
+                    t("writingSession.header.userCurrentlyWriting")
+                  ) : (
+                    t("makeContribution")
+                  )}
+                </Button>
+              )}
             </div>
           )}
 

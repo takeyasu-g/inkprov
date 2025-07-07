@@ -24,3 +24,4 @@ export {
   TooltipProvider,
   TooltipTrigger,
 } from "./tooltip";
+export { CircularProgress } from "./progress";

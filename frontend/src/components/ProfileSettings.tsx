@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
-import { updateProfile } from "@/services/api";
+import { updateMyProfile } from "@/services/api";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Form,
@@ -43,6 +43,7 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
   // Setting states
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [bioCharCount, setBioCharCount] = useState<number>(0);
+  const [initialData, setInitialData] = useState<Record<string, string>>({});
 
   // Form Validation
   const form = useForm<z.infer<typeof settingsSchema>>({
@@ -68,6 +69,11 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
         username: username,
         bio: bioText,
       });
+
+      setInitialData({
+        username: username,
+        bio: bioText,
+      });
     }
   }, [profile, form]);
 
@@ -83,57 +89,30 @@ const ProfileSettings: React.FC<EditingToggleProps> = ({
     try {
       setIsLoading(true);
 
-      // Only include fields that have been modified
-      const updateData: { username?: string; bio?: string } = {};
-
-      // Check if any of the fields have data
-      // if (values.username.length > 0 || values.bio.length > 0) {
-      //   const moderationResponse = await axios.post(
-      //     `${API_BASE_URL}moderation`,
-      //     {
-      //       content: values.username + " " + values.bio,
-      //     }
-      //   );
-
-      //   // If content is flagged, display reason
-      //   if (moderationResponse.data.flagged) {
-      //     toast.error(
-      //       `${t("moderation.flagged")} ${moderationResponse.data.reason}`
-      //     );
-      //     setIsLoading(false);
-      //     return;
-      //   }
-      // }
-      // Update username and bio
-      if (values.username.length > 0) {
-        updateData.username = values.username;
-      }
-      if (values.bio.length > 0 || values.bio === "") {
-        updateData.bio = values.bio;
-      }
-
-      // Call the API to update the profile
-      const { profile: updatedProfile } = await updateProfile(
-        user.id,
-        updateData
+      // Only include fields that have changed
+      const changedData = Object.fromEntries(
+        Object.entries(values).filter(([key, value]) => value !== initialData[key])
       );
+      if (Object.keys(changedData).length > 0) {
+        const { profile: updatedProfile } = await updateMyProfile(changedData);
+        if (updatedProfile.user_profile_name) {
+          sessionStorage.setItem("username", updatedProfile.user_profile_name);
+          setUsername(updatedProfile.user_profile_name);
+        }
+        if (updatedProfile.user_profile_bio !== undefined) {
+          setBio(updatedProfile.user_profile_bio);
+        }
+        setInitialData(values);
+        toast.success(t("toasts.saveChangesSuccess"));
+      }
 
-      // Update local state with the response from the API
-      if (updatedProfile.user_profile_name) {
-        sessionStorage.setItem("username", updatedProfile.user_profile_name);
-        setUsername(updatedProfile.user_profile_name);
-      }
-      if (updatedProfile.user_profile_bio !== undefined) {
-        setBio(updatedProfile.user_profile_bio);
-      }
+      // Always close the editing form, regardless of whether changes were made
+      setIsEditing(false);
 
       // Trigger parent refresh
       if (onProfileUpdate) {
         await onProfileUpdate();
       }
-
-      toast.success(t("toasts.saveChangesSuccess"));
-      setIsEditing(false);
     } catch (error: any) {
       toast.error(error.message || t("errors.updateFailed"));
     } finally {

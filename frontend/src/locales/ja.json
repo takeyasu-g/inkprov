@@ -325,33 +325,30 @@
   },
   "writingSession": {
     "header": {
-      "subtitle1": "各貢献：50〜100語。",
-      "subtitle2": "推定総ストーリー長：",
-      "note": "注意：ストーリーは最大12の貢献に制限されています。",
-      "userCurrentlyWriting": "現在誰かが貢献を書いています。"
+      "subtitle1": "各寄稿者は1回につき50〜100語を追加します。",
+      "subtitle2": "物語の合計の長さは約",
+      "note": "注：連続して投稿することはできません。あなたの投稿の間に他の人に物語を追加させてください。",
+      "userCurrentlyWriting": "誰かが現在書いています..."
     },
     "content": {
-      "title": "ここまでのストーリー：",
-      "contribution": "貢献",
+      "title": "これまでのストーリー",
+      "contribution": "投稿",
       "form": {
-        "contributors": "貢献者",
+        "contributors": "寄稿者",
         "textarea": {
-          "placeholder": "あなたの貢献を追加してください（50〜100語）。",
+          "placeholder": "物語を続ける（50〜100語）",
           "timeRemaining": "残り"
         },
-        "submitContribution": "貢献を提出",
-        "submitLoading": "提出中",
-        "deleteProject": "プロジェクト削除",
-        "deleteProjectConfirm": "このプロジェクトを削除してもよろしいですか？この操作は元に戻せません。",
-        "contributionAddSuccess": "貢献が正常に追加されました！",
-        "submitError": "貢献の提出中にエラーが発生しました。もう一度お試しください。",
-        "deleteProjectSuccess": "プロジェクトが正常に削除されました。"
+        "submitContribution": "投稿を送信",
+        "submitLoading": "送信中...",
+        "deleteProject": "プロジェクトを削除"
       },
-      "writersBlock": "ライターズブロック？",
-      "writingIdeas": "執筆アイデア",
-      "noWritingIdeas": "利用可能な執筆アイデアはありません。",
-      "projectCompleted": "プロジェクト完了",
-      "userWaiting": "現在誰かが書いています"
+      "writersBlock": "アイデアが必要ですか？",
+      "writingIdeas": "執筆のアイデア：",
+      "noWritingIdeas": "アイデアを読み込み中...",
+      "projectCompleted": "このストーリーは完成しました",
+      "loginToContribute": "投稿するにはログインが必要です",
+      "loginToContributeTooltip": "このセッションに投稿するにはアカウントを作成するかログインしてください"
     }
   },
   "about": {

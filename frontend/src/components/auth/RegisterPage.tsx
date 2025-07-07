@@ -46,7 +46,7 @@ export default function RegisterPage() {
         email: values.email,
         password: values.password,
         options: {
-          emailRedirectTo: `${window.location.origin}/sessions`,
+          emailRedirectTo: `${window.location.origin}/`,
           data: {
             username: values.email.substring(0, values.email.indexOf("@")),
             full_name: values.email.substring(0, values.email.indexOf("@")),
@@ -62,7 +62,7 @@ export default function RegisterPage() {
 
       // Redirect to sessions page after successful registration
       setTimeout(() => {
-        navigate("/sessions");
+        navigate("/");
       }, 2000);
     } catch (error: any) {
       setIsLoading(false);
@@ -170,7 +170,7 @@ export default function RegisterPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="block text-sm font-medium text-primary-text text-left">
-                         {t("auth.form.email")}
+                          {t("auth.form.email")}
                         </FormLabel>
                         <FormControl>
                           <Input
@@ -211,7 +211,9 @@ export default function RegisterPage() {
                           </div>
                         </FormControl>
                         <FormDescription className="text-xs text-secondary-text text-left">
-                          {t("auth.register.rightSection.form.passwordRequirments")}
+                          {t(
+                            "auth.register.rightSection.form.passwordRequirments"
+                          )}
                         </FormDescription>
                         <FormMessage className="text-left">
                           {form.formState.errors.password?.message}
@@ -258,8 +260,8 @@ export default function RegisterPage() {
                 >
                   {isLoading ? (
                     <>
-                      <Loader2 className="animate-spin" /> {
-                        t("auth.register.rightSection.form.registerLoading")}
+                      <Loader2 className="animate-spin" />{" "}
+                      {t("auth.register.rightSection.form.registerLoading")}
                     </>
                   ) : (
                     t("auth.register.rightSection.form.register")
@@ -272,7 +274,7 @@ export default function RegisterPage() {
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="px-2 my-2 bg-background text-secondary-text">
-                  {t("auth.continueWith.subtitle")}
+                    {t("auth.continueWith.subtitle")}
                   </span>
                 </div>
               </div>

@@ -325,33 +325,30 @@
   },
   "writingSession": {
     "header": {
-      "subtitle1": "Each contribution: 50-100 words.",
-      "subtitle2": "Estimated total story length:",
-      "note": "Note: Stories are limited to a maximum of 12 contributions.",
-      "userCurrentlyWriting": "Someone is currently writing a contribution."
+      "subtitle1": "Each contributor adds 50-100 words per snippet.",
+      "subtitle2": "Total story length will be approximately",
+      "note": "Note: You can't contribute twice in a row. Let others add to the story between your contributions.",
+      "userCurrentlyWriting": "Someone is currently writing..."
     },
     "content": {
-      "title": "Story So Far:",
+      "title": "Story So Far",
       "contribution": "Contribution",
       "form": {
         "contributors": "Contributors",
         "textarea": {
-          "placeholder": "Add your contribution(50-100 words).",
+          "placeholder": "Continue the story (50-100 words)",
           "timeRemaining": "remaining"
         },
         "submitContribution": "Submit Contribution",
-        "submitLoading": "Submitting",
-        "deleteProject": "Delete Project",
-        "deleteProjectConfirm": "Are you sure you want to delete this project? This action cannot be undone.",
-        "contributionAddSuccess": "Contribution added successfully!",
-        "submitError": "Error submitting contribution. Please try again.",
-        "deleteProjectSuccess": "Successfully deleted project."
+        "submitLoading": "Submitting...",
+        "deleteProject": "Delete Project"
       },
-      "writersBlock": "Writer's Block?",
-      "writingIdeas": "Writing Ideas",
-      "noWritingIdeas": "No writing ideas available.",
-      "projectCompleted": "Project Completed",
-      "userWaiting": "Someone is currently writing"
+      "writersBlock": "Need ideas?",
+      "writingIdeas": "Writing Ideas:",
+      "noWritingIdeas": "Loading ideas...",
+      "projectCompleted": "This story is completed",
+      "loginToContribute": "You need to login to contribute",
+      "loginToContributeTooltip": "Create an account or login to contribute to this session"
     }
   },
   "about": {
