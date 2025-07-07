@@ -8,6 +8,7 @@ import {
   LogOut,
   PanelRightOpen,
   Globe,
+  ReceiptText,
   // GitBranchPlus,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
@@ -146,13 +147,26 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
         <>
           <NavigationMenu className="hidden md:grid md:place-self-center">
             <NavigationMenuList className="gap-8">
+              <NavigationMenuItem className="group/home">
+                <NavigationMenuLink
+                  onClick={() => navigate("/home")}
+                  className="hover:bg-transparent cursor-pointer "
+                >
+                  <div className="flex gap-1 items-center cursor-pointer ">
+                    <House className="text-primary-text group-hover/home:text-hover-text" />
+                    <p className="text-base text-primary-text group-hover/home:text-hover-text">
+                      Home
+                    </p>
+                  </div>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
               <NavigationMenuItem className="group/sessions">
                 <NavigationMenuLink
                   onClick={() => navigate("/sessions")}
                   className="hover:bg-transparent cursor-pointer "
                 >
                   <div className="flex gap-1 items-center cursor-pointer ">
-                    <House className="text-primary-text group-hover/sessions:text-hover-text" />
+                    <ReceiptText className="text-primary-text group-hover/sessions:text-hover-text" />
                     <p className="text-base text-primary-text group-hover/sessions:text-hover-text">
                       {t("header.navbar.sessions")}
                     </p>
@@ -319,13 +333,24 @@ const Header: React.FC<HeaderProps> = function Header({ loggedIn, page }) {
                     </Link>
                   </SheetClose>
 
+                  {/* Home Link */}
+                  <SheetClose asChild>
+                    <Link
+                      to="/home"
+                      className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover"
+                    >
+                      <House />
+                      <p>Home</p>
+                    </Link>
+                  </SheetClose>
+
                   {/* Sessions Link */}
                   <SheetClose asChild>
                     <Link
                       to="/sessions"
                       className="w-full flex gap-2 p-2 text-primary-text cursor-pointer hover:bg-menu-hover"
                     >
-                      <House />
+                      <ReceiptText />
                       <p>{t("header.navbar.sessions")}</p>
                     </Link>
                   </SheetClose>

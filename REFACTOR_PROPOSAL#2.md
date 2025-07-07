@@ -26,7 +26,7 @@
 
 - Redesign session cards for Home & Sessions page:
   - Add progress bar (Intro, Body, Conclusion, % complete).
-  - Add tags (“Fresh/New,” “Needs Ending,” “Hot”).
+  - Add tags ("Fresh/New," "Needs Ending," "Hot").
   - Add lock indicators (who locked it/someone is writing...).
   - Clear call-to-action if user can contribute.
 - Refactor lock system of sessions:
@@ -49,13 +49,31 @@
 
 ---
 
-### Action Items Checklist
+### Conclusion & Implementation Status
 
-- [ ] Build new Home page with personalized session/activity feed.
-- [ ] Redesign session cards with progress bars, tags, and lock indicators.
-- [ ] Implement improved lock system rules and presence indicators.
-- [ ] Enable guest read access and sharing features.
-- [ ] Add private session invite-by-link functionality.
+#### Completed Work
+
+**1. Personalized Home Page**
+
+- **What:** A new, dynamic Home Page was created to replace the previous generic session list. It now serves as a personalized dashboard for users, featuring several new sections to drive engagement.
+- **Completed Sections:**
+  - **"Ready to Write":** Displays sessions the user has contributed to and can write in next.
+  - **"Active Stories":** Showcases popular and recently completed stories from the community.
+  - **"Fresh Sessions":** Highlights new sessions available for the user to join.
+- **Backend Support:** New optimized backend endpoints were created in the `backend-v2` service to efficiently fetch the data required for these new sections, ensuring performance and scalability.
+- **Frontend Implementation:** The `HomePage.tsx` component was built with dedicated sub-components for each new section, complete with data fetching, loading, and error states. The layout is fully responsive, following a mobile-first design.
+
+**2. Enhanced Session & Project Cards**
+
+- **What:** The `SessionCard` and `ProjectCard` components were significantly redesigned to provide richer, at-a-glance information.
+- **Key Enhancements:**
+  - **`SessionCard`:** Now includes a progress bar for story phase, status badges ("New," "Hot"), and indicators for contributor status and locks.
+  - **`ProjectCard`:** Updated to show reaction counts, shifting focus to community engagement.
+
+#### Scope & Future Work
+
+- **Enhanced Lock System:** The full real-time lock system to prevent consecutive contributions and manage drafts via `localStorage` was not implemented.
+- **Guest Access & Sharing:** Features to allow non-logged-in users to read stories and share content via links were not developed.
 
 ---
 
